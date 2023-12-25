@@ -1,6 +1,6 @@
 from mbr.generation.configuration_utils import MBRConfig
 from mbr.generation.utils import MBROutput, MBRGenerationMixin
-from mbr.generation_pruned.configuration_utils import PrunedMBRGenerationConfig
+from mbr.generation_pruned.configuration_utils import PrunedMBRConfig
 from mbr.generation_pruned.utils import PrunedMBRGenerationMixin
 from mbr.metrics.base import MetricOutput, MetricRunner
 from mbr.modeling import MBR
