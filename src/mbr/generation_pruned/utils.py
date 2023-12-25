@@ -1,8 +1,7 @@
 import copy
 import inspect
 import warnings
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable, List, Optional, Union, Tuple
+from typing import TYPE_CHECKING, Callable, List, Optional, Union
 
 import torch
 import torch.distributed as dist
@@ -14,8 +13,8 @@ from transformers.generation.utils import GenerationMode
 from transformers.integrations.deepspeed import is_deepspeed_zero3_enabled
 from transformers.utils import logging, ModelOutput
 
-from mbr.generation.configuration_utils import MBRGenerationConfig
-from mbr.metrics.base import MetricRunner, MetricOutput
+from mbr import MBROutput, PrunedMBRGenerationConfig
+from mbr.metrics.base import MetricRunner
 
 if TYPE_CHECKING:
     from transformers import PreTrainedModel, PreTrainedTokenizer
@@ -24,37 +23,15 @@ if TYPE_CHECKING:
 logger = logging.get_logger(__name__)
 
 
-@dataclass
-class MBROutput(ModelOutput):
+class PrunedMBRGenerationMixin(GenerationMixin):
     """
-    Base class for outputs of generation models when using MBR decoding.
+    Implements MBR decoding with confidence-based pruning as described in:
 
-    Args:
-        sequences (`torch.LongTensor` of shape `(batch_size, sequence_length)`):
-            The generated sequences. The second dimension (sequence_length) is either equal to `max_length` or shorter
-            if all batches finished early due to the `eos_token_id`.
-        all_samples (`tuple(ModelOutput)`), *optional*, returned when `output_all_samples=True` is passed or when
-        `config.output_all_samples=True`):
-            The model outputs for all sampled sequences (scores, hidden states, attentions etc.). The tuple contains
-            `num_samples` output instances, each of which contains one sample per batch item.
-        selected_samples_indices (`torch.LongTensor` of shape `(batch_size,)`), *optional*, returned when
-        `output_all_samples=True` is passed or when `config.output_all_samples=True`):
-            The indices (in `all_samples`) of the selected sequences for each batch item.
-        references (`tuple(ModelOutput)`), *optional*, returned when `output_all_samples=True` is passed or when
-        `config.output_all_samples=True`):
-        metric_scores (`MetricOutput`), *optional*, returned when `output_metric_scores=True` is passed or when
-        `config.output_metric_scores=True`):
-            The output of the metric.
+    Julius Cheng and Andreas Vlachos. 2023. Faster Minimum Bayes Risk Decoding with Confidence-based Pruning. In
+    Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, pages 12473–12480,
+    Singapore. Association for Computational Linguistics.
+    https://aclanthology.org/2023.emnlp-main.767/
     """
-
-    sequences: torch.LongTensor = None
-    all_samples: Optional[Tuple[ModelOutput]] = None
-    selected_samples_indices: Optional[torch.LongTensor] = None
-    references: Optional[Tuple[ModelOutput]] = None
-    metric_scores: Optional[MetricOutput] = None
-
-
-class MBRGenerationMixin(GenerationMixin):
 
     @torch.no_grad()
     def generate(
@@ -62,7 +39,7 @@ class MBRGenerationMixin(GenerationMixin):
             inputs: Optional[torch.Tensor] = None,
             generation_config: Optional[GenerationConfig] = None,
             references_config: Optional[GenerationConfig] = None,
-            mbr_config: Optional[MBRGenerationConfig] = None,
+            mbr_config: Optional[PrunedMBRGenerationConfig] = None,
             tokenizer: Optional["PreTrainedTokenizer"] = None,
             metric_runner: Optional[MetricRunner] = None,
             logits_processor: Optional[LogitsProcessorList] = None,
@@ -107,11 +84,11 @@ class MBRGenerationMixin(GenerationMixin):
             references_config (`GenerationConfig`, *optional*):
                 The generation configuration to be used for the generation of pseudo-references.
                 If `None`, `generation_config` will be used.
-            mbr_config (`~mbr.generation.MBRGenerationConfig`, *optional*):
+            mbr_config (`~mbr.generation.PrunedMBRGenerationConfig`, *optional*):
                 The generation configuration to be used as base parametrization for MBR decoding. If `None`, the
                 default will be used, which had the following loading priority: 1) from the `mbr_config.json` model
                 file, if it exists; 2) from the model configuration. Please note that unspecified parameters will
-                inherit [`~mbr.generation.MBRGenerationConfig`]'s default values.
+                inherit [`~mbr.generation.PrunedMBRGenerationConfig`]'s default values.
             tokenizer (`PreTrainedTokenizer`, *optional*):
                 A tokenizer that can be used to convert the generated token ids to strings, which is usually
                 required for computing the metric.
@@ -182,8 +159,8 @@ class MBRGenerationMixin(GenerationMixin):
             raise ValueError(
                 f"`references_config` has to be of type `GenerationConfig`, but is {type(references_config)}"
             )
-        if mbr_config is not None and not isinstance(mbr_config, MBRGenerationConfig):
-            raise ValueError(f"`mbr_config` has to be of type `MBRGenerationConfig`, but is {type(mbr_config)}")
+        if mbr_config is not None and not isinstance(mbr_config, PrunedMBRGenerationConfig):
+            raise ValueError(f"`mbr_config` has to be of type `PrunedMBRGenerationConfig`, but is {type(mbr_config)}")
         if mbr_config is None:
             raise ValueError("`mbr_config` must be passed to `generate()`.")
         if tokenizer is None and metric_runner is None:
