@@ -1,4 +1,4 @@
-from mbr.generation.configuration_utils import MBRGenerationConfig
+from mbr.generation.configuration_utils import MBRConfig
 from mbr.generation.utils import MBROutput, MBRGenerationMixin
 from mbr.generation_pruned.configuration_utils import PrunedMBRGenerationConfig
 from mbr.generation_pruned.utils import PrunedMBRGenerationMixin
