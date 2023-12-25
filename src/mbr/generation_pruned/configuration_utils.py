@@ -21,16 +21,24 @@ class PrunedMBRGenerationConfig(MBRGenerationConfig):
     You do not need to call the above method directly; call '.generate()' instead.
 
     Arg:
+        > Parameters that control confidence-based pruning
+
         pruning_alpha (`float`, *optional*, defaults to 0.99):
             Confidence threshold for pruning. The lower the value, the more aggressively hypotheses are pruned.
             Needs to be in [0, 1].
-        min_num_references (`int`, *optional*, defaults to min(16, `num_references`)):
-            Number of pseudo-references used at the first pruning step. Usually smaller than `num_references`.
+        initial_num_references (`int`, *optional*, defaults to min(16, `num_references`)):
+            Number of pseudo-references used at the first pruning step. Usually smaller than `num_references`; if equal,
+            no pruning is done. Subsequent pruning steps use twice as many references as the previous step until
+            `num_references` is reached.
+        num_bootstrap_resamples (`int`, *optional*, defaults to 500):
+            Number of bootstrap resamples used to estimate the confidence of the metric scores during pruning.
+
+        > Parameters for minimum Bayes risk decoding in general (inherited from `MBRGenerationConfig`)
+
         num_samples (`int`, *optional*, defaults to 10):
             Number of samples generated. 1 means no MBR decoding.
         num_references (`int`, *optional*, defaults to `num_samples`):
-            Number of pseudo-references used at the last pruning step. Should be a power of 2 times `min_num_references`.
-            Needs to be smaller or equal to `num_samples`.
+            Number of pseudo-references used for MBR decoding.
         metric (`str` or `~evaluate.Metric`, *optional*, defaults to 'chrf'):
             Metric used for MBR decoding.
         metric_config_name (`str`, *optional*, defaults to None):
@@ -66,6 +74,11 @@ class PrunedMBRGenerationConfig(MBRGenerationConfig):
     """
 
     def __init__(self, **kwargs):
+        # Parameters that control confidence-based pruning
+        self.pruning_alpha = kwargs.pop("pruning_alpha", 0.99)
+        self.initial_num_references = kwargs.pop("initial_num_references", min(16, self.num_references))
+        self.num_bootstrap_resamples = kwargs.pop("num_bootstrap_resamples", 500)
+
         # Parameters that control the generation strategy used
         self.num_samples = kwargs.pop("num_samples", 10)
         self.num_references = kwargs.pop("num_references", self.num_samples)
@@ -107,9 +120,11 @@ class PrunedMBRGenerationConfig(MBRGenerationConfig):
         self.validate(is_init=True)
 
     def validate(self, is_init=False):
-        if self.num_references > self.num_samples:
+        super().validate(is_init=is_init)
+        if self.initial_num_references > self.num_references:
             raise ValueError(
-                f"`num_references` ({self.num_references}) must be <= `num_samples` ({self.num_samples})."
+                f"`initial_num_references` ({self.initial_num_references}) must be smaller than or equal to "
+                f"`num_references` ({self.num_references})."
             )
 
     def save_pretrained(
