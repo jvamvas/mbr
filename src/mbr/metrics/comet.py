@@ -55,7 +55,7 @@ class CometMetricRunner(MetricRunner):
         if inputs is None:
             raise NotImplementedError("CometMetricRunner requires source sequences (`inputs`) to be provided")
         batch_size = len(samples[0])
-        metric_scores = torch.zeros((batch_size, self.mbr_config.num_samples, self.mbr_config.num_references))
+        metric_scores = torch.zeros((batch_size, len(samples), len(references)))
         for i in tqdm(list(range(batch_size)), desc="comet", disable=not self.progress_bar):
             # Embed all sequences
             all_samples = [sample[i] for sample in samples]
@@ -75,8 +75,8 @@ class CometMetricRunner(MetricRunner):
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
-            for j in range(self.mbr_config.num_samples):
-                for k in range(self.mbr_config.num_references):
+            for j in range(len(samples)):
+                for k in range(len(references)):
                     input_triples.add((inputs[i], samples[j][i], references[k][i]))
             input_triple_scores = {}
 
@@ -104,8 +104,8 @@ class CometMetricRunner(MetricRunner):
                     input_triple_scores[triple] = score
                     self.cache[triple] = score
 
-            for j in range(self.mbr_config.num_samples):
-                for k in range(self.mbr_config.num_references):
+            for j in range(len(samples)):
+                for k in range(len(references)):
                     metric_scores[i, j, k] = input_triple_scores[(inputs[i], samples[j][i], references[k][i])]
 
         return metric_scores
