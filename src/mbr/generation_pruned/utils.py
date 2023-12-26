@@ -465,23 +465,31 @@ class PrunedMBRGenerationMixin(GenerationMixin):
             reference_ids = references
 
         # 16. Iterative pruning
-        sample_ids_with_pruning = list(sample_ids)
+        sample_ids_with_pruning = list(sample_ids)  # We will prune samples by overwriting the IDs with padding
         for t, num_references in enumerate(mbr_config.schedule):
             reference_ids_for_t = reference_ids[:num_references]
+
+            # 16a. Compute metric
+            # Since the metric_runner uses caching internally, calling it again for every t is unproblematic.
             metric_output = metric_runner(input_ids, sample_ids_with_pruning, reference_ids_for_t)
 
-            # 16a. Identify the best sample
+            # 16b. Identify the best sample
             if not mbr_config.lower_is_better:
                 top_metric_scores, top_metric_indices = metric_output.scores.max(dim=-1)
             else:
                 top_metric_scores, top_metric_indices = metric_output.scores.min(dim=-1)
             top_metric_index = top_metric_indices[0]  # winner under R_t
 
-            # 16b. Bootstrap resampling
+            # 16c. Bootstrap resampling to identify pruning candidates
             is_better_counts = torch.zeros((batch_size, len(samples)), dtype=torch.float)
             reference_indices = torch.arange(len(references))
             for j in range(mbr_config.num_bootstrap_resamples):
-                bootstrap_reference_indices = torch.multinomial(reference_indices, len(references), replacement=True)
+                bootstrap_reference_indices = reference_indices[torch.randint(
+                    low=0, high=len(references), size=(num_references,), dtype=torch.long
+                )]
+                if metric_output.scores_per_reference is None:
+                    raise ValueError("Metric cannot be used with pruning because it does not return individual scores "
+                                     "per reference (metric_output.scores_per_reference is None).")
                 bootstrap_scores = metric_output.scores_per_reference[:, :, bootstrap_reference_indices].mean(dim=-1)
                 if not mbr_config.lower_is_better:
                     is_better = bootstrap_scores >= bootstrap_scores[:, top_metric_index].unsqueeze(dim=-1)
@@ -490,10 +498,10 @@ class PrunedMBRGenerationMixin(GenerationMixin):
                 is_better_counts += is_better
             winning_rate = is_better_counts / mbr_config.num_bootstrap_resamples
 
-            # 16c. Prune samples
+            # 16d. Prune samples
             do_prune = winning_rate < 1 - mbr_config.pruning_alpha
             for batch_idx, sample_id in do_prune.nonzero(as_tuple=False):
-                # To preserve batch structure, do not delete but replace with padding
+                # To preserve batch structure, do not delete sample but replace with padding
                 sample_ids_with_pruning[sample_id][batch_idx] = generation_config.pad_token_id
 
         # Copy top samples into a tensor of shape (batch_size, max_length)
