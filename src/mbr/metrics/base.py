@@ -1,9 +1,9 @@
-import functools
 from dataclasses import dataclass
 from typing import Tuple, Union, List, Optional
 
 import evaluate
 import torch
+from cachetools.func import fifo_cache
 from datasets import Metric
 from evaluate import EvaluationModule
 from transformers import PreTrainedTokenizerBase
@@ -46,8 +46,7 @@ class MetricRunner:
         self.tokenizer = tokenizer
         self.metric = self._load_metric()
         self.metric_is_source_based = metric_is_source_based(self.metric)
-        cache_size = self.mbr_config.metric_cache_size
-        self._compute_metric_cached = functools.lru_cache(maxsize=cache_size)(self._compute_metric)
+        self._compute_metric_cached = fifo_cache(maxsize=self.mbr_config.metric_cache_size)(self._compute_metric)
 
     def _load_metric(self) -> MetricType:
         metric = self.mbr_config.metric
