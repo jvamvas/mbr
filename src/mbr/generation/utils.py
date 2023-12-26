@@ -504,7 +504,7 @@ class MBRGenerationMixin(GenerationMixin):
 
             # Create a copy of the sample IDs, which we can modify. We will prune samples by replacing them with
             # padding tokens.
-            sample_ids_with_pruning = list(sample_ids)
+            sample_ids_with_pruning = copy.deepcopy(list(sample_ids))
             for t, num_references in enumerate(mbr_config.pruning_schedule):
                 reference_ids_for_t = reference_ids[:num_references]
 
