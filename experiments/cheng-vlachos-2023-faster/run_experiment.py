@@ -50,8 +50,8 @@ generation_config.early_stopping = False
 generation_config.epsilon_cutoff = 0.02
 
 base_mbr_config = MBRConfig(
-    num_samples=256,
-    num_references=256,
+    num_samples=25,  # TODO reset
+    num_references=25,
 )
 mbr_configs = {}
 
