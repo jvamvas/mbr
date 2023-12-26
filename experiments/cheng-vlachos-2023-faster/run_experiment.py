@@ -14,8 +14,6 @@ from transformers import M2M100ForConditionalGeneration, AutoTokenizer, pipeline
 from mbr import MBR, MBRConfig
 from mbr.metrics.comet import CometMetricRunner
 
-set_seed(42)
-
 language_pair = sys.argv[1]
 batch_size = 16
 
@@ -117,6 +115,7 @@ for method, mbr_config in mbr_configs.items():
     else:
         metric_runner = None
 
+    set_seed(42)
     time_start = time.time()
     outputs = mt_pipeline(
         dataset["test"]["text"],
@@ -161,6 +160,7 @@ mt_pipeline.model = model
 generation_config = GenerationConfig.from_pretrained(model_name)
 generation_config.num_beams = 4
 
+set_seed(42)
 time_start = time.time()
 outputs = mt_pipeline(
     dataset["test"]["text"],
