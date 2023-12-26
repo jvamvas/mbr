@@ -482,10 +482,9 @@ class PrunedMBRGenerationMixin(GenerationMixin):
 
             # 16c. Bootstrap resampling to identify pruning candidates
             is_better_counts = torch.zeros((batch_size, len(samples)), dtype=torch.float)
-            reference_indices = torch.arange(len(references))
             for j in range(mbr_config.num_bootstrap_resamples):
-                bootstrap_reference_indices = reference_indices[torch.randint(
-                    low=0, high=len(references), size=(num_references,), dtype=torch.long
+                bootstrap_reference_indices = torch.arange(len(reference_ids_for_t))[torch.randint(
+                    low=0, high=len(reference_ids_for_t), size=(num_references,), dtype=torch.long
                 )]
                 if metric_output.scores_per_reference is None:
                     raise ValueError("Metric cannot be used with pruning because it does not return individual scores "

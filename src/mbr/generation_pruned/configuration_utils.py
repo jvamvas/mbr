@@ -46,6 +46,11 @@ class PrunedMBRConfig(MBRConfig):
 
     def validate(self, is_init=False):
         super().validate(is_init=is_init)
+
+        if self.output_metric_scores and len(self.schedule) > 1:
+            raise NotImplementedError("Pruning does not support output_metric_scores=True, since not all metric scores "
+                                      "are calculated.")
+
         if not is_init:
             if self.initial_num_references > self.num_references:
                 raise ValueError(
