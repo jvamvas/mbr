@@ -36,7 +36,7 @@ ref_path = sacrebleu.get_reference_files("wmt18", language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
 
 # debug
-dataset = dataset.select(range(100))
+dataset["test"] = dataset["test"].select(range(100))
 
 references = Path(ref_path).read_text().splitlines()
 assert len(dataset["test"]) == len(references)
