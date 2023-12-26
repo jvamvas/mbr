@@ -38,8 +38,10 @@ class PrunedMBRConfig(MBRConfig):
     @property
     def schedule(self) -> List[int]:
         schedule = [self.initial_num_references]
-        while schedule[-1] < self.num_references:
-            schedule.append(min(2 * schedule[-1], self.num_references))
+        while 2 * schedule[-1] <= self.num_references:
+            schedule.append(2 * schedule[-1])
+        if schedule[-1] != self.num_references:
+            schedule.append(self.num_references)
         return schedule
 
     def validate(self, is_init=False):
