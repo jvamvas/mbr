@@ -17,6 +17,7 @@ from mbr.metrics.comet import CometMetricRunner
 set_seed(42)
 
 language_pair = sys.argv[1]
+batch_size = 16
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w")
 
@@ -37,7 +38,7 @@ ref_path = sacrebleu.get_reference_files("wmt18", language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
 references = Path(ref_path).read_text().splitlines()
 
-# debug
+# debug  # TODO Remove
 dataset["test"] = dataset["test"].select(range(32))
 references = references[:32]
 
@@ -54,6 +55,7 @@ base_mbr_config = MBRConfig(
     num_samples=25,  # TODO reset
     num_references=25,
 )
+base_mbr_config.metric_cache_size = batch_size * base_mbr_config.num_samples * base_mbr_config.num_references
 mbr_configs = {}
 
 # MBR without pruning (metric: ChrF++)
@@ -122,7 +124,7 @@ for method, mbr_config in mbr_configs.items():
         generation_config=generation_config,
         tokenizer=tokenizer,
         metric_runner=metric_runner,
-        batch_size=16,
+        batch_size=batch_size,
         progress_bar=True
     )
     translations = []
@@ -163,7 +165,7 @@ time_start = time.time()
 outputs = mt_pipeline(
     dataset["test"]["text"],
     generation_config=generation_config,
-    batch_size=16,
+    batch_size=batch_size,
 )
 translations = []
 for batch in tqdm(outputs):
