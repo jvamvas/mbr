@@ -29,7 +29,7 @@ mt_pipeline = pipeline(
     device=(0 if torch.cuda.is_available() else -1),
 )
 evaluation_metric_chrf = evaluate.load("chrf")
-evaluation_metric_comet = evaluate.load("comet", "wmt22-comet-da")
+evaluation_metric_comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
 src_path = sacrebleu.get_source_file("wmt18", language_pair)
 ref_path = sacrebleu.get_reference_files("wmt18", language_pair)[0]
@@ -64,7 +64,7 @@ mbr_configs["MBR without pruning (metric: ChrF++)"] = mbr_config
 # MBR without pruning (metric: COMET)
 mbr_config = deepcopy(base_mbr_config)
 mbr_config.metric = "comet"
-mbr_config.metric_config_name = "wmt22-comet-da"
+mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
 mbr_config.metric_output_field = "mean_score"
 mbr_configs["MBR without pruning (metric: COMET)"] = mbr_config
 
@@ -84,7 +84,7 @@ mbr_config.pruning = "confidence"
 mbr_config.pruning_alpha = 0.99
 mbr_config.initial_num_references = 8
 mbr_config.metric = "comet"
-mbr_config.metric_config_name = "wmt22-comet-da"
+mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
 mbr_config.metric_output_field = "mean_score"
 mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
 
