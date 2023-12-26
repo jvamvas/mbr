@@ -14,7 +14,7 @@ from transformers.generation.utils import GenerationMode
 from transformers.integrations.deepspeed import is_deepspeed_zero3_enabled
 from transformers.utils import logging, ModelOutput
 
-from mbr.generation.configuration_utils import MBRConfig
+from mbr.generation.configuration_utils import MBRConfig, PruningStrategy
 from mbr.metrics.base import MetricRunner, MetricOutput
 
 if TYPE_CHECKING:
@@ -487,11 +487,61 @@ class MBRGenerationMixin(GenerationMixin):
         else:
             reference_ids = references
 
-        metric_output = metric_runner(input_ids, sample_ids, reference_ids)
-        if not mbr_config.lower_is_better:
-            top_metric_scores, top_metric_indices = metric_output.scores.max(dim=-1)
-        else:
-            top_metric_scores, top_metric_indices = metric_output.scores.min(dim=-1)
+        if mbr_config.pruning is None:
+            # 15a: Compute metric for all sample–reference pairs
+            metric_output = metric_runner(input_ids, sample_ids, reference_ids)
+
+            # 15b: Identify the best sample
+            if not mbr_config.lower_is_better:
+                top_metric_scores, top_metric_indices = metric_output.scores.max(dim=-1)
+            else:
+                top_metric_scores, top_metric_indices = metric_output.scores.min(dim=-1)
+
+        elif mbr_config.pruning == PruningStrategy.CONFIDENCE:
+            # Perform confidence-based pruning as described in: Faster Minimum Bayes Risk Decoding with
+            # Confidence-based Pruning (Cheng & Vlachos, EMNLP 2023) https://aclanthology.org/2023.emnlp-main.767/
+
+            # Create a copy of the sample IDs, which we can modify. We will prune samples by replacing them with
+            # padding tokens.
+            sample_ids_with_pruning = list(sample_ids)
+            for t, num_references in enumerate(mbr_config.pruning_schedule):
+                reference_ids_for_t = reference_ids[:num_references]
+
+                # 16a. Compute metric
+                # Since the metric_runner uses caching internally, calling it again for every t is unproblematic.
+                metric_output = metric_runner(input_ids, sample_ids_with_pruning, reference_ids_for_t)
+
+                # 16b. Identify the best sample
+                if not mbr_config.lower_is_better:
+                    top_metric_scores, top_metric_indices = metric_output.scores.max(dim=-1)
+                else:
+                    top_metric_scores, top_metric_indices = metric_output.scores.min(dim=-1)
+                top_metric_index = top_metric_indices[0]  # winner under R_t
+
+                # 16c. Bootstrap resampling to identify pruning candidates
+                is_better_counts = torch.zeros((batch_size, len(samples)), dtype=torch.float)
+                for j in range(mbr_config.num_bootstrap_resamples):
+                    bootstrap_reference_indices = torch.arange(len(reference_ids_for_t))[torch.randint(
+                        low=0, high=len(reference_ids_for_t), size=(num_references,), dtype=torch.long
+                    )]
+                    if metric_output.scores_per_reference is None:
+                        raise ValueError(
+                            "Metric cannot be used with pruning because it does not return individual scores "
+                            "per reference (metric_output.scores_per_reference is None).")
+                    bootstrap_scores = metric_output.scores_per_reference[:, :, bootstrap_reference_indices].mean(
+                        dim=-1)
+                    if not mbr_config.lower_is_better:
+                        is_better = bootstrap_scores >= bootstrap_scores[:, top_metric_index].unsqueeze(dim=-1)
+                    else:
+                        is_better = bootstrap_scores <= bootstrap_scores[:, top_metric_index].unsqueeze(dim=-1)
+                    is_better_counts += is_better
+                winning_rate = is_better_counts / mbr_config.num_bootstrap_resamples
+
+                # 16d. Prune samples
+                do_prune = winning_rate < 1 - mbr_config.pruning_alpha
+                for batch_idx, sample_id in do_prune.nonzero(as_tuple=False):
+                    # To preserve batch structure, do not delete sample but replace with padding
+                    sample_ids_with_pruning[sample_id][batch_idx] = generation_config.pad_token_id
 
         # Copy top samples into a tensor of shape (batch_size, max_length)
         max_length = max(sample.shape[1] for sample in sample_ids)
