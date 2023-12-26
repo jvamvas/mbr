@@ -40,7 +40,7 @@ class MetricRunner:
         # Ensure that mbr_config.metric_kwargs is hashable (because _compute_metric() uses lru_cache)
         if mbr_config.metric_kwargs:
             try:
-                hash(self.mbr_config.metric_kwargs)
+                hash(tuple(self.mbr_config.metric_kwargs))
             except TypeError as e:
                 raise TypeError(f"mbr_config.metric_kwargs must be hashable.") from e
         self.tokenizer = tokenizer
