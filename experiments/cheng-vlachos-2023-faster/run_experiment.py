@@ -35,11 +35,6 @@ src_path = sacrebleu.get_source_file("wmt18", language_pair)
 ref_path = sacrebleu.get_reference_files("wmt18", language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
 references = Path(ref_path).read_text().splitlines()
-
-# debug  # TODO Remove
-dataset["test"] = dataset["test"].select(range(32))
-references = references[:32]
-
 assert len(dataset["test"]) == len(references)
 
 # MBR
@@ -50,8 +45,8 @@ generation_config.early_stopping = False
 generation_config.epsilon_cutoff = 0.02
 
 base_mbr_config = MBRConfig(
-    num_samples=25,  # TODO reset
-    num_references=25,
+    num_samples=256,
+    num_references=256,
 )
 base_mbr_config.metric_cache_size = batch_size * base_mbr_config.num_samples * base_mbr_config.num_references
 mbr_configs = {}
@@ -63,12 +58,12 @@ mbr_config.metric_output_field = "score"
 mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
 mbr_configs["MBR without pruning (metric: ChrF++)"] = mbr_config
 
-# MBR without pruning (metric: COMET)
-mbr_config = deepcopy(base_mbr_config)
-mbr_config.metric = "comet"
-mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
-mbr_config.metric_output_field = "mean_score"
-mbr_configs["MBR without pruning (metric: COMET)"] = mbr_config
+# # MBR without pruning (metric: COMET)
+# mbr_config = deepcopy(base_mbr_config)
+# mbr_config.metric = "comet"
+# mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
+# mbr_config.metric_output_field = "mean_score"
+# mbr_configs["MBR without pruning (metric: COMET)"] = mbr_config
 
 # Pruning 𝛼=0.99 (metric: ChrF++)
 mbr_config = deepcopy(base_mbr_config)
@@ -80,25 +75,25 @@ mbr_config.metric_output_field = "score"
 mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
 mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"] = mbr_config
 
-# Pruning 𝛼=0.99 (metric: COMET)
-mbr_config = deepcopy(base_mbr_config)
-mbr_config.pruning = "confidence"
-mbr_config.pruning_alpha = 0.99
-mbr_config.initial_num_references = 8
-mbr_config.metric = "comet"
-mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
-mbr_config.metric_output_field = "mean_score"
-mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
+# # Pruning 𝛼=0.99 (metric: COMET)
+# mbr_config = deepcopy(base_mbr_config)
+# mbr_config.pruning = "confidence"
+# mbr_config.pruning_alpha = 0.99
+# mbr_config.initial_num_references = 8
+# mbr_config.metric = "comet"
+# mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
+# mbr_config.metric_output_field = "mean_score"
+# mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
 
 # Pruning 𝛼=0.9 (metric: ChrF++)
 mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"])
 mbr_config.pruning_alpha = 0.9
 mbr_configs["Pruning 𝛼=0.9 (metric: ChrF++)"] = mbr_config
 
-# Pruning 𝛼=0.9 (metric: COMET)
-mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])
-mbr_config.pruning_alpha = 0.9
-mbr_configs["Pruning 𝛼=0.9 (metric: COMET)"] = mbr_config
+# # Pruning 𝛼=0.9 (metric: COMET)
+# mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])
+# mbr_config.pruning_alpha = 0.9
+# mbr_configs["Pruning 𝛼=0.9 (metric: COMET)"] = mbr_config
 
 for method, mbr_config in mbr_configs.items():
 
