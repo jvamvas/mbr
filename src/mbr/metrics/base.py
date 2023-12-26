@@ -1,3 +1,4 @@
+import functools
 from dataclasses import dataclass
 from typing import Tuple, Union, List, Optional
 
