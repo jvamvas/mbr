@@ -34,11 +34,12 @@ evaluation_metric_comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 src_path = sacrebleu.get_source_file("wmt18", language_pair)
 ref_path = sacrebleu.get_reference_files("wmt18", language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
+references = Path(ref_path).read_text().splitlines()
 
 # debug
 dataset["test"] = dataset["test"].select(range(100))
+references = references[:100]
 
-references = Path(ref_path).read_text().splitlines()
 assert len(dataset["test"]) == len(references)
 
 # MBR
