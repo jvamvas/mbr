@@ -107,8 +107,8 @@ for method, mbr_config in mbr_configs.items():
             mbr_config,
             tokenizer,
             device=mt_pipeline.device,
-            batch_size_embed=64,
-            batch_size_estimate=64,
+            batch_size_embed=32,
+            batch_size_estimate=32,
             progress_bar=True,
         )
     else:
