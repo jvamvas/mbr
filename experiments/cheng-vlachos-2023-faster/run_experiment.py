@@ -37,8 +37,8 @@ dataset = load_dataset("text", data_files={"test": src_path})
 references = Path(ref_path).read_text().splitlines()
 
 # debug
-dataset["test"] = dataset["test"].select(range(100))
-references = references[:100]
+dataset["test"] = dataset["test"].select(range(32))
+references = references[:32]
 
 assert len(dataset["test"]) == len(references)
 
