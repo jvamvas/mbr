@@ -1,4 +1,5 @@
 import sys
+import time
 from copy import deepcopy
 from pathlib import Path
 
@@ -114,6 +115,7 @@ for method, mbr_config in mbr_configs.items():
     else:
         metric_runner = None
 
+    time_start = time.time()
     outputs = mt_pipeline(
         dataset["test"]["text"],
         mbr_config=mbr_config,
@@ -128,6 +130,8 @@ for method, mbr_config in mbr_configs.items():
         if isinstance(batch, dict):
             batch = [batch]
         translations += [translation["translation_text"] for translation in batch]
+    time_end = time.time()
+
     chrf_score = evaluation_metric_chrf.compute(
         predictions=translations,
         references=references,
@@ -145,6 +149,7 @@ for method, mbr_config in mbr_configs.items():
         "method": method,
         "chrf++": chrf_score["score"],
         "comet22": comet_score["mean_score"],
+        "duration": time_end - time_start,
         "translations": translations,
     })
 
@@ -154,6 +159,7 @@ mt_pipeline.model = model
 generation_config = GenerationConfig.from_pretrained(model_name)
 generation_config.num_beams = 4
 
+time_start = time.time()
 outputs = mt_pipeline(
     dataset["test"]["text"],
     generation_config=generation_config,
@@ -164,6 +170,8 @@ for batch in tqdm(outputs):
     if isinstance(batch, dict):
         batch = [batch]
     translations += [translation["translation_text"] for translation in batch]
+time_end = time.time()
+
 chrf_score = evaluation_metric_chrf.compute(
     predictions=translations,
     references=references,
@@ -181,6 +189,7 @@ results_file.write({
     "method": f"beam search (beam size {generation_config.num_beams})",
     "chrf++": chrf_score["score"],
     "comet22": comet_score["mean_score"],
+    "duration": time_end - time_start,
     "translations": translations,
 })
 
