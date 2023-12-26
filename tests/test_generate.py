@@ -3,7 +3,7 @@ import unittest
 from unittest import TestCase
 
 import torch
-from transformers import AutoTokenizer, GPT2LMHeadModel, M2M100ForConditionalGeneration, GenerationConfig
+from transformers import AutoTokenizer, GPT2LMHeadModel, M2M100ForConditionalGeneration, GenerationConfig, set_seed
 from transformers.generation import SampleDecoderOnlyOutput, SampleEncoderDecoderOutput
 
 from mbr import MBR, MBRConfig, MBROutput, MetricRunner, MetricOutput
@@ -12,6 +12,7 @@ from mbr import MBR, MBRConfig, MBROutput, MetricRunner, MetricOutput
 class DecoderOnlyTestCase(TestCase):
 
     def setUp(self):
+        set_seed(42)
         self.model = MBR(GPT2LMHeadModel).from_pretrained("distilgpt2").eval()
         self.tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
 
@@ -188,6 +189,7 @@ class DecoderOnlyTestCase(TestCase):
 class EncoderDecoderTestCase(TestCase):
 
     def setUp(self):
+        set_seed(42)
         self.model = MBR(M2M100ForConditionalGeneration).from_pretrained("alirezamsh/small100").eval()
         self.tokenizer = AutoTokenizer.from_pretrained("alirezamsh/small100")
         self.tokenizer.tgt_lang = "fr"
