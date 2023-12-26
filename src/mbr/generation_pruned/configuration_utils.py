@@ -33,7 +33,7 @@ class PrunedMBRConfig(MBRConfig):
         self.pruning_alpha = kwargs.pop("pruning_alpha", 0.99)
         self.initial_num_references = kwargs.pop("initial_num_references", min(16, self.num_references))
         self.num_bootstrap_resamples = kwargs.pop("num_bootstrap_resamples", 500)
-        self.validate(is_init=True)
+        self.validate(is_init=False)
 
     @property
     def schedule(self) -> List[int]:
@@ -46,8 +46,9 @@ class PrunedMBRConfig(MBRConfig):
 
     def validate(self, is_init=False):
         super().validate(is_init=is_init)
-        if self.initial_num_references > self.num_references:
-            raise ValueError(
-                f"`initial_num_references` ({self.initial_num_references}) must be smaller than or equal to "
-                f"`num_references` ({self.num_references})."
-            )
+        if not is_init:
+            if self.initial_num_references > self.num_references:
+                raise ValueError(
+                    f"`initial_num_references` ({self.initial_num_references}) must be smaller than or equal to "
+                    f"`num_references` ({self.num_references})."
+                )
