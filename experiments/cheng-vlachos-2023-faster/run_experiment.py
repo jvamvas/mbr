@@ -17,7 +17,7 @@ set_seed(42)
 
 language_pair = sys.argv[1]
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}3.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w")
 
 model_name = "facebook/m2m100_418M"
 model = MBR(M2M100ForConditionalGeneration).from_pretrained(model_name)
