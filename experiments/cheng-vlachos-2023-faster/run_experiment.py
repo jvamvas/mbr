@@ -107,8 +107,8 @@ for method, mbr_config in mbr_configs.items():
             mbr_config,
             tokenizer,
             device=mt_pipeline.device,
-            batch_size_embed=32,
-            batch_size_estimate=32,
+            batch_size_embed=64,
+            batch_size_estimate=64,
             progress_bar=True,
         )
     else:
@@ -120,7 +120,7 @@ for method, mbr_config in mbr_configs.items():
         generation_config=generation_config,
         tokenizer=tokenizer,
         metric_runner=metric_runner,
-        batch_size=32,
+        batch_size=16,
         progress_bar=True
     )
     translations = []
@@ -157,7 +157,7 @@ generation_config.num_beams = 4
 outputs = mt_pipeline(
     dataset["test"]["text"],
     generation_config=generation_config,
-    batch_size=32,
+    batch_size=16,
 )
 translations = []
 for batch in tqdm(outputs):
