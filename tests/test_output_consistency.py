@@ -3,7 +3,7 @@ from unittest import TestCase
 import torch.testing
 from transformers import GPT2LMHeadModel, AutoTokenizer, set_seed
 
-from mbr import MBR, MBRGenerationConfig, MBROutput
+from mbr import MBR, MBRConfig, MBROutput
 
 
 class OutputConsistencyTestCase(TestCase):
@@ -17,7 +17,7 @@ class OutputConsistencyTestCase(TestCase):
 
     def test_output(self):
         set_seed(42)
-        mbr_config = MBRGenerationConfig(
+        mbr_config = MBRConfig(
             num_samples=5,
             return_dict_in_generate=True,
             output_hidden_states=True,
