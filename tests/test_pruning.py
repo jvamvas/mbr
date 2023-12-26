@@ -2,37 +2,20 @@ from unittest import TestCase
 
 from transformers import GPT2LMHeadModel, AutoTokenizer
 
-from mbr import PrunedMBRConfig
-from mbr.modeling import PrunedMBR
-
-
-class PrunedMBRConfigTestCase(TestCase):
-
-    def test_default_config(self):
-        config = PrunedMBRConfig()
-        self.assertEqual(config.num_samples, 10)
-        self.assertEqual(config.num_references, 10)
-        self.assertEqual(config.pruning_alpha, 0.99)
-
-    def test_schedule(self):
-        config = PrunedMBRConfig(
-            initial_num_references=8,
-            num_references=1024,
-        )
-        self.assertEqual(config.schedule, [8, 16, 32, 64, 128, 256, 512, 1024])
+from mbr import MBR, MBRConfig
 
 
 class PruningTestCase(TestCase):
 
     def setUp(self):
-        self.model = PrunedMBR(GPT2LMHeadModel).from_pretrained("distilgpt2").eval()
+        self.model = MBR(GPT2LMHeadModel).from_pretrained("distilgpt2").eval()
         self.tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
 
     def test_generate(self):
-        mbr_config = PrunedMBRConfig(
+        mbr_config = MBRConfig(
+            pruning="confidence",
             num_samples=8,
             initial_num_references=2,
-            num_references=8,
         )
         input_sentences = [
             "Hello, my name is",
