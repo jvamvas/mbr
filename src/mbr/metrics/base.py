@@ -46,6 +46,8 @@ class MetricRunner:
         self.tokenizer = tokenizer
         self.metric = self._load_metric()
         self.metric_is_source_based = metric_is_source_based(self.metric)
+        cache_size = self.mbr_config.metric_cache_size
+        self._compute_metric_cached = functools.lru_cache(maxsize=cache_size)(self._compute_metric)
 
     def _load_metric(self) -> MetricType:
         metric = self.mbr_config.metric
@@ -117,14 +119,14 @@ class MetricRunner:
                 for k in range(self.mbr_config.num_references):
                     reference = references[k][i]
                     if inputs is not None:
-                        score = self._compute_metric(
+                        score = self.compute_metric(
                             sources=(inputs[i],),
                             predictions=(sample,),
                             references=(reference,),
                             **self.mbr_config.metric_kwargs,
                         )
                     else:
-                        score = self._compute_metric(
+                        score = self.compute_metric(
                             predictions=(sample,),
                             references=(reference,),
                             **self.mbr_config.metric_kwargs,
@@ -132,7 +134,6 @@ class MetricRunner:
                     metric_scores[i, j, k] = score
         return metric_scores
 
-    @functools.lru_cache(maxsize=(1024 ** 2))
     def _compute_metric(self, *args, **kwargs) -> float:
         # Call _compute() instead of compute() for performance reasons.
         # Since we are comparing individual samples, we do not need the overhead of compute().
@@ -146,6 +147,9 @@ class MetricRunner:
         if isinstance(score, list):
             score = score[0]
         return score
+
+    def compute_metric(self, *args, **kwargs) -> float:
+        return self._compute_metric_cached(*args, **kwargs)
 
 
 def metric_is_source_based(metric: MetricType) -> bool:
