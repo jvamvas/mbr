@@ -9,18 +9,18 @@ import sacrebleu
 import torch
 from datasets import load_dataset
 from tqdm import tqdm
-from transformers import M2M100ForConditionalGeneration, AutoTokenizer, pipeline, set_seed, GenerationConfig
+from transformers import FSMTForConditionalGeneration, AutoTokenizer, pipeline, set_seed, GenerationConfig
 
 from mbr import MBR, MBRConfig
 from mbr.metrics.comet import CometMetricRunner
 
-language_pair = sys.argv[1]
+language_pair = "de-en"
 batch_size = 16
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.19.jsonl", "w")
 
-model_name = "facebook/m2m100_418M"
-model = MBR(M2M100ForConditionalGeneration).from_pretrained(model_name)
+model_name = "facebook/wmt19-de-en"
+model = MBR(FSMTForConditionalGeneration).from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 mt_pipeline = pipeline(
     "translation_" + language_pair.split("-")[0] + "_to_" + language_pair.split("-")[1],
@@ -150,7 +150,7 @@ for method, mbr_config in mbr_configs.items():
     })
 
 # Beam search
-model = M2M100ForConditionalGeneration.from_pretrained(model_name).half().to(mt_pipeline.device)
+model = FSMTForConditionalGeneration.from_pretrained(model_name).half().to(mt_pipeline.device)
 mt_pipeline.model = model
 generation_config = GenerationConfig.from_pretrained(model_name)
 generation_config.num_beams = 4
