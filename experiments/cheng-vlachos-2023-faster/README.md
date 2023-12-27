@@ -17,7 +17,8 @@ This directory uses the [**mbr**](https://github.com/ZurichNLP/mbr) package to r
 * The paper used custom models trained without label smoothing, this reproduction uses a multilingual open-source model ([Fan et al., 2021](https://arxiv.org/abs/2010.11125)).
 * The paper used different sets as samples and references. Samples were generated using beam search. This reproduction uses the same set as samples and references, generated with epsilon sampling.
 * The paper used beam search with beam size 10 as a baseline. This reproduction uses beam size 4.
-* In the paper, the segments of the test set were translated one by one. Batching was used for sampling, but not for the overall MBR decoding process. Our implementation supports batched translation, and we use a batch size of 32 in this experiment.
+* In the paper, the segments of the test set were translated one by one – batching was used for sampling, but not for the overall MBR decoding process. Our implementation supports batched translation, and we use a batch size of 16 in this experiment.
 * The paper proposed terminating early if there is only one sample left. This implementation does not support early termination.
+* TODO Repeats
 
 ## Results
