@@ -152,7 +152,7 @@ for method, mbr_config in mbr_configs.items():
 model = FSMTForConditionalGeneration.from_pretrained(model_name).half().to(mt_pipeline.device)
 mt_pipeline.model = model
 generation_config = GenerationConfig.from_pretrained(model_name)
-generation_config.num_beams = 4
+generation_config.num_beams = 10
 
 set_seed(42)
 time_start = time.time()
