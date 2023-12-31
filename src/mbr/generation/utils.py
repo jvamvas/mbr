@@ -550,6 +550,10 @@ class MBRGenerationMixin(GenerationMixin):
                     sample_ids_with_pruning[sample_id][batch_idx] = generation_config.pad_token_id
                     is_pruned[batch_idx, sample_id] = True
 
+                # 16e. Early stopping
+                if torch.all((~is_pruned).sum(dim=-1) <= 1):
+                    break
+
         # Copy top samples into a tensor of shape (batch_size, max_length)
         max_length = max(sample.shape[1] for sample in sample_ids)
         output = MBROutput(
