@@ -16,7 +16,7 @@ from mbr.metrics.comet import CometMetricRunner
 language_pair = "de-en"
 batch_size = 16
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.19b.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.19c.jsonl", "w")
 
 model_name = "facebook/wmt19-de-en"
 model = MBR(FSMTForConditionalGeneration).from_pretrained(model_name)
@@ -75,24 +75,24 @@ mbr_configs = {}
 # mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"] = mbr_config
 
 # Pruning 𝛼=0.99 (metric: COMET)
-mbr_config = deepcopy(base_mbr_config)
-mbr_config.pruning = "confidence"
-mbr_config.pruning_alpha = 0.99
-mbr_config.initial_num_references = 8
-mbr_config.metric = "comet"
-mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
-mbr_config.metric_output_field = "mean_score"
-mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
+# mbr_config = deepcopy(base_mbr_config)
+# mbr_config.pruning = "confidence"
+# mbr_config.pruning_alpha = 0.99
+# mbr_config.initial_num_references = 8
+# mbr_config.metric = "comet"
+# mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
+# mbr_config.metric_output_field = "mean_score"
+# mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
 
 # Pruning 𝛼=0.9 (metric: ChrF++)
 # mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"])
 # mbr_config.pruning_alpha = 0.9
 # mbr_configs["Pruning 𝛼=0.9 (metric: ChrF++)"] = mbr_config
 
-# # Pruning 𝛼=0.9 (metric: COMET)
-# mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])
-# mbr_config.pruning_alpha = 0.9
-# mbr_configs["Pruning 𝛼=0.9 (metric: COMET)"] = mbr_config
+# Pruning 𝛼=0.9 (metric: COMET)
+mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])
+mbr_config.pruning_alpha = 0.9
+mbr_configs["Pruning 𝛼=0.9 (metric: COMET)"] = mbr_config
 
 for method, mbr_config in mbr_configs.items():
 
