@@ -16,7 +16,7 @@ from mbr.metrics.comet import CometMetricRunner
 language_pair = "de-en"
 batch_size = 16
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.19.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.19a.jsonl", "w")
 
 model_name = "facebook/wmt19-de-en"
 model = MBR(FSMTForConditionalGeneration).from_pretrained(model_name)
@@ -51,28 +51,28 @@ base_mbr_config.metric_cache_size = batch_size * base_mbr_config.num_samples * b
 mbr_configs = {}
 
 # MBR without pruning (metric: ChrF++)
-mbr_config = deepcopy(base_mbr_config)
-mbr_config.metric = "chrf"
-mbr_config.metric_output_field = "score"
-mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
-mbr_configs["MBR without pruning (metric: ChrF++)"] = mbr_config
+# mbr_config = deepcopy(base_mbr_config)
+# mbr_config.metric = "chrf"
+# mbr_config.metric_output_field = "score"
+# mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
+# mbr_configs["MBR without pruning (metric: ChrF++)"] = mbr_config
 
 # # MBR without pruning (metric: COMET)
-# mbr_config = deepcopy(base_mbr_config)
-# mbr_config.metric = "comet"
-# mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
-# mbr_config.metric_output_field = "mean_score"
-# mbr_configs["MBR without pruning (metric: COMET)"] = mbr_config
+mbr_config = deepcopy(base_mbr_config)
+mbr_config.metric = "comet"
+mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
+mbr_config.metric_output_field = "mean_score"
+mbr_configs["MBR without pruning (metric: COMET)"] = mbr_config
 
 # Pruning 𝛼=0.99 (metric: ChrF++)
-mbr_config = deepcopy(base_mbr_config)
-mbr_config.pruning = "confidence"
-mbr_config.pruning_alpha = 0.99
-mbr_config.initial_num_references = 16
-mbr_config.metric = "chrf"
-mbr_config.metric_output_field = "score"
-mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
-mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"] = mbr_config
+# mbr_config = deepcopy(base_mbr_config)
+# mbr_config.pruning = "confidence"
+# mbr_config.pruning_alpha = 0.99
+# mbr_config.initial_num_references = 16
+# mbr_config.metric = "chrf"
+# mbr_config.metric_output_field = "score"
+# mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
+# mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"] = mbr_config
 
 # # Pruning 𝛼=0.99 (metric: COMET)
 # mbr_config = deepcopy(base_mbr_config)
@@ -85,9 +85,9 @@ mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"] = mbr_config
 # mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
 
 # Pruning 𝛼=0.9 (metric: ChrF++)
-mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"])
-mbr_config.pruning_alpha = 0.9
-mbr_configs["Pruning 𝛼=0.9 (metric: ChrF++)"] = mbr_config
+# mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"])
+# mbr_config.pruning_alpha = 0.9
+# mbr_configs["Pruning 𝛼=0.9 (metric: ChrF++)"] = mbr_config
 
 # # Pruning 𝛼=0.9 (metric: COMET)
 # mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])
