@@ -16,6 +16,7 @@ This directory uses the [**mbr**](https://github.com/ZurichNLP/mbr) package to r
 * The paper used custom models trained without label smoothing, this reproduction uses an open-source model ([Ng et al., WMT 2019](https://aclanthology.org/W19-5333/)).
 * The paper used different sets as samples and references. Samples were generated using beam search. This reproduction uses the same set as samples and references, generated with epsilon sampling.
 * In the paper, the segments of the test set were translated one by one – batching was used for sampling, but not for the overall MBR decoding process. Our implementation supports batched translation, and we use a batch size of 16 in this experiment.
-* The paper proposes to generate the references during pruning and to terminate early if all samples but one have been pruned. This implementation generates the complete set of references before pruning.
+* The paper proposed terminating early if there is only one sample left. This implementation supports early termination only if this condition is met for all items in the batch.
+* The paper reports average results over 10 runs. Here, we report results for a single run.
 
 ## Results
