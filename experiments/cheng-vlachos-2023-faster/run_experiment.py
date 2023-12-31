@@ -1,4 +1,3 @@
-import sys
 import time
 from copy import deepcopy
 from pathlib import Path
