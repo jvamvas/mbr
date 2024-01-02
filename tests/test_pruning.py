@@ -15,6 +15,7 @@ class PruningTestCase(TestCase):
 
     def test_generate(self):
         mbr_config = MBRConfig(
+            metric="pairwise_chrf",
             pruning="confidence",
             num_samples=8,
             initial_num_references=2,
@@ -46,6 +47,7 @@ class PruningTestCase(TestCase):
         ]
         encoding = self.tokenizer(input_sentences, return_tensors="pt")
         pruning_config = MBRConfig(
+            metric="pairwise_chrf",
             pruning="confidence",
             pruning_alpha=1.,
             num_samples=8,
@@ -63,6 +65,7 @@ class PruningTestCase(TestCase):
             progress_bar=True,
         )
         standard_config = MBRConfig(
+            metric="pairwise_chrf",
             num_samples=8,
             return_dict_in_generate=True,
             output_all_samples=True,
@@ -91,6 +94,7 @@ class PruningTestCase(TestCase):
         ]
         encoding = self.tokenizer(input_sentences, return_tensors="pt")
         pruning_config = MBRConfig(
+            metric="pairwise_chrf",
             pruning="confidence",
             num_samples=8,
             initial_num_references=8,
@@ -110,6 +114,7 @@ class PruningTestCase(TestCase):
             progress_bar=True,
         )
         standard_config = MBRConfig(
+            metric="pairwise_chrf",
             num_samples=8,
             return_dict_in_generate=True,
             output_all_samples=True,
