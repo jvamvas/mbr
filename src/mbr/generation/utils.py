@@ -513,6 +513,10 @@ class MBRGenerationMixin(GenerationMixin):
                 # 16a. Compute metric
                 # Since the metric_runner uses caching internally, calling it again for every t is unproblematic.
                 metric_output = metric_runner(input_ids, sample_ids_with_pruning, reference_ids_for_t)
+                if metric_output.scores_per_reference is None:
+                    raise ValueError(
+                        "Metric cannot be used with pruning because it does not return individual scores "
+                        "per reference (metric_output.scores_per_reference is None).")
                 # Deactivate scores for pruned samples
                 inactive_value = float("-inf") if not mbr_config.lower_is_better else float("inf")
                 metric_output.scores[is_pruned] = inactive_value
@@ -526,23 +530,18 @@ class MBRGenerationMixin(GenerationMixin):
                 top_metric_index = top_metric_indices[0]  # winner under R_t
 
                 # 16c. Bootstrap resampling to identify pruning candidates
-                is_better_counts = torch.zeros((batch_size, len(samples)), dtype=torch.float)
-                for j in range(mbr_config.num_bootstrap_resamples):
-                    bootstrap_reference_indices = torch.arange(len(reference_ids_for_t))[torch.randint(
-                        low=0, high=len(reference_ids_for_t), size=(num_references,), dtype=torch.long
-                    )]
-                    if metric_output.scores_per_reference is None:
-                        raise ValueError(
-                            "Metric cannot be used with pruning because it does not return individual scores "
-                            "per reference (metric_output.scores_per_reference is None).")
-                    bootstrap_scores = metric_output.scores_per_reference[:, :, bootstrap_reference_indices].mean(
-                        dim=-1)
-                    if not mbr_config.lower_is_better:
-                        is_better = bootstrap_scores >= bootstrap_scores[:, top_metric_index].unsqueeze(dim=-1)
-                    else:
-                        is_better = bootstrap_scores <= bootstrap_scores[:, top_metric_index].unsqueeze(dim=-1)
-                    is_better_counts += is_better
-                winning_rate = is_better_counts / mbr_config.num_bootstrap_resamples
+                bootstrap_indices = torch.randint(
+                    low=0, high=len(reference_ids_for_t),
+                    size=(mbr_config.num_bootstrap_resamples, num_references),
+                    dtype=torch.long).unsqueeze(1).unsqueeze(2).repeat(1, batch_size, len(sample_ids), 1)
+                expanded_scores = metric_output.scores_per_reference.unsqueeze(0).repeat(
+                    mbr_config.num_bootstrap_resamples, 1, 1, 1)
+                bootstrap_scores = expanded_scores.gather(dim=-1, index=bootstrap_indices).mean(dim=-1)
+                if not mbr_config.lower_is_better:
+                    is_better = bootstrap_scores >= bootstrap_scores[:, :, top_metric_index].unsqueeze(dim=-1)
+                else:
+                    is_better = bootstrap_scores <= bootstrap_scores[:, :, top_metric_index].unsqueeze(dim=-1)
+                winning_rate = is_better.sum(dim=0) / mbr_config.num_bootstrap_resamples
 
                 # 16d. Prune samples
                 do_prune = winning_rate < 1 - mbr_config.pruning_alpha
