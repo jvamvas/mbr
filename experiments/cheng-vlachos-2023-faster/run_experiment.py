@@ -1,3 +1,4 @@
+import sys
 import time
 from copy import deepcopy
 from pathlib import Path
@@ -14,7 +15,7 @@ from mbr import MBR, MBRConfig
 from mbr.metrics.comet import CometMetricRunner
 
 language_pair = "de-en"
-batch_size = 1
+batch_size = int(sys.argv[1])
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.batch{batch_size}.a.jsonl", "w")
 
