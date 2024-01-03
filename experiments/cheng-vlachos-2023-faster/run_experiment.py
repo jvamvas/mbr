@@ -90,11 +90,11 @@ mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
 # mbr_config.pruning_alpha = 0.9
 # mbr_configs["Pruning 𝛼=0.9 (metric: ChrF++)"] = mbr_config
 
-# # Pruning 𝛼=0.9 (metric: COMET)
-# mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])
-# mbr_config.pruning_alpha = 0.9
-# mbr_configs["Pruning 𝛼=0.9 (metric: COMET)"] = mbr_config
-# del mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"]
+# Pruning 𝛼=0.9 (metric: COMET)
+mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])
+mbr_config.pruning_alpha = 0.9
+mbr_configs["Pruning 𝛼=0.9 (metric: COMET)"] = mbr_config
+del mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"]
 
 for method, mbr_config in mbr_configs.items():
 
