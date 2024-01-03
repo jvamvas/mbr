@@ -14,7 +14,7 @@ from mbr import MBR, MBRConfig
 from mbr.metrics.comet import CometMetricRunner
 
 language_pair = "de-en"
-batch_size = 32
+batch_size = 1
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.batch{batch_size}.c.jsonl", "w")
 
