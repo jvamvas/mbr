@@ -494,9 +494,9 @@ class MBRGenerationMixin(GenerationMixin):
 
             # 15b: Identify the best sample
             if not mbr_config.lower_is_better:
-                top_metric_scores, top_metric_indices = metric_output.scores.max(dim=-1)
+                top_metric_score, top_metric_index = metric_output.scores.max(dim=-1)
             else:
-                top_metric_scores, top_metric_indices = metric_output.scores.min(dim=-1)
+                top_metric_score, top_metric_index = metric_output.scores.min(dim=-1)
 
         elif mbr_config.pruning == PruningStrategy.CONFIDENCE:
             # Perform confidence-based pruning as described in: Faster Minimum Bayes Risk Decoding with
@@ -522,12 +522,11 @@ class MBRGenerationMixin(GenerationMixin):
                 metric_output.scores[is_pruned] = inactive_value
                 metric_output.scores_per_reference[is_pruned] = inactive_value
 
-                # 16b. Identify the best sample
+                # 16b. Identify the best sample ("winner under R_t")
                 if not mbr_config.lower_is_better:
-                    top_metric_scores, top_metric_indices = metric_output.scores.max(dim=-1)
+                    top_metric_score, top_metric_index = metric_output.scores.max(dim=-1)
                 else:
-                    top_metric_scores, top_metric_indices = metric_output.scores.min(dim=-1)
-                top_metric_index = top_metric_indices[0]  # winner under R_t
+                    top_metric_score, top_metric_index = metric_output.scores.min(dim=-1)
 
                 # 16c. Bootstrap resampling to identify pruning candidates
                 bootstrap_indices = torch.randint(
@@ -537,10 +536,12 @@ class MBRGenerationMixin(GenerationMixin):
                 expanded_scores = metric_output.scores_per_reference.unsqueeze(0).repeat(
                     mbr_config.num_bootstrap_resamples, 1, 1, 1)
                 bootstrap_scores = expanded_scores.gather(dim=-1, index=bootstrap_indices).mean(dim=-1)
+                top_metric_index_broadcast = top_metric_index.unsqueeze(0).unsqueeze(-1).repeat(
+                    mbr_config.num_bootstrap_resamples, 1, len(sample_ids))
                 if not mbr_config.lower_is_better:
-                    is_better = bootstrap_scores >= bootstrap_scores[:, :, top_metric_index].unsqueeze(dim=-1)
+                    is_better = bootstrap_scores >= top_metric_index_broadcast
                 else:
-                    is_better = bootstrap_scores <= bootstrap_scores[:, :, top_metric_index].unsqueeze(dim=-1)
+                    is_better = bootstrap_scores <= top_metric_index_broadcast
                 winning_rate = is_better.sum(dim=0) / mbr_config.num_bootstrap_resamples
 
                 # 16d. Prune samples
@@ -558,11 +559,11 @@ class MBRGenerationMixin(GenerationMixin):
         output = MBROutput(
             sequences=generation_config.pad_token_id * torch.ones((batch_size, max_length), dtype=torch.long),
             all_samples=(tuple(samples) if mbr_config.output_all_samples else None),
-            selected_samples_indices=(top_metric_indices if mbr_config.output_all_samples else None),
+            selected_samples_indices=(top_metric_index if mbr_config.output_all_samples else None),
             references=(tuple(references) if mbr_config.output_all_samples else None),
             metric_scores=(metric_output if mbr_config.output_metric_scores else None),
         )
-        for batch_idx, sample_idx in enumerate(top_metric_indices):
+        for batch_idx, sample_idx in enumerate(top_metric_index):
             output.sequences[batch_idx][:sample_ids[sample_idx].shape[1]] = sample_ids[sample_idx][batch_idx]
 
         if mbr_config.return_dict_in_generate:
