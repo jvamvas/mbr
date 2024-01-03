@@ -142,6 +142,21 @@ class MetricUtilsTestCase(TestCase):
         metric_scores = comet_metric_runner(self.input_ids, self.sample_ids, self.reference_ids)
         torch.testing.assert_close(base_metric_scores, metric_scores)
 
+    @unittest.skipIf(os.getenv("SKIP_SLOW_TESTS", False), "Requires extra dependencies")
+    def test_comet_metric_runner__cache(self):
+        """Output should be identical irrespective of cache size"""
+        from mbr.metrics.comet import CometMetricRunner
+        self.mbr_config.metric = evaluate.load("comet", "eamt22-cometinho-da")
+        self.mbr_config.metric_output_field = "mean_score"
+        base_metric_runner = MetricRunner(self.mbr_config, self.tokenizer)
+        base_metric_scores = base_metric_runner(self.input_ids, self.sample_ids, self.reference_ids)
+        self.assertEqual(base_metric_runner.metric.name, "comet")
+        for cache_size in [1, 4, 8]:
+            self.mbr_config.metric_cache_size = cache_size
+            comet_metric_runner = CometMetricRunner(self.mbr_config, self.tokenizer)
+            metric_scores = comet_metric_runner(self.input_ids, self.sample_ids, self.reference_ids)
+            torch.testing.assert_close(base_metric_scores, metric_scores)
+
     def test_fastchrf_metric_runner__aggregate(self):
         from mbr.metrics.fastchrf import FastChrfMetricRunner
         metric_runner = FastChrfMetricRunner(self.mbr_config, self.tokenizer, compute_pairwise_average=False)
