@@ -536,12 +536,11 @@ class MBRGenerationMixin(GenerationMixin):
                 expanded_scores = metric_output.scores_per_reference.unsqueeze(0).expand(
                     mbr_config.num_bootstrap_resamples, -1, -1, -1)
                 bootstrap_scores = expanded_scores.gather(dim=-1, index=bootstrap_indices).mean(dim=-1)
-                top_metric_index_broadcast = top_metric_index.unsqueeze(0).unsqueeze(-1).expand(
-                    mbr_config.num_bootstrap_resamples, -1, len(sample_ids))
+                top_bootstrap_scores = bootstrap_scores[:, torch.arange(batch_size), top_metric_index]
                 if not mbr_config.lower_is_better:
-                    is_better = bootstrap_scores >= top_metric_index_broadcast
+                    is_better = bootstrap_scores >= top_bootstrap_scores.unsqueeze(-1)
                 else:
-                    is_better = bootstrap_scores <= top_metric_index_broadcast
+                    is_better = bootstrap_scores <= top_bootstrap_scores.unsqueeze(-1)
                 winning_rate = is_better.sum(dim=0) / mbr_config.num_bootstrap_resamples
 
                 # 16d. Prune samples
