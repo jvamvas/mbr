@@ -71,19 +71,20 @@ class CometMetricRunner(MetricRunner):
                     all_sequences.remove(sequence)
 
             # Compute embeddings for remaining sequences
-            all_sequences = list(all_sequences)
-            encodings = self.comet.scorer.encoder.prepare_sample(all_sequences).to(self.comet.scorer.device)
-            batches = itertools.zip_longest(range(0, len(all_sequences), self.batch_size_embed),
-                                            range(self.batch_size_embed, len(all_sequences), self.batch_size_embed))
-            for start_idx, end_idx in batches:
-                embeddings = self.comet.scorer.get_sentence_embedding(
-                    input_ids=encodings["input_ids"][start_idx:end_idx],
-                    attention_mask=encodings["attention_mask"][start_idx:end_idx],
-                )
-                for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
-                    embedding = embeddings[j - start_idx]
-                    all_embeddings[all_sequences[j]] = embedding
-                    self.embedding_cache[all_sequences[j]] = embedding
+            if all_sequences:
+                all_sequences = list(all_sequences)
+                encodings = self.comet.scorer.encoder.prepare_sample(all_sequences).to(self.comet.scorer.device)
+                batches = itertools.zip_longest(range(0, len(all_sequences), self.batch_size_embed),
+                                                range(self.batch_size_embed, len(all_sequences), self.batch_size_embed))
+                for start_idx, end_idx in batches:
+                    embeddings = self.comet.scorer.get_sentence_embedding(
+                        input_ids=encodings["input_ids"][start_idx:end_idx],
+                        attention_mask=encodings["attention_mask"][start_idx:end_idx],
+                    )
+                    for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
+                        embedding = embeddings[j - start_idx]
+                        all_embeddings[all_sequences[j]] = embedding
+                        self.embedding_cache[all_sequences[j]] = embedding
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
