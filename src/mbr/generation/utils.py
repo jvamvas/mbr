@@ -532,12 +532,12 @@ class MBRGenerationMixin(GenerationMixin):
                 bootstrap_indices = torch.randint(
                     low=0, high=len(reference_ids_for_t),
                     size=(mbr_config.num_bootstrap_resamples, num_references),
-                    dtype=torch.long).unsqueeze(1).unsqueeze(2).repeat(1, batch_size, len(sample_ids), 1)
-                expanded_scores = metric_output.scores_per_reference.unsqueeze(0).repeat(
-                    mbr_config.num_bootstrap_resamples, 1, 1, 1)
+                    dtype=torch.long).unsqueeze(1).unsqueeze(2).expand(-1, batch_size, len(sample_ids), -1)
+                expanded_scores = metric_output.scores_per_reference.unsqueeze(0).expand(
+                    mbr_config.num_bootstrap_resamples, -1, -1, -1)
                 bootstrap_scores = expanded_scores.gather(dim=-1, index=bootstrap_indices).mean(dim=-1)
-                top_metric_index_broadcast = top_metric_index.unsqueeze(0).unsqueeze(-1).repeat(
-                    mbr_config.num_bootstrap_resamples, 1, len(sample_ids))
+                top_metric_index_broadcast = top_metric_index.unsqueeze(0).unsqueeze(-1).expand(
+                    mbr_config.num_bootstrap_resamples, -1, len(sample_ids))
                 if not mbr_config.lower_is_better:
                     is_better = bootstrap_scores >= top_metric_index_broadcast
                 else:
