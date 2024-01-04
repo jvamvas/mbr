@@ -87,6 +87,7 @@ class CometMetricRunner(MetricRunner):
                         embedding = embeddings[j - start_idx]
                         all_embeddings[all_sequences[j]] = embedding
                         self.embedding_cache[all_sequences[j]] = embedding
+                    torch.cuda.empty_cache()
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
