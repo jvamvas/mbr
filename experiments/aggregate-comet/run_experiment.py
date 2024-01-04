@@ -18,7 +18,7 @@ assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
 
 batch_size = 32
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.b.jsonl", "w")
 
 model_name = f"facebook/wmt19-{language_pair}"
 model = MBR(FSMTForConditionalGeneration).from_pretrained(model_name)
