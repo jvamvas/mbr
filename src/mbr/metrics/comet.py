@@ -85,11 +85,10 @@ class CometMetricRunner(MetricRunner):
                     ).to("cpu")
                     for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
                         embedding = embeddings[j - start_idx]
-                        print(embedding.shape)
-                        print(embedding.device)
                         all_embeddings[all_sequences[j]] = embedding
                         self.embedding_cache[all_sequences[j]] = embedding
                     torch.cuda.empty_cache()
+                    print(torch.cuda.memory_summary(device=self.comet.scorer.device, abbreviated=True))
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
