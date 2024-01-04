@@ -5,6 +5,7 @@ import jsonlines
 import sacrebleu
 import torch
 from datasets import load_dataset
+from tqdm import tqdm
 
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
@@ -23,7 +24,7 @@ out_dir.mkdir(exist_ok=True, parents=True)
 out_path = out_dir / f"wmt19.{language_pair}.{num_samples}.unbiased.jsonl"
 
 with jsonlines.open(out_path, "w") as f:
-    for source_sentence in source_sentences:
+    for source_sentence in tqdm(source_sentences):
         f.write({
             "samples": [
                 model.sample(num_samples * [source_sentence], sampling=True)

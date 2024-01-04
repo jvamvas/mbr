@@ -3,3 +3,4 @@ scikit_learn==1.3.2
 sacremoses==0.1.1
 fastBPE==0.1.0
 requests
+jsonlines
