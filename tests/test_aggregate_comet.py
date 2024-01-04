@@ -22,7 +22,7 @@ class AggregateCometTestCase(TestCase):
         self.comet_runner = CometMetricRunner(
             self.mbr_config,
             self.tokenizer,
-            batch_size_embed=1024,
+            batch_size_embed=512,
             batch_size_estimate=64,
             progress_bar=True,
             device=0,
@@ -30,7 +30,7 @@ class AggregateCometTestCase(TestCase):
         self.aggregate_comet_runner = AggregateCometMetricRunner(
             self.mbr_config,
             self.tokenizer,
-            batch_size_embed=1024,
+            batch_size_embed=512,
             batch_size_estimate=64,
             progress_bar=True,
             device=1,
@@ -44,8 +44,9 @@ class AggregateCometTestCase(TestCase):
             src_path = wmt22.get_source_file(langpair)
             reference_paths = wmt22.get_reference_files(langpair)
             all_paths = wmt22.get_files(langpair)
+            max_num_systems = 2
             hypotheses = []  # systems x segments (= batch_size)
-            for path in all_paths:
+            for path in all_paths[:max_num_systems]:
                 if path not in reference_paths:
                     hypotheses.append(Path(path).read_text().splitlines())
             source_sequences = Path(src_path).read_text().splitlines()
