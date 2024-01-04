@@ -53,6 +53,7 @@ class AggregateCometMetricRunner(CometMetricRunner):
             scores_per_reference=None,
         )
 
+    @torch.no_grad()
     def _compute_str_metric(self,
                             samples: List[List[str]],
                             references: List[List[str]],
