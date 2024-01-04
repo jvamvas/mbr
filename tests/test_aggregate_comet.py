@@ -45,11 +45,12 @@ class AggregateCometTestCase(TestCase):
             reference_paths = wmt22.get_reference_files(langpair)
             all_paths = wmt22.get_files(langpair)
             max_num_systems = 2
+            max_num_segments = 20
             hypotheses = []  # systems x segments (= batch_size)
             for path in all_paths[:max_num_systems]:
                 if path not in reference_paths:
-                    hypotheses.append(Path(path).read_text().splitlines())
-            source_sequences = Path(src_path).read_text().splitlines()
+                    hypotheses.append(Path(path).read_text().splitlines()[:max_num_segments])
+            source_sequences = Path(src_path).read_text().splitlines()[:max_num_segments]
             # Use hypotheses as references
             references = hypotheses
 
