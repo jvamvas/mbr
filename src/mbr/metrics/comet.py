@@ -48,6 +48,7 @@ class CometMetricRunner(MetricRunner):
         self.embedding_cache = FIFOCache(maxsize=self.mbr_config.metric_cache_size)
         self.score_cache = FIFOCache(maxsize=self.mbr_config.metric_cache_size)
 
+    @torch.no_grad()
     def _compute_str_metric(self,
                             samples: List[List[str]],
                             references: List[List[str]],
