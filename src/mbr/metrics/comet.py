@@ -80,11 +80,13 @@ class CometMetricRunner(MetricRunner):
                 for start_idx, end_idx in batches:
                     print(encodings["input_ids"][start_idx:end_idx].shape)
                     embeddings = self.comet.scorer.get_sentence_embedding(
-                        input_ids=encodings["input_ids"][start_idx:end_idx].to(self.comet.scorer.device),
-                        attention_mask=encodings["attention_mask"][start_idx:end_idx].to(self.comet.scorer.device),
+                        input_ids=encodings["input_ids"][start_idx:end_idx],
+                        attention_mask=encodings["attention_mask"][start_idx:end_idx],
                     ).to("cpu")
                     for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
                         embedding = embeddings[j - start_idx]
+                        print(embedding.shape)
+                        print(embedding.device)
                         all_embeddings[all_sequences[j]] = embedding
                         self.embedding_cache[all_sequences[j]] = embedding
                     torch.cuda.empty_cache()
