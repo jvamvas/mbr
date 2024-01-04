@@ -19,8 +19,7 @@ source_sentences = dataset["test"]["text"]
 
 model = torch.hub.load('pytorch/fairseq', f'transformer.wmt19.{language_pair}.single_model')
 model.eval()
-if torch.cuda.is_available():
-    model.cuda()
+model.cuda()
 
 out_dir = Path(__file__).parent / f"samples"
 out_dir.mkdir(exist_ok=True, parents=True)
