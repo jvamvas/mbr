@@ -74,22 +74,18 @@ class CometMetricRunner(MetricRunner):
             # Compute embeddings for remaining sequences
             if all_sequences:
                 all_sequences = list(all_sequences)
-                print(f"Computing embeddings for {len(all_sequences)} sequences")
                 encodings = self.comet.scorer.encoder.prepare_sample(all_sequences).to(self.comet.scorer.device)
                 batches = itertools.zip_longest(range(0, len(all_sequences), self.batch_size_embed),
                                                 range(self.batch_size_embed, len(all_sequences), self.batch_size_embed))
                 for start_idx, end_idx in batches:
-                    print(encodings["input_ids"][start_idx:end_idx].shape)
                     embeddings = self.comet.scorer.get_sentence_embedding(
                         input_ids=encodings["input_ids"][start_idx:end_idx],
                         attention_mask=encodings["attention_mask"][start_idx:end_idx],
-                    ).to("cpu")
+                    )
                     for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
                         embedding = embeddings[j - start_idx]
                         all_embeddings[all_sequences[j]] = embedding
                         self.embedding_cache[all_sequences[j]] = embedding
-                    torch.cuda.empty_cache()
-                    print(torch.cuda.memory_summary(device=self.comet.scorer.device, abbreviated=True))
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
@@ -112,9 +108,9 @@ class CometMetricRunner(MetricRunner):
             for start_idx, end_idx in batches:
                 batch = input_triples[start_idx:end_idx]
                 batch_scores = self.comet.scorer.estimate(
-                    src_sentemb=torch.stack([all_embeddings[triple[0]] for triple in batch]).to(self.comet.scorer.device),
-                    mt_sentemb=torch.stack([all_embeddings[triple[1]] for triple in batch]).to(self.comet.scorer.device),
-                    ref_sentemb=torch.stack([all_embeddings[triple[2]] for triple in batch]).to(self.comet.scorer.device),
+                    src_sentemb=torch.stack([all_embeddings[triple[0]] for triple in batch]),
+                    mt_sentemb=torch.stack([all_embeddings[triple[1]] for triple in batch]),
+                    ref_sentemb=torch.stack([all_embeddings[triple[2]] for triple in batch]),
                 )
                 for j in range(start_idx, end_idx if end_idx is not None else len(input_triples)):
                     triple = batch[j - start_idx]
