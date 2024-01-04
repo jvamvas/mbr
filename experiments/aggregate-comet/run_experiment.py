@@ -56,11 +56,15 @@ mbr_configs = {}
 # MBR with standard COMET
 mbr_config = deepcopy(base_mbr_config)
 mbr_config.metric = "comet"
+mbr_config.metric_config_name = "eamt22-cometinho-da"
+mbr_config.metric_output_field = "mean_score"
 mbr_configs["MBR with standard COMET"] = mbr_config
 
 # MBR with aggregate COMET
 mbr_config = deepcopy(base_mbr_config)
 mbr_config.metric = "aggregate_comet"
+mbr_config.metric_config_name = "eamt22-cometinho-da"
+mbr_config.metric_output_field = "mean_score"
 mbr_configs["MBR with aggregate COMET"] = mbr_config
 
 for method, mbr_config in mbr_configs.items():
