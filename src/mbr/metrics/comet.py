@@ -67,7 +67,7 @@ class CometMetricRunner(MetricRunner):
             # Populate embeddings from cache
             for sequence in list(all_sequences):
                 if sequence in self.embedding_cache:
-                    all_embeddings[sequence] = self.embedding_cache[sequence]
+                    all_embeddings[sequence] = self.embedding_cache[sequence].to(self.comet.scorer.device)
                     all_sequences.remove(sequence)
 
             # Compute embeddings for remaining sequences
@@ -84,7 +84,7 @@ class CometMetricRunner(MetricRunner):
                     for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
                         embedding = embeddings[j - start_idx]
                         all_embeddings[all_sequences[j]] = embedding
-                        self.embedding_cache[all_sequences[j]] = embedding
+                        self.embedding_cache[all_sequences[j]] = embedding.to("cpu")
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
