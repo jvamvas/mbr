@@ -22,16 +22,16 @@ class AggregateCometTestCase(TestCase):
         self.comet_runner = CometMetricRunner(
             self.mbr_config,
             self.tokenizer,
-            batch_size_embed=16,
-            batch_size_estimate=16,
+            batch_size_embed=1,
+            batch_size_estimate=1,
             progress_bar=True,
             device=0,
         )
         self.aggregate_comet_runner = AggregateCometMetricRunner(
             self.mbr_config,
             self.tokenizer,
-            batch_size_embed=16,
-            batch_size_estimate=16,
+            batch_size_embed=1,
+            batch_size_estimate=1,
             progress_bar=True,
             device=1,
         )
