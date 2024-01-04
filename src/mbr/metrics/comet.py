@@ -73,7 +73,8 @@ class CometMetricRunner(MetricRunner):
             # Compute embeddings for remaining sequences
             if all_sequences:
                 all_sequences = list(all_sequences)
-                encodings = self.comet.scorer.encoder.prepare_sample(all_sequences)
+                print(f"Computing embeddings for {len(all_sequences)} sequences")
+                encodings = self.comet.scorer.encoder.prepare_sample(all_sequences).to("cpu")
                 batches = itertools.zip_longest(range(0, len(all_sequences), self.batch_size_embed),
                                                 range(self.batch_size_embed, len(all_sequences), self.batch_size_embed))
                 for start_idx, end_idx in batches:
