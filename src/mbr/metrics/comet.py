@@ -77,6 +77,7 @@ class CometMetricRunner(MetricRunner):
                 batches = itertools.zip_longest(range(0, len(all_sequences), self.batch_size_embed),
                                                 range(self.batch_size_embed, len(all_sequences), self.batch_size_embed))
                 for start_idx, end_idx in batches:
+                    print(encodings["input_ids"][start_idx:end_idx].shape)
                     embeddings = self.comet.scorer.get_sentence_embedding(
                         input_ids=encodings["input_ids"][start_idx:end_idx],
                         attention_mask=encodings["attention_mask"][start_idx:end_idx],
