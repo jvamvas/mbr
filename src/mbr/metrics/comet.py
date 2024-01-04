@@ -77,14 +77,15 @@ class CometMetricRunner(MetricRunner):
                 batches = itertools.zip_longest(range(0, len(all_sequences), self.batch_size_embed),
                                                 range(self.batch_size_embed, len(all_sequences), self.batch_size_embed))
                 for start_idx, end_idx in batches:
+                    print(encodings["input_ids"][start_idx:end_idx].shape)
                     embeddings = self.comet.scorer.get_sentence_embedding(
                         input_ids=encodings["input_ids"][start_idx:end_idx],
                         attention_mask=encodings["attention_mask"][start_idx:end_idx],
-                    )
+                    ).to("cpu")
                     for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
                         embedding = embeddings[j - start_idx]
-                        all_embeddings[all_sequences[j]] = embedding.to("cpu")
-                        self.embedding_cache[all_sequences[j]] = embedding.to("cpu")
+                        all_embeddings[all_sequences[j]] = embedding
+                        self.embedding_cache[all_sequences[j]] = embedding
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
