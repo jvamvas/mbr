@@ -33,7 +33,7 @@ class AggregateCometTestCase(TestCase):
             batch_size_embed=64,
             batch_size_estimate=64,
             progress_bar=True,
-            device=0,
+            device=1,
         )
 
     def test_correlation(self):
