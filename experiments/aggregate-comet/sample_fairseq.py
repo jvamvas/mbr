@@ -42,7 +42,7 @@ class FairseqTranslationModel:
             checkpoint_file=checkpoint_file,
             **kwargs,
         ))
-        self.model.args.max_tokens = max_tokens
+        # self.model.args.max_tokens = max_tokens
         self.model.eval()
         if torch.cuda.is_available():
             self.model.cuda()
