@@ -6,14 +6,14 @@ from tqdm import tqdm
 
 
 @torch.no_grad()
-def standard_comet(
+def mbr_standard_comet(
         comet,
-        samples: List[List[str]],
-        references: List[List[str]],
-        inputs: List[str],
+        samples: List[List[str]],  # num_samples x batch_size
+        references: List[List[str]],  # num_references x batch_size
+        inputs: List[str],  # batch_size
         batch_size_embed: int = 1,
         batch_size_estimate: int = 1,
-) -> torch.FloatTensor:
+) -> List[str]:
     batch_size = len(samples[0])
     metric_scores = torch.zeros((batch_size, len(samples), len(references)))
     for i in tqdm(list(range(batch_size)), desc="comet"):
@@ -66,11 +66,17 @@ def standard_comet(
             for k in range(len(references)):
                 metric_scores[i, j, k] = input_triple_scores[(inputs[i], samples[j][i], references[k][i])]
 
-    return metric_scores.mean(dim=-1)
+    metric_scores = metric_scores.mean(dim=-1)
+    translations = []
+    for i in range(batch_size):
+        max_index = metric_scores[i].argmax()
+        translation = samples[max_index][i]
+        translations.append(translation)
+    return translations
 
 
 @torch.no_grad()
-def aggregate_comet(
+def mbr_aggregate_comet(
                     comet,
                     samples: List[List[str]],
                     references: List[List[str]],
@@ -133,4 +139,9 @@ def aggregate_comet(
         for j in range(len(samples)):
             metric_scores[i, j] = input_triple_scores[(inputs[i], samples[j][i], "avg")]
 
-    return metric_scores
+    translations = []
+    for i in range(batch_size):
+        max_index = metric_scores[i].argmax()
+        translation = samples[max_index][i]
+        translations.append(translation)
+    return translations
