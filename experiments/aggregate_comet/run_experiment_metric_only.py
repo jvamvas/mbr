@@ -8,7 +8,7 @@ import jsonlines
 import sacrebleu
 from datasets import load_dataset
 
-from utils import standard_comet
+from utils import standard_comet, aggregate_comet
 
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
@@ -79,13 +79,30 @@ select_func = lambda samples, source_sequences: [row[0] for row in samples]
 do_evaluate(select_func)
 
 
-# MBR with standard COMET
 comet = evaluate.load("comet", "eamt22-cometinho-da")
+
+
+# MBR with standard COMET
 comet.scorer = comet.scorer.to(0)
 select_func = lambda samples, source_sequences: standard_comet(
     comet,
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
     references=[[row[i] for row in samples] for i in range(len(samples[0]))],
     inputs=source_sequences,
+    batch_size_embed=256,
+    batch_size_estimate=256,
+)
+do_evaluate(select_func)
+
+
+# MBR with aggregate COMET
+comet.scorer = comet.scorer.to(0)
+select_func = lambda samples, source_sequences: aggregate_comet(
+    comet,
+    samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
+    references=[[row[i] for row in samples] for i in range(len(samples[0]))],
+    inputs=source_sequences,
+    batch_size_embed=256,
+    batch_size_estimate=256,
 )
 do_evaluate(select_func)
