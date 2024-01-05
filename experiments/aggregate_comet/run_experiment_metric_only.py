@@ -29,9 +29,10 @@ with jsonlines.open(samples_dir) as f:
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_metric_only_{language_pair}.jsonl", "w")
 
-evaluation_metric_chrf = evaluate.load("chrf")
-evaluation_metric_cometinho = evaluate.load("comet", "eamt22-cometinho-da")
-evaluation_metric_comet22 = evaluate.load("comet", "Unbabel/wmt22-comet-da")
+chrf = evaluate.load("chrf")
+# evaluation_metric_cometinho = evaluate.load("comet", "eamt22-cometinho-da")
+comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
+comet.scorer = comet.scorer.to(0)
 
 src_path = sacrebleu.get_source_file("wmt19", language_pair)
 ref_path = sacrebleu.get_reference_files("wmt19", language_pair)[0]
@@ -51,17 +52,17 @@ def do_evaluate(select_func: Callable[[List[str]], List[str]]):
     assert len(translations) == len(source_sequences)
     time_end = time.time()  # TODO use timeit instead
 
-    chrf_score = evaluation_metric_chrf.compute(
+    chrf_score = chrf.compute(
         predictions=translations,
         references=references,
     )
-    cometinho_score = evaluation_metric_cometinho.compute(
-        predictions=translations,
-        references=references,
-        sources=source_sequences,
-        # gpus=0,
-    )
-    comet22_score = evaluation_metric_comet22.compute(
+    # cometinho_score = evaluation_metric_cometinho.compute(
+    #     predictions=translations,
+    #     references=references,
+    #     sources=source_sequences,
+    #     # gpus=0,
+    # )
+    comet22_score = comet.compute(
         predictions=translations,
         references=references,
         sources=source_sequences,
@@ -71,7 +72,7 @@ def do_evaluate(select_func: Callable[[List[str]], List[str]]):
         "language_pair": language_pair,
         "method": f"Random selection (= sampling)",
         "chrf": chrf_score["score"],
-        "cometinho": cometinho_score["mean_score"],
+        # "cometinho": cometinho_score["mean_score"],
         "comet22": comet22_score["mean_score"],
         "duration": time_end - time_start,
     })
@@ -82,12 +83,7 @@ print("Random selection")
 select_func = lambda samples, source_sequences: [row[0] for row in samples]
 do_evaluate(select_func)
 
-
-comet = evaluate.load("comet", "eamt22-cometinho-da")
-
-
 # MBR with standard COMET
-comet.scorer = comet.scorer.to(0)
 select_func = lambda samples, source_sequences: mbr_standard_comet(
     comet,
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
