@@ -55,13 +55,13 @@ def evaluate(select_func: Callable[[List[str]], List[str]]):
         predictions=translations,
         references=references,
         sources=source_sequences,
-        gpus=0,
+        # gpus=0,
     )
     comet22_score = evaluation_metric_comet22.compute(
         predictions=translations,
         references=references,
         sources=source_sequences,
-        gpus=0,
+        # gpus=0,
     )
     results_file.write({
         "language_pair": language_pair,
