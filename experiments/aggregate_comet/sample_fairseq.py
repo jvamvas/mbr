@@ -33,7 +33,7 @@ seed_no = int(sys.argv[2])
 seed = SEEDS[seed_no]
 
 num_samples = 1024
-epsilon_cutoff = 0.02  # Different value might be needed because of label smoothing
+epsilon_cutoff = 0.02
 
 
 class FairseqTranslationModel:
@@ -142,7 +142,7 @@ model = load_model(language_pair)
 
 out_dir = Path(__file__).parent / f"samples"
 out_dir.mkdir(exist_ok=True, parents=True)
-out_path = out_dir / f"{model}.{num_samples}samples.epsilon{epsilon_cutoff}.seed{seed}.jsonl"
+out_path = out_dir / f"{model}.{num_samples}samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
 
 with jsonlines.open(out_path, "w") as f:
     for source_sentence in tqdm(source_sentences):
