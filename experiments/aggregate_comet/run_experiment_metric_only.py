@@ -41,7 +41,7 @@ source_sequences = dataset["test"]["text"]
 assert len(dataset["test"]) == len(references) == len(source_sequences)
 
 
-def evaluate(select_func: Callable[[List[str]], List[str]]):
+def do_evaluate(select_func: Callable[[List[str]], List[str]]):
     time_start = time.time()
     translations = select_func(samples, source_sequences)
     assert len(translations) == len(source_sequences)
@@ -76,7 +76,7 @@ def evaluate(select_func: Callable[[List[str]], List[str]]):
 # Random selection (= sampling)
 print("Random selection")
 select_func = lambda samples, source_sequences: [row[0] for row in samples]
-evaluate(select_func)
+do_evaluate(select_func)
 
 
 # MBR with standard COMET
@@ -88,4 +88,4 @@ select_func = lambda samples, source_sequences: standard_comet(
     references=[[row[i] for row in samples] for i in range(len(samples[0]))],
     inputs=source_sequences,
 )
-evaluate(select_func)
+do_evaluate(select_func)
