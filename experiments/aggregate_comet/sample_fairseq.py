@@ -16,7 +16,7 @@ from tqdm import tqdm
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
 
-num_samples = 256
+num_samples = 1024
 seed = 42
 epsilon_cutoff = 0.02  # Different value might be needed because of label smoothing
 
