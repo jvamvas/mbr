@@ -5,6 +5,7 @@ import torch
 from tqdm import tqdm
 
 
+@torch.no_grad()
 def standard_comet(
         comet,
         samples: List[List[str]],
