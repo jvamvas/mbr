@@ -16,8 +16,23 @@ from tqdm import tqdm
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
 
+SEEDS = [
+    553589,
+    456178,
+    817304,
+    6277,
+    792418,
+    707983,
+    249859,
+    272618,
+    760402,
+    472974,
+]
+
+seed_no = int(sys.argv[2])
+seed = SEEDS[seed_no]
+
 num_samples = 1024
-seed = 42
 epsilon_cutoff = 0.02  # Different value might be needed because of label smoothing
 
 
@@ -33,7 +48,6 @@ class FairseqTranslationModel:
                  checkpoint_file: str = "checkpoint_best.pt",
                  src_bpe_codes: Union[Path, str] = None,
                  tgt_bpe_codes: Union[Path, str] = None,
-                 max_tokens: int = 1000,
                  **kwargs,
                  ):
         self.name = name
@@ -63,8 +77,8 @@ class FairseqTranslationModel:
     def translate(self, sentences: List[str], beam: int = 5, **kwargs) -> List[str]:
         return self.model.translate(sentences, beam, **kwargs)
 
-    def sample(self, sentences: List[str], **kwargs) -> List[str]:
-        return self.model.sample(sentences, sampling=True, **kwargs)
+    def sample(self, sentences: List[str], seed=None, **kwargs) -> List[str]:
+        return self.model.sample(sentences, sampling=True, seed=seed, **kwargs)
 
     def __str__(self):
         return self.name
@@ -133,5 +147,5 @@ out_path = out_dir / f"{model}.{num_samples}samples.epsilon{epsilon_cutoff}.seed
 with jsonlines.open(out_path, "w") as f:
     for source_sentence in tqdm(source_sentences):
         f.write({
-            "samples": model.sample(num_samples * [source_sentence], sampling_epsilon_cutoff=epsilon_cutoff)
+            "samples": model.sample(num_samples * [source_sentence], seed=seed, sampling_epsilon_cutoff=epsilon_cutoff),
         })
