@@ -34,6 +34,7 @@ def mbr_standard_comet(
                     input_ids=encodings["input_ids"][start_idx:end_idx],
                     attention_mask=encodings["attention_mask"][start_idx:end_idx],
                 )
+                print(embeddings.shape)
                 for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
                     embedding = embeddings[j - start_idx]
                     all_embeddings[all_sequences[j]] = embedding
@@ -57,6 +58,7 @@ def mbr_standard_comet(
                 mt_sentemb=torch.stack([all_embeddings[triple[1]] for triple in batch]),
                 ref_sentemb=torch.stack([all_embeddings[triple[2]] for triple in batch]),
             )
+            print(batch_scores.score.shape)
             for j in range(start_idx, end_idx if end_idx is not None else len(input_triples)):
                 triple = batch[j - start_idx]
                 score = batch_scores.score[j - start_idx]

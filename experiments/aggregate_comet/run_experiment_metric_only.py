@@ -32,7 +32,7 @@ results_file = jsonlines.open(Path(__file__).parent / f"results_metric_only_{lan
 chrf = evaluate.load("chrf")
 # evaluation_metric_cometinho = evaluate.load("comet", "eamt22-cometinho-da")
 comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
-# comet.scorer = comet.scorer.to("cuda:0")
+comet.scorer = comet.scorer.to("cuda:0")
 
 src_path = sacrebleu.get_source_file("wmt19", language_pair)
 ref_path = sacrebleu.get_reference_files("wmt19", language_pair)[0]
