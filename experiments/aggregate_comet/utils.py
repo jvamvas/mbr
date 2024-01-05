@@ -17,8 +17,6 @@ def mbr_standard_comet(
     batch_size = len(samples[0])
     metric_scores = torch.zeros((batch_size, len(samples), len(references)))
     for i in tqdm(list(range(batch_size)), desc="comet"):
-        print(comet.scorer.device)
-
         # Embed all sequences
         all_samples = [sample[i] for sample in samples]
         all_references = [reference[i] for reference in references]
@@ -36,8 +34,6 @@ def mbr_standard_comet(
                     input_ids=encodings["input_ids"][start_idx:end_idx],
                     attention_mask=encodings["attention_mask"][start_idx:end_idx],
                 )
-                print(embeddings.shape)
-                print(embeddings.device)
                 for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
                     embedding = embeddings[j - start_idx]
                     all_embeddings[all_sequences[j]] = embedding
@@ -61,8 +57,6 @@ def mbr_standard_comet(
                 mt_sentemb=torch.stack([all_embeddings[triple[1]] for triple in batch]),
                 ref_sentemb=torch.stack([all_embeddings[triple[2]] for triple in batch]),
             )
-            print(batch_scores.score.shape)
-            print(batch_scores.score.device)
             for j in range(start_idx, end_idx if end_idx is not None else len(input_triples)):
                 triple = batch[j - start_idx]
                 score = batch_scores.score[j - start_idx]

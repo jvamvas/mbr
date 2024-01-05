@@ -89,8 +89,8 @@ select_func = lambda samples, source_sequences: mbr_standard_comet(
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
     references=[[row[i] for row in samples] for i in range(len(samples[0]))],
     inputs=source_sequences,
-    batch_size_embed=3*num_samples,
-    batch_size_estimate=num_samples*num_samples,
+    batch_size_embed=256,
+    batch_size_estimate=256,
 )
 do_evaluate("MBR with standard COMET", select_func)
 
@@ -102,7 +102,7 @@ select_func = lambda samples, source_sequences: mbr_aggregate_comet(
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
     references=[[row[i] for row in samples] for i in range(len(samples[0]))],
     inputs=source_sequences,
-    batch_size_embed=3*num_samples,
-    batch_size_estimate=num_samples*num_samples,
+    batch_size_embed=256,
+    batch_size_estimate=256,
 )
 do_evaluate("MBR with aggregate COMET", select_func)
