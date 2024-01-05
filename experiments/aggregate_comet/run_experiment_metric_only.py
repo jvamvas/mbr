@@ -8,7 +8,7 @@ import jsonlines
 import sacrebleu
 from datasets import load_dataset
 
-from .utils import standard_comet
+from utils import standard_comet
 
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
