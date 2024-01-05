@@ -133,7 +133,5 @@ out_path = out_dir / f"{model}.{num_samples}samples.epsilon{epsilon_cutoff}.seed
 with jsonlines.open(out_path, "w") as f:
     for source_sentence in tqdm(source_sentences):
         f.write({
-            "samples": [
-                model.sample(num_samples * [source_sentence], sampling_epsilon_cutoff=epsilon_cutoff)
-            ]
+            "samples": model.sample(num_samples * [source_sentence], sampling_epsilon_cutoff=epsilon_cutoff)
         })
