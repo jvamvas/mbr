@@ -41,12 +41,12 @@ references = Path(ref_path).read_text().splitlines()
 source_sequences = dataset["test"]["text"]
 assert len(dataset["test"]) == len(references) == len(source_sequences)
 
-print("Only using 20 samples for testing")
-samples = samples[:20]
-source_sequences = source_sequences[:20]
-references = references[:20]
+# print("Only using 20 samples for testing")
+# samples = samples[:20]
+# source_sequences = source_sequences[:20]
+# references = references[:20]
 
-def do_evaluate(select_func: Callable[[List[str]], List[str]]):
+def do_evaluate(method: str, select_func: Callable[[List[str]], List[str]]):
     time_start = time.time()
     translations = select_func(samples, source_sequences)
     assert len(translations) == len(source_sequences)
@@ -70,7 +70,7 @@ def do_evaluate(select_func: Callable[[List[str]], List[str]]):
     )
     results_file.write({
         "language_pair": language_pair,
-        "method": f"Random selection (= sampling)",
+        "method": method,
         "chrf": chrf_score["score"],
         # "cometinho": cometinho_score["mean_score"],
         "comet22": comet22_score["mean_score"],
@@ -81,7 +81,7 @@ def do_evaluate(select_func: Callable[[List[str]], List[str]]):
 # Random selection (= sampling)
 print("Random selection")
 select_func = lambda samples, source_sequences: [row[0] for row in samples]
-do_evaluate(select_func)
+do_evaluate("Sampling", select_func)
 
 # MBR with standard COMET
 select_func = lambda samples, source_sequences: mbr_standard_comet(
@@ -92,7 +92,7 @@ select_func = lambda samples, source_sequences: mbr_standard_comet(
     batch_size_embed=256,
     batch_size_estimate=256,
 )
-do_evaluate(select_func)
+do_evaluate("MBR with standard COMET", select_func)
 
 
 # MBR with aggregate COMET
@@ -105,4 +105,4 @@ select_func = lambda samples, source_sequences: mbr_aggregate_comet(
     batch_size_embed=256,
     batch_size_estimate=256,
 )
-do_evaluate(select_func)
+do_evaluate("MBR with aggregate COMET", select_func)
