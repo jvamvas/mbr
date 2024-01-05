@@ -66,7 +66,7 @@ def do_evaluate(method: str, select_func: Callable[[List[str]], List[str]]):
         predictions=translations,
         references=references,
         sources=source_sequences,
-        # gpus=0,
+        gpus=0,
     )
     results_file.write({
         "language_pair": language_pair,
