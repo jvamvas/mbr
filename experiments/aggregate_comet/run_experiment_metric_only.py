@@ -32,7 +32,6 @@ results_file = jsonlines.open(Path(__file__).parent / f"results_metric_only_{lan
 chrf = evaluate.load("chrf")
 # evaluation_metric_cometinho = evaluate.load("comet", "eamt22-cometinho-da")
 comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
-comet.scorer = comet.scorer.to("cuda:0")
 
 src_path = sacrebleu.get_source_file("wmt19", language_pair)
 ref_path = sacrebleu.get_reference_files("wmt19", language_pair)[0]
@@ -84,6 +83,7 @@ select_func = lambda samples, source_sequences: [row[0] for row in samples]
 do_evaluate("Sampling", select_func)
 
 # MBR with standard COMET
+comet.scorer = comet.scorer.to("cuda:0")
 select_func = lambda samples, source_sequences: mbr_standard_comet(
     comet,
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
@@ -96,6 +96,7 @@ do_evaluate("MBR with standard COMET", select_func)
 
 
 # MBR with aggregate COMET
+comet.scorer = comet.scorer.to("cuda:0")
 select_func = lambda samples, source_sequences: mbr_aggregate_comet(
     comet,
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
