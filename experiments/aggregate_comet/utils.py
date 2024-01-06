@@ -6,6 +6,7 @@ from typing import List, Dict, Set, Tuple
 
 import numpy as np
 import torch
+from fastchrf import pairwise_chrf, aggregate_chrf
 from tqdm import tqdm
 
 
@@ -256,3 +257,39 @@ def run_all_comet_variants(
 
     durations = total_embedding_time + scoring_times
     return tuple(all_translations), tuple(durations)
+
+
+def mbr_standard_chrf(
+        samples: List[List[str]],  # batch_size x num_samples
+        references: List[List[str]],  # batch_size x num_references
+):
+    batch_size = len(samples)
+    scores_per_reference = pairwise_chrf(
+        samples,
+        references,
+    )
+    scores_per_reference = np.array(scores_per_reference)
+    scores = scores_per_reference.mean(dim=-1)
+    translations = []
+    for i in range(batch_size):
+        max_index = scores[i].argmax()
+        translation = samples[max_index][i]
+        translations.append(translation)
+    return translations
+
+
+def mbr_aggregate_chrf(
+        samples: List[List[str]],  # batch_size x num_samples
+        references: List[List[str]],  # batch_size x num_references
+):
+    batch_size = len(samples)
+    scores = aggregate_chrf(
+        samples,
+        references,
+    )
+    translations = []
+    for i in range(batch_size):
+        max_index = scores[i].argmax()
+        translation = samples[max_index][i]
+        translations.append(translation)
+    return translations
