@@ -207,7 +207,7 @@ def run_all_comet_variants(
 
         for j in range(num_iterations):
             start = time.time()
-            num_agg_references = 2 ** (num_iterations - i)
+            num_agg_references = int(2 ** (num_iterations - i))
             metric_scores = torch.zeros((num_samples, num_agg_references))
 
             # Compute average reference embeddings
