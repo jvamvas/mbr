@@ -27,7 +27,7 @@ SEEDS = [
 seed_no = int(sys.argv[2])
 seed = SEEDS[seed_no]
 
-num_samples = 1024
+num_samples = 256
 epsilon_cutoff = 0.02
 
 src_path = sacrebleu.get_source_file("wmt23", language_pair)
