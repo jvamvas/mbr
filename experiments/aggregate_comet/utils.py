@@ -1,6 +1,9 @@
 import itertools
+import math
+import time
 from typing import List, Dict, Set, Tuple
 
+import numpy as np
 import torch
 from tqdm import tqdm
 
@@ -145,3 +148,106 @@ def mbr_aggregate_comet(
         translation = samples[max_index][i]
         translations.append(translation)
     return translations
+
+
+@torch.no_grad()
+def run_all_comet_variants(
+        comet,
+        samples: List[List[str]],  # num_samples x batch_size
+        references: List[List[str]],  # num_references x batch_size
+        inputs: List[str],  # batch_size
+        batch_size_embed: int = 1,
+        batch_size_estimate: int = 1,
+) -> Tuple[Tuple[List[str], ...], Tuple[float, ...]]:
+    """
+    Experimental implementation of reference aggregation with COMET.
+    Returns several set of translations
+    - MBR with pairwise COMET (= aggregate COMET with 2**n subsets)
+    - MBR with aggregate COMET (2**(n-1) subsets)
+    - MBR with aggregate COMET (2**(n-2) subsets)
+    ...
+    - MBR with aggregate COMET (1 subset = average of all references)
+    Also returns the duration of each method.
+    """
+    batch_size = len(samples[0])
+    num_samples = len(samples)
+    num_references = len(references)
+    num_iterations = math.log2(num_references)
+    assert num_iterations.is_integer()
+    num_iterations = int(num_iterations)
+
+    total_embedding_time = 0
+    scoring_times = np.zeros(num_iterations)
+
+    all_translations: List[List[str]] = [list() for _ in range(num_iterations)]
+
+    for i in tqdm(list(range(batch_size)), desc="comet"):
+
+        # Compute embeddings
+        start = time.time()
+        all_samples = [sample[i] for sample in samples]
+        all_references = [reference[i] for reference in references]
+        all_sequences = set(all_samples + all_references + inputs)
+        all_embeddings: Dict[str, torch.FloatTensor] = {}
+        if all_sequences:
+            all_sequences = list(all_sequences)
+            encodings = comet.scorer.encoder.prepare_sample(all_sequences).to(comet.scorer.device)
+            batches = itertools.zip_longest(range(0, len(all_sequences), batch_size_embed),
+                                            range(batch_size_embed, len(all_sequences), batch_size_embed))
+            for start_idx, end_idx in batches:
+                embeddings = comet.scorer.get_sentence_embedding(
+                    input_ids=encodings["input_ids"][start_idx:end_idx],
+                    attention_mask=encodings["attention_mask"][start_idx:end_idx],
+                )
+                for j in range(start_idx, end_idx if end_idx is not None else len(all_sequences)):
+                    embedding = embeddings[j - start_idx]
+                    all_embeddings[all_sequences[j]] = embedding
+        end = time.time()
+        total_embedding_time += (end - start)
+
+        for j in range(num_iterations):
+            start = time.time()
+            num_agg_references = 2 ** (num_iterations - i)
+            metric_scores = torch.zeros((num_samples, num_agg_references))
+
+            # Compute average reference embeddings
+            subset_size = num_references // num_agg_references
+            reference_embeddings = torch.stack([all_embeddings[reference] for reference in all_references])
+            avg_reference_embeddings = reference_embeddings.view(num_agg_references, subset_size, -1).mean(dim=1)
+
+            # Collect all input triples in a list
+            input_triples: Set[Tuple[str, str, str]] = set()
+            for k in range(len(samples)):
+                for m in range(num_agg_references):
+                    input_triples.add((inputs[i], samples[k][i], f"agg{m}"))
+
+            # Compute scores for input triples
+            input_triple_scores: Dict[Tuple[str, str, str], torch.FloatTensor] = {}
+            input_triples: List = list(input_triples)
+            batches = itertools.zip_longest(range(0, len(input_triples), batch_size_estimate),
+                                            range(batch_size_estimate, len(input_triples),
+                                                  batch_size_estimate))
+            for start_idx, end_idx in batches:
+                batch = input_triples[start_idx:end_idx]
+                batch_scores = comet.scorer.estimate(
+                    src_sentemb=torch.stack([all_embeddings[triple[0]] for triple in batch]),
+                    mt_sentemb=torch.stack([all_embeddings[triple[1]] for triple in batch]),
+                    ref_sentemb=torch.stack([avg_reference_embeddings[int(triple[2][3:])] for triple in batch]),
+                )
+                for k in range(start_idx, end_idx if end_idx is not None else len(input_triples)):
+                    triple = batch[k - start_idx]
+                    score = batch_scores.score[k - start_idx]
+                    input_triple_scores[triple] = score
+
+            for k in range(len(samples)):
+                for m in range(num_agg_references):
+                    metric_scores[k, m] = input_triple_scores[(inputs[i], samples[k][i], f"agg{m}")]
+
+            metric_scores = metric_scores.mean(dim=-1)
+            max_index = metric_scores.argmax()
+            translation = samples[max_index][i]
+            all_translations[j].append(translation)
+            end = time.time()
+            scoring_times[j] += (end - start)
+
+    return tuple(all_translations), tuple(scoring_times)
