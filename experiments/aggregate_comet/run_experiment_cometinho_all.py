@@ -28,6 +28,9 @@ with jsonlines.open(samples_path) as f:
 samples = [row[:num_samples] for row in samples]
 for row in samples:
     assert len(row) == num_samples
+unique_sample_counts = [len(set(row)) for row in samples]
+print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
+
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_cometinho_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
 
