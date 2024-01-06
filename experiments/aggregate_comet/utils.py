@@ -287,6 +287,7 @@ def mbr_aggregate_chrf(
         samples,
         references,
     )
+    scores = np.array(scores)
     translations = []
     for i in range(batch_size):
         max_index = scores[i].argmax()
