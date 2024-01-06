@@ -1,5 +1,6 @@
 import itertools
 import math
+import random
 import time
 from typing import List, Dict, Set, Tuple
 
@@ -205,14 +206,16 @@ def run_all_comet_variants(
         end = time.time()
         total_embedding_time += (end - start)
 
-        for j in range(num_iterations):
+        iterations = list(range(num_iterations))
+        # Shuffle to make time measurements more robust
+        random.shuffle(iterations)
+        for j in iterations:
             start = time.time()
             num_agg_references = int(2 ** j)
             subset_size = num_references // num_agg_references
             metric_scores = torch.zeros((num_samples, num_agg_references))
 
             # Compute average reference embeddings
-            subset_size = num_references // num_agg_references
             reference_embeddings = torch.stack([all_embeddings[reference] for reference in all_references])
             avg_reference_embeddings = reference_embeddings.view(num_agg_references, subset_size, -1).mean(dim=1)
 
@@ -251,4 +254,5 @@ def run_all_comet_variants(
             end = time.time()
             scoring_times[j] += (end - start)
 
-    return tuple(all_translations), tuple(scoring_times)
+    durations = total_embedding_time + scoring_times
+    return tuple(all_translations), tuple(durations)
