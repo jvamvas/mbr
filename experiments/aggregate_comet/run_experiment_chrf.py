@@ -36,10 +36,10 @@ for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
     source_sequences = dataset["test"]["text"]
     assert len(dataset["test"]) == len(references) == len(source_sequences)
 
-    print("Only using 20 samples for testing")
-    samples = samples[:20]
-    source_sequences = source_sequences[:20]
-    references = references[:20]
+    # print("Only using 20 samples for testing")
+    # samples = samples[:20]
+    # source_sequences = source_sequences[:20]
+    # references = references[:20]
 
     def do_evaluate(method: str, select_func: Callable[[List[str]], List[str]]):
         time_start = time.time()
