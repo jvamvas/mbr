@@ -75,7 +75,7 @@ for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
 
     # Random selection (= sampling)
     print("Random selection")
-    select_func = lambda samples, source_sequences: [row[0] for row in samples]
+    select_func = lambda samples: [row[0] for row in samples]
     do_evaluate("Sampling", select_func)
 
     select_func = lambda samples: mbr_standard_chrf(
