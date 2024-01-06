@@ -4,7 +4,7 @@ from pathlib import Path
 import sacrebleu
 from datasets import load_dataset
 
-from sample_fairseq import load_model
+from fairseq_utils import load_model
 
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
