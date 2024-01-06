@@ -269,7 +269,7 @@ def mbr_standard_chrf(
         references,
     )
     scores_per_reference = np.array(scores_per_reference)
-    scores = scores_per_reference.mean(dim=-1)
+    scores = scores_per_reference.mean(axis=-1)
     translations = []
     for i in range(batch_size):
         max_index = scores[i].argmax()
