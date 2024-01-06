@@ -70,8 +70,8 @@ def do_evaluate(method: str, select_func: Callable[[List[str]], List[str]]):
         "language_pair": language_pair,
         "method": method,
         "chrf": chrf_score["score"],
-        # "cometinho": cometinho_score["mean_score"],
-        "comet22": comet22_score["mean_score"],
+        # "cometinho": 100 * cometinho_score["mean_score"],
+        "comet22": 100 * comet22_score["mean_score"],
         "duration": time_end - time_start,
     })
 
