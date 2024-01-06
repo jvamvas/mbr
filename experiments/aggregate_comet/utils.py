@@ -162,17 +162,17 @@ def run_all_comet_variants(
     """
     Experimental implementation of reference aggregation with COMET.
     Returns several set of translations
-    - MBR with pairwise COMET (= aggregate COMET with 2**n subsets)
-    - MBR with aggregate COMET (2**(n-1) subsets)
-    - MBR with aggregate COMET (2**(n-2) subsets)
+    - MBR with aggregate COMET (2**0 = 1 subset = average of all references)
+    - MBR with aggregate COMET (2**1 = 2 subsets = average of n/2 references)
+    - MBR with aggregate COMET (2**2 = 4 subsets = average of n/4 references)
     ...
-    - MBR with aggregate COMET (1 subset = average of all references)
+    - MBR with aggregate COMET (2**log2(n) = n subsets = pairwise COMET)
     Also returns the duration of each method.
     """
     batch_size = len(samples[0])
     num_samples = len(samples)
     num_references = len(references)
-    num_iterations = math.log2(num_references)
+    num_iterations = math.log2(num_references) + 1
     assert num_iterations.is_integer()
     num_iterations = int(num_iterations)
 
@@ -207,7 +207,8 @@ def run_all_comet_variants(
 
         for j in range(num_iterations):
             start = time.time()
-            num_agg_references = int(2 ** (num_iterations - j))
+            num_agg_references = int(2 ** j)
+            subset_size = num_references // num_agg_references
             metric_scores = torch.zeros((num_samples, num_agg_references))
 
             # Compute average reference embeddings

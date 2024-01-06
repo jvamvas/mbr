@@ -24,13 +24,11 @@ class AggregatedCometTestCase(TestCase):
 
     def test_run_all_comet_variants(self):
         translations, durations = run_all_comet_variants(self.comet, self.samples, self.references, self.inputs)
-        self.assertEqual(len(translations), math.log2(len(self.samples)))
+        self.assertEqual(len(translations), math.log2(len(self.samples)) + 1)
         self.assertEqual(len(durations), len(translations))
         for translation_list in translations:
             self.assertEqual(len(translation_list), len(self.inputs))
             for i, translation in enumerate(translation_list):
                 self.assertIn(translation, [sample[i] for sample in self.samples])
-        for i, duration in enumerate(durations):
+        for duration in durations:
             self.assertGreater(duration, 0)
-            if i > 0:
-                self.assertLess(duration, durations[i - 1])

@@ -79,7 +79,7 @@ for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
     )
     results_file.write({
         "language_pair": language_pair,
-        "method": f"MBR with aggregate COMET ({int(2**i)}/{len(samples)} partition",
+        "method": f"MBR with aggregate COMET ({int(2**i)} aggregates from {num_samples} refs)",
         "chrf": chrf_score["score"],
         "cometinho": 100 * cometinho_score["mean_score"],
         "comet22": 100 * comet22_score["mean_score"],
