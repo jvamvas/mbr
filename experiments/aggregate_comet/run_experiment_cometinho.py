@@ -18,12 +18,11 @@ seed = 42
 epsilon_cutoff = 0.02
 
 samples_name = f"transformer.wmt19.{language_pair}.single_model.{num_samples}samples.epsilon{epsilon_cutoff}.seed{seed}.jsonl"
-samples_dir = Path(__file__).parent / "samples" / samples_name
-print(samples_dir)
-assert samples_dir.exists(), samples_dir
+samples_path = Path(__file__).parent / "samples" / samples_name
+assert samples_path.exists(), samples_path
 
 samples = []  # segments x num_samples
-with jsonlines.open(samples_dir) as f:
+with jsonlines.open(samples_path) as f:
     for line in f:
         samples.append(line["samples"][0])
 
@@ -106,3 +105,5 @@ select_func = lambda samples, source_sequences: mbr_aggregate_comet(
     batch_size_estimate=128,
 )
 do_evaluate("MBR with aggregate COMET", select_func)
+
+results_file.close()
