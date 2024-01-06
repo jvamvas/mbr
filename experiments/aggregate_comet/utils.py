@@ -273,7 +273,7 @@ def mbr_standard_chrf(
     translations = []
     for i in range(batch_size):
         max_index = scores[i].argmax()
-        translation = samples[max_index][i]
+        translation = samples[i][max_index]
         translations.append(translation)
     return translations
 
@@ -290,6 +290,6 @@ def mbr_aggregate_chrf(
     translations = []
     for i in range(batch_size):
         max_index = scores[i].argmax()
-        translation = samples[max_index][i]
+        translation = samples[i][max_index]
         translations.append(translation)
     return translations
