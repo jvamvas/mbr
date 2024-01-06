@@ -15,7 +15,7 @@ seed_no = int(sys.argv[2])
 num_samples = 256
 epsilon_cutoff = 0.02
 
-samples_name = f"transformer.wmt19.{language_pair}.single_model.{num_samples}samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
+samples_name = f"transformer.wmt19.{language_pair}.single_model.1024samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
 samples_path = Path(__file__).parent / "samples" / samples_name
 assert samples_path.exists(), samples_path
 
