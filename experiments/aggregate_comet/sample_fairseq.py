@@ -30,17 +30,13 @@ seed = SEEDS[seed_no]
 num_samples = 1024
 epsilon_cutoff = 0.02
 
-
-
-
-
-src_path = sacrebleu.get_source_file("wmt19", language_pair)
+src_path = sacrebleu.get_source_file("wmt23", language_pair)
 dataset = load_dataset("text", data_files={"test": src_path})
 source_sentences = dataset["test"]["text"]
 
 model = load_model(language_pair)
 
-out_dir = Path(__file__).parent / f"samples"
+out_dir = Path(__file__).parent / f"samples_wmt23"
 out_dir.mkdir(exist_ok=True, parents=True)
 out_path = out_dir / f"{model}.{num_samples}samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
 
