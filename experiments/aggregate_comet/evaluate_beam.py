@@ -27,7 +27,6 @@ for wmt in ["wmt21", "wmt22"]:
         source_sequences = dataset["test"]["text"]
         assert len(dataset["test"]) == len(references) == len(source_sequences) == len(translations)
 
-
         chrf_score = chrf.compute(
             predictions=translations,
             references=references,

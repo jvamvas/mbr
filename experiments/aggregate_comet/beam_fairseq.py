@@ -8,7 +8,7 @@ from fairseq_utils import load_model
 beam_size = 4
 
 for wmt in ["wmt21", "wmt22"]:
-    for language_pair in  ["de-en", "en-de", "en-ru", "ru-en"]:
+    for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
         src_path = sacrebleu.get_source_file(wmt, language_pair)
         dataset = load_dataset("text", data_files={"test": src_path})
         source_sentences = dataset["test"]["text"]
