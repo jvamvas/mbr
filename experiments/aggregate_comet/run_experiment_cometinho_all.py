@@ -15,8 +15,8 @@ seed_no = int(sys.argv[2])
 num_samples = 256
 epsilon_cutoff = 0.02
 
-split = "valid"
-# split = "test"
+# split = "valid"
+split = "test"
 
 
 if split == "valid":
