@@ -10,10 +10,10 @@ from datasets import load_dataset
 
 from utils import mbr_standard_chrf, mbr_aggregate_chrf
 
-split = sys.argv[2]
+split = sys.argv[1]
 assert split in ["valid", "test"]
 
-seed_no = int(sys.argv[3])
+seed_no = int(sys.argv[2])
 
 num_samples = 1024
 epsilon_cutoff = 0.02
@@ -31,7 +31,8 @@ chrf = evaluate.load("chrf")
 cometinho = evaluate.load("comet", "eamt22-cometinho-da")
 comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
-for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
+for language_pair in ["de-en"]:
+# for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
 
     print(f"Using {split} split (={wmt}) with {num_samples} samples")
 
