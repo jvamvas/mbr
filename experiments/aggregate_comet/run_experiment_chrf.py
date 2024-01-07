@@ -15,7 +15,7 @@ assert split in ["valid", "test"]
 
 seed_no = int(sys.argv[3])
 
-num_samples = 256
+num_samples = 1024
 epsilon_cutoff = 0.02
 
 if split == "valid":
