@@ -10,13 +10,14 @@ from utils import run_all_comet_variants
 
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
-seed_no = int(sys.argv[2])
+
+split = sys.argv[2]
+assert split in ["valid", "test"]
+
+seed_no = int(sys.argv[3])
 
 num_samples = 1024
 epsilon_cutoff = 0.02
-
-split = "valid"
-# split = "test"
 
 if split == "valid":
     wmt = "wmt21"
@@ -25,7 +26,7 @@ elif split == "test":
 else:
     raise ValueError(split)
 
-print(f"Using {split} split (={wmt} with {num_samples} samples")
+print(f"Using {split} split (={wmt}) with {num_samples} samples")
 
 samples_dir = Path(__file__).parent / f"samples_{wmt}"
 samples_name = f"transformer.wmt19.{language_pair}.single_model.1024samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
@@ -92,7 +93,10 @@ for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
     results_file.write({
         "testset": wmt,
         "language_pair": language_pair,
+        "seed_no": seed_no,
         "method": f"MBR with aggregate COMET ({int(2**i)} aggregates from {num_samples} refs)",
+        "num_aggregates": int(2**i),
+        "num_samples": num_samples,
         "chrf": chrf_score["score"],
         "cometinho": 100 * cometinho_score["mean_score"],
         "comet22": 100 * comet22_score["mean_score"],
