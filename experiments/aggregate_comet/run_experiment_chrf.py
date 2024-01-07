@@ -31,7 +31,7 @@ chrf = evaluate.load("chrf")
 cometinho = evaluate.load("comet", "eamt22-cometinho-da")
 comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
-for language_pair in ["de-en"]:
+for language_pair in ["ru-en"]:
 # for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
 
     print(f"Using {split} split (={wmt}) with {num_samples} samples")
