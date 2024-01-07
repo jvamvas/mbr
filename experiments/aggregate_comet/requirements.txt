@@ -4,3 +4,4 @@ sacremoses==0.1.1
 fastBPE==0.1.0
 requests
 jsonlines
+git+https://github.com/mjpost/sacrebleu.git  # wmt23 data

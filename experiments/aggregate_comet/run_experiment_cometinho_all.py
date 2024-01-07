@@ -52,7 +52,10 @@ cometinho = evaluate.load("comet", "eamt22-cometinho-da")
 comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
 src_path = sacrebleu.get_source_file(wmt, language_pair)
-ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
+if wmt == "wmt23" and language_pair == "de-en":  # TODO fix this
+    ref_path = [path for path in sacrebleu.DATASETS["wmt23"].get_files("de-en") if "refA" in path][0]
+else:
+    ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
 references = Path(ref_path).read_text().splitlines()
 source_sequences = dataset["test"]["text"]
