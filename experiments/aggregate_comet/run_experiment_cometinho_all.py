@@ -28,7 +28,7 @@ else:
 
 print(f"Using {split} split (={wmt} with {num_samples} samples")
 
-samples_dir = Path(__file__).parent / "samples" / wmt
+samples_dir = Path(__file__).parent / f"samples_{wmt}"
 samples_name = f"transformer.wmt19.{language_pair}.single_model.256samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
 samples_path = samples_dir / samples_name
 assert samples_path.exists(), samples_path
