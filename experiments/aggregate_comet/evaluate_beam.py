@@ -50,4 +50,4 @@ for wmt in ["wmt21", "wmt22"]:
             "comet22": 100 * comet22_score["mean_score"],
         })
 
-    results_file.close()
+results_file.close()
