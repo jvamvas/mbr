@@ -40,7 +40,7 @@ class MetricRunner:
         # Ensure that mbr_config.metric_kwargs is hashable (because _compute_metric() uses lru_cache)
         if mbr_config.metric_kwargs:
             try:
-                hash(self.mbr_config.metric_kwargs)
+                hash(tuple(self.mbr_config.metric_kwargs))
             except TypeError as e:
                 raise TypeError(f"mbr_config.metric_kwargs must be hashable.") from e
         self.tokenizer = tokenizer
@@ -92,10 +92,6 @@ class MetricRunner:
 
         if len(str_samples[0]) != len(str_references[0]):
             raise ValueError("Batch size of samples and references must match")
-        if len(str_samples) != self.mbr_config.num_samples:
-            raise ValueError("Number of samples must match `mbr_config.num_samples`")
-        if len(str_references) != self.mbr_config.num_references:
-            raise ValueError("Number of references must match `mbr_config.num_references`")
 
         # Compute metric
         scores_per_reference = self._compute_str_metric(str_samples, str_references, str_inputs)
@@ -111,11 +107,11 @@ class MetricRunner:
                             inputs: List[str] = None,
                             ) -> torch.FloatTensor:
         batch_size = len(samples[0])
-        metric_scores = torch.zeros((batch_size, self.mbr_config.num_samples, self.mbr_config.num_references))
+        metric_scores = torch.zeros((batch_size, len(samples), len(references)))
         for i in range(batch_size):
-            for j in range(self.mbr_config.num_samples):
+            for j in range(len(samples)):
                 sample = samples[j][i]
-                for k in range(self.mbr_config.num_references):
+                for k in range(len(references)):
                     reference = references[k][i]
                     if inputs is not None:
                         score = self.compute_metric(

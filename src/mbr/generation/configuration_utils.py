@@ -1,7 +1,16 @@
+from typing import List
+
 from transformers import __version__ as transformers_version
-from transformers.utils import logging
+from transformers.utils import logging, ExplicitEnum
 
 logger = logging.get_logger(__name__)
+
+
+class PruningStrategy(ExplicitEnum):
+    """
+    Possible values for the `pruning` parameter of `MBRConfig`.
+    """
+    CONFIDENCE = "confidence"
 
 
 class MBRConfig:
@@ -65,6 +74,22 @@ class MBRConfig:
             Whether or not to return the metric scores. See `metric_scores` under returned tensors for more details.
         return_dict_in_generate (`bool`, *optional*, defaults to `False`):
             Whether or not to return a [`~utils.ModelOutput`] instead of a plain tuple.
+
+        > Parameters that control pruning
+        pruning (`str` or `~mbr.generation.configuration_utils.PruningStrategy`, *optional*, defaults to None):
+            Pruning strategy to use. Possible values:
+                - `None`: No pruning
+                - `"confidence"`: Confidence-based pruning
+        pruning_alpha (`float`, *optional*, defaults to 0.99):
+            Confidence threshold for confidence-based pruning. The lower the value, the more aggressively hypotheses are
+            pruned. Needs to be in [0, 1].
+        initial_num_references (`int`, *optional*, defaults to min(16, `num_references`)):
+            Number of pseudo-references used at the first step of confidence-based pruning. Usually smaller than
+            `num_references`; if equal, no pruning is done. Subsequent pruning steps use twice as many references as the
+            previous step until `num_references` is reached.
+        num_bootstrap_resamples (`int`, *optional*, defaults to 500):
+            Number of bootstrap resamples used to estimate the confidence of the metric scores for confidence-based
+            pruning.
     """
 
     def __init__(self, **kwargs):
@@ -86,6 +111,16 @@ class MBRConfig:
         self.output_reference_sequences = kwargs.pop("output_reference_sequences", False)
         self.output_metric_scores = kwargs.pop("output_metric_scores", False)
         self.return_dict_in_generate = kwargs.pop("return_dict_in_generate", False)
+
+        # Parameters that control pruning
+        pruning = kwargs.pop("pruning", None)
+        if isinstance(pruning, str):
+            pruning = PruningStrategy(pruning)
+        self.pruning = pruning
+        self.pruning_alpha = kwargs.pop("pruning_alpha", 0.99)
+        self.initial_num_references = kwargs.pop("initial_num_references", min(16, self.num_references))
+        self.num_bootstrap_resamples = kwargs.pop("num_bootstrap_resamples", 500)
+        self.validate(is_init=False)
 
         # The remaining attributes do not parametrize `.generate()`, but are informative and/or used by the hub
         # interface.
@@ -117,4 +152,26 @@ class MBRConfig:
         Note that some parameters are best validated at generate runtime, as they may depend on other inputs and/or the
         model, such as parameters related to the generation length.
         """
-        pass
+        if self.metric_cache_size <= 0:
+            raise ValueError(f"`metric_cache_size` ({self.metric_cache_size}) must be greater than 0.")
+        if self.pruning == PruningStrategy.CONFIDENCE:
+            if self.initial_num_references > self.num_references:
+                raise ValueError(
+                    f"`initial_num_references` ({self.initial_num_references}) must be smaller than or equal to "
+                    f"`num_references` ({self.num_references})."
+                )
+            if self.output_metric_scores and len(self.pruning_schedule) > 1:
+                raise NotImplementedError("Pruning does not support output_metric_scores=True, since not all metric "
+                                          "scores are calculated.")
+
+    @property
+    def pruning_schedule(self) -> List[int]:
+        """
+        Confidence-based pruning: Returns the number of references used at each pruning iteration.
+        """
+        schedule = [self.initial_num_references]
+        while 2 * schedule[-1] <= self.num_references:
+            schedule.append(2 * schedule[-1])
+        if schedule[-1] != self.num_references:
+            schedule.append(self.num_references)
+        return schedule

@@ -64,10 +64,6 @@ class FastChrfMetricRunner(MetricRunner):
 
         if len(str_samples[0]) != len(str_references[0]):
             raise ValueError("Batch size of samples and references must match")
-        if len(str_samples) != self.mbr_config.num_samples:
-            raise ValueError("Number of samples must match `mbr_config.num_samples`")
-        if len(str_references) != self.mbr_config.num_references:
-            raise ValueError("Number of references must match `mbr_config.num_references`")
 
         # Transpose to batch_size x num_samples/num_references
         str_samples = list(zip(*str_samples))
