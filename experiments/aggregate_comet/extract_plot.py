@@ -14,20 +14,20 @@ with jsonlines.open(jsonl_path) as f:
 print("Series 1 (COMET-22 delta):")
 # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
 num_aggregates = list(reversed(sorted(set(line["num_aggregates"] for line in data))))
+num_segments = len(data[0]["translations"])
+num_samples = max(num_aggregates)
 
-max_k = max(num_aggregates)
-baseline_row = [line for line in data if line["num_aggregates"] == max_k][0]
+baseline_row = [line for line in data if line["num_aggregates"] == sum_samples][0]
 baseline = baseline_row["comet22"]
 for k in num_aggregates:
     row = [line for line in data if line["num_aggregates"] == k][0]
     delta = row["comet22"] - baseline
-    print(f"({k},{delta:.5f})", end="")
+    print(f"({int(num_samples/k)},{delta:.5f})", end="")
 print()
 
 print("Series 2 (time per segment):")
-num_segments = len(data[0]["translations"])
 for k in num_aggregates:
     row = [line for line in data if line["num_aggregates"] == k][0]
     duration = row["duration"]
-    print(f"({k},{duration / num_segments:.5f})", end="")
+    print(f"({int(num_samples/k)},{duration / num_segments:.5f})", end="")
 print()
