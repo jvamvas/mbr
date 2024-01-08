@@ -20,7 +20,7 @@ baseline = baseline_row["comet22"]
 for k in num_aggregates:
     row = [line for line in data if line["num_aggregates"] == k][0]
     delta = row["comet22"] - baseline
-    print(f"({k},{delta:.1f})", end="")
+    print(f"({k},{delta:.5f})", end="")
 print()
 
 print("Series 2 (time per segment):")
@@ -28,5 +28,5 @@ num_segments = len(data[0]["translations"])
 for k in num_aggregates:
     row = [line for line in data if line["num_aggregates"] == k][0]
     duration = row["duration"]
-    print(f"({k},{duration / num_segments:.1f})", end="")
+    print(f"({k},{duration / num_segments:.5f})", end="")
 print()
