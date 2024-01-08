@@ -13,7 +13,8 @@ with jsonlines.open(jsonl_path) as f:
 
 print("Series 1 (COMET-22 delta):")
 # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
-num_aggregates = list(sorted(set(line["num_aggregates"] for line in data)))
+num_aggregates = list(reversed(sorted(set(line["num_aggregates"] for line in data))))
+
 max_k = max(num_aggregates)
 baseline_row = [line for line in data if line["num_aggregates"] == max_k][0]
 baseline = baseline_row["comet22"]
