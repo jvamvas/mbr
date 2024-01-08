@@ -8,6 +8,8 @@ jsonl_path = Path(sys.argv[1])
 with jsonlines.open(jsonl_path) as f:
     data = [line for line in f]
 
+beam_search = float(sys.argv[2])
+
 # Line example:
 # {"testset": "wmt21", "language_pair": "de-en", "seed_no": 0, "method": "MBR with aggregate COMET (1 aggregates from 1024 refs)", "num_aggregates": 1, "num_samples": 1024, "chrf": 57.662579358040325, "cometinho": 60.126039303373545, "comet22": 85.5144088923931, "duration": 489.24234914779663, "transl...
 
@@ -17,12 +19,10 @@ num_aggregates = list(reversed(sorted(set(line["num_aggregates"] for line in dat
 num_segments = len(data[0]["translations"])
 num_samples = max(num_aggregates)
 
-baseline_row = [line for line in data if line["num_aggregates"] == num_samples][0]
-baseline = baseline_row["comet22"]
 for k in num_aggregates:
     row = [line for line in data if line["num_aggregates"] == k][0]
-    delta_rate = (row["comet22"] - baseline) / baseline * 100
-    print(f"({int(num_samples/k)},{delta_rate:.5f})", end="")
+    delta = (row["comet22"] - beam_search)
+    print(f"({int(num_samples/k)},{delta:.5f})", end="")
 print()
 
 print("Series 2 (time per segment):")
