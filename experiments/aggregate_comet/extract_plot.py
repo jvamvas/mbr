@@ -17,7 +17,7 @@ num_aggregates = list(reversed(sorted(set(line["num_aggregates"] for line in dat
 num_segments = len(data[0]["translations"])
 num_samples = max(num_aggregates)
 
-baseline_row = [line for line in data if line["num_aggregates"] == sum_samples][0]
+baseline_row = [line for line in data if line["num_aggregates"] == num_samples][0]
 baseline = baseline_row["comet22"]
 for k in num_aggregates:
     row = [line for line in data if line["num_aggregates"] == k][0]
