@@ -21,8 +21,8 @@ baseline_row = [line for line in data if line["num_aggregates"] == num_samples][
 baseline = baseline_row["comet22"]
 for k in num_aggregates:
     row = [line for line in data if line["num_aggregates"] == k][0]
-    delta = row["comet22"] - baseline
-    print(f"({int(num_samples/k)},{delta:.5f})", end="")
+    delta_rate = (row["comet22"] - baseline) / baseline * 100
+    print(f"({int(num_samples/k)},{delta_rate:.5f})", end="")
 print()
 
 print("Series 2 (time per segment):")
