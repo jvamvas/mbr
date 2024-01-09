@@ -56,7 +56,7 @@ if sampling_chrf_results_path.exists():
     print(f"Epsilon sampling (\epsilon=0.02) & {sampling_results['en-de']:.1f} & {sampling_results['de-en']:.1f} & {sampling_results['en-ru']:.1f} & {sampling_results['ru-en']:.1f} & tba / - \\\\")
     print(r"\midrule")
     print(r"MBR with \chrf{} metric & & & & &  \\")
-    chrf_pairwise_results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["method"] == "MBR with standard ChrF"}
+    chrf_pairwise_results = {result["language_pair"]: result[metric] for result in data if result["method"] == "MBR with standard ChrF"}
     print(f"– pairwise & {chrf_pairwise_results['en-de']:.1f} & {chrf_pairwise_results['de-en']:.1f} & {chrf_pairwise_results['en-ru']:.1f} & {chrf_pairwise_results['ru-en']:.1f} & tba / tba \\\\")
     chrf_aggregate_results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["method"] == "MBR with aggregate ChrF"}
     print(f"– reference aggregation (factor 1024) & {chrf_aggregate_results['en-de']:.1f} & {chrf_aggregate_results['de-en']:.1f} & {chrf_aggregate_results['en-ru']:.1f} & {chrf_aggregate_results['ru-en']:.1f} & tba / tba \\\\")
