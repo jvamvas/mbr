@@ -7,7 +7,7 @@ split = 'test'
 
 language_pairs = ["en-de", "de-en", "en-ru", "ru-en"]
 metric = "comet22"
-factor = 32
+factor = 8
 
 # \begin{tabularx}{\textwidth}{Xrrrrr}
 # \toprule
