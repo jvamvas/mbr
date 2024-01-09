@@ -52,7 +52,7 @@ sampling_chrf_results_path = Path(f"results_chrf_{testset}_1024samples_seed0.jso
 if sampling_chrf_results_path.exists():
     with jsonlines.open(sampling_chrf_results_path) as f:
         data = list(f)
-    sampling_results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["method"] == "Sampling"}
+    sampling_results = {result["language_pair"]: result[metric] for result in data if result["method"] == "Sampling"}
     print(f"Epsilon sampling (\epsilon=0.02) & {sampling_results['en-de']:.1f} & {sampling_results['de-en']:.1f} & {sampling_results['en-ru']:.1f} & {sampling_results['ru-en']:.1f} & tba / - \\\\")
     print(r"\midrule")
     print(r"MBR with \chrf{} metric & & & & &  \\")
