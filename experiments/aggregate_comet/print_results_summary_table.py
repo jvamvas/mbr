@@ -65,7 +65,7 @@ else:
     print(r"\midrule")
     print(r"MBR with \chrf{} metric & & & & &  \\")
     print(r"– pairwise & & & & & tba / tba \\")
-    print(r"– reference aggregation (factor 1024) & & & & & tba / tba \\\\")
+    print(r"– reference aggregation (factor 1024) & & & & & tba / tba \\")
 
 print(r"\midrule")
 
@@ -80,7 +80,7 @@ for lang_pair in language_pairs:
         print(f"{results[lang_pair]:.1f} & ", end="")
     else:
         print("tba & ", end="")
-print(r"tba / tba \\\\")
+print(r"tba / tba \\")
 print(r"– reference aggregation (factor 32) & ", end="")
 for lang_pair in language_pairs:
     path = Path(f"results_cometinho_{testset}_{lang_pair}_32samples_seed0.jsonl")
@@ -91,7 +91,7 @@ for lang_pair in language_pairs:
         print(f"{results[lang_pair]:.1f} & ", end="")
     else:
         print("tba & ", end="")
-print(r"tba / tba \\\\")
+print(r"tba / tba \\")
 
 print(r"\midrule")
 
@@ -106,7 +106,7 @@ for lang_pair in language_pairs:
         print(f"{results[lang_pair]:.1f} & ", end="")
     else:
         print("tba & ", end="")
-print(r"tba / tba \\\\")
+print(r"tba / tba \\")
 print(r"– reference aggregation (factor 32) & ", end="")
 for lang_pair in language_pairs:
     path = Path(f"results_comet22_{testset}_{lang_pair}_32samples_seed0.jsonl")
@@ -117,7 +117,7 @@ for lang_pair in language_pairs:
         print(f"{results[lang_pair]:.1f} & ", end="")
     else:
         print("tba & ", end="")
-print(r"tba / tba \\\\")
+print(r"tba / tba \\")
 
 print(r"\bottomrule")
 print(r"\end{tabularx}")
