@@ -73,7 +73,7 @@ print(r"MBR with \cometinho{} metric & & & & &  \\")
 print(r"– pairwise & ", end="")
 for lang_pair in language_pairs:
     path = Path(f"results_cometinho_{testset}_{lang_pair}_1024samples_seed0.jsonl")
-    if path.exists():
+    if path.exists() and path.stat().st_size > 0:
         with jsonlines.open(path) as f:
             data = list(f)
         results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 1024}
@@ -84,7 +84,7 @@ print(r"tba / tba \\\\")
 print(r"– reference aggregation (factor 32) & ", end="")
 for lang_pair in language_pairs:
     path = Path(f"results_cometinho_{testset}_{lang_pair}_32samples_seed0.jsonl")
-    if path.exists():
+    if path.exists() and path.stat().st_size > 0:
         with jsonlines.open(path) as f:
             data = list(f)
         results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 32}
@@ -99,7 +99,7 @@ print(r"MBR with \comettt{} metric & & & & &  \\")
 print(r"– pairwise & ", end="")
 for lang_pair in language_pairs:
     path = Path(f"results_comet22_{testset}_{lang_pair}_1024samples_seed0.jsonl")
-    if path.exists():
+    if path.exists() and path.stat().st_size > 0:
         with jsonlines.open(path) as f:
             data = list(f)
         results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 1024}
@@ -110,7 +110,7 @@ print(r"tba / tba \\\\")
 print(r"– reference aggregation (factor 32) & ", end="")
 for lang_pair in language_pairs:
     path = Path(f"results_comet22_{testset}_{lang_pair}_32samples_seed0.jsonl")
-    if path.exists():
+    if path.exists() and path.stat().st_size > 0:
         with jsonlines.open(path) as f:
             data = list(f)
         results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 32}
