@@ -2,8 +2,8 @@ from pathlib import Path
 
 import jsonlines
 
-# split = 'test'
-split = 'valid'
+split = 'test'
+# split = 'valid'
 
 language_pairs = ["en-de", "de-en", "en-ru", "ru-en"]
 metric = "comet22"
