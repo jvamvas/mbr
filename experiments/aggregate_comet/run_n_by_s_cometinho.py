@@ -17,7 +17,7 @@ assert split in ["valid", "test"]
 seed_no = int(sys.argv[3])
 
 num_samples = 1024  # N
-num_references = 128  # S; num_samples / num_references corresponds to aggregation factor
+num_references = 8  # S; num_samples / num_references corresponds to aggregation factor
 epsilon_cutoff = 0.02
 
 if split == "valid":
