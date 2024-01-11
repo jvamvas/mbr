@@ -14,13 +14,16 @@ beam_size = 4
 num_segments = 32  # total over all language pairs
 assert num_segments % len(language_pairs) == 0
 
+random.seed(42)
+random_indices = random.sample(range(num_segments), num_segments)
+
 total_time = 0
 
 for language_pair in language_pairs:
     src_path = sacrebleu.get_source_file("wmt22", language_pair)
     dataset = load_dataset("text", data_files={"test": src_path})
     source_sentences = dataset["test"]["text"]
-    source_sentences = random.sample(source_sentences, num_segments // len(language_pairs))
+    source_sentences = [source_sentences[i] for i in random_indices[:num_segments // len(language_pairs)]]
     model = load_model(language_pair)
 
     time_start = time.time()
