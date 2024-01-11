@@ -95,22 +95,10 @@ for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
             "duration": time_end - time_start,
         })
 
-
-    # Random selection (= sampling)
-    print("Random selection")
-    select_func = lambda samples: [row[0] for row in samples]
-    do_evaluate("Sampling", select_func)
-
     select_func = lambda samples: mbr_standard_chrf(
         samples=samples,
         references=[row[:num_references] for row in samples],
     )
-    do_evaluate("MBR with standard ChrF", select_func)
-
-    select_func = lambda samples: mbr_aggregate_chrf(
-        samples=samples,
-        references=[row[:num_references] for row in samples],
-    )
-    do_evaluate("MBR with aggregate ChrF", select_func)
+    do_evaluate("MBR N-by-S", select_func)
 
 results_file.close()
