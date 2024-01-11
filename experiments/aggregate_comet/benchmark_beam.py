@@ -8,7 +8,6 @@ from fairseq_utils import load_model
 
 language_pairs = ["de-en", "en-de", "en-ru", "ru-en"]
 
-num_samples = 1024
 beam_size = 4
 
 num_segments = 32  # total over all language pairs
@@ -28,7 +27,7 @@ for language_pair in language_pairs:
 
     time_start = time.time()
     for source_sentence in source_sentences:
-        samples = model.translate(num_samples * [source_sentence], beam_size=beam_size)
+        samples = model.translate([source_sentence], beam_size=beam_size)
     time_end = time.time()
     total_time += time_end - time_start
 
