@@ -30,8 +30,8 @@ else:
 random.seed(42)
 random_indices = random.sample(range(num_segments), num_segments)
 
-cometinho = evaluate.load("comet", "eamt22-cometinho-da")
-cometinho.scorer = cometinho.scorer.to("cuda:0")
+comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
+comet.scorer = comet.scorer.to("cuda:0")
 
 total_times = np.zeros(int(math.log2(num_samples)) + 1)
 
@@ -62,7 +62,7 @@ for language_pair in language_pairs:
     source_sequences = [source_sequences[i] for i in random_indices[:num_segments // len(language_pairs)]]
     references = [references[i] for i in random_indices[:num_segments // len(language_pairs)]]
     translation_lists, durations = run_all_comet_factors(
-        cometinho,
+        comet,
         samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
         references=[[row[i] for row in samples] for i in range(len(samples[0]))],
         inputs=source_sequences,

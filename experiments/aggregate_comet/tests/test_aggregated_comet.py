@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import evaluate
 
-from ..utils import run_all_comet_variants
+from ..utils import run_all_comet_factors
 
 
 class AggregatedCometTestCase(TestCase):
@@ -23,7 +23,7 @@ class AggregatedCometTestCase(TestCase):
         self.references = self.samples
 
     def test_run_all_comet_variants(self):
-        translations, durations = run_all_comet_variants(self.comet, self.samples, self.references, self.inputs)
+        translations, durations = run_all_comet_factors(self.comet, self.samples, self.references, self.inputs)
         self.assertEqual(len(translations), math.log2(len(self.samples)) + 1)
         self.assertEqual(len(durations), len(translations))
         for translation_list in translations:
