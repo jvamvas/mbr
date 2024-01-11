@@ -350,7 +350,7 @@ def run_all_comet_n_by_s(
                     input_triple_scores[triple] = score
 
             for j in range(len(samples)):
-                for k in range(len(references)):
+                for k in range(len(subsampled_references)):
                     metric_scores[j, k] = input_triple_scores[(inputs[i], samples[j][i], subsampled_references[k][i])]
 
             metric_scores = metric_scores.mean(dim=-1)
