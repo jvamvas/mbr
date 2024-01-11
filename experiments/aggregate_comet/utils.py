@@ -323,7 +323,7 @@ def run_all_comet_n_by_s(
             num_subsampled_references = int(2 ** j)
             metric_scores = torch.zeros((num_samples, num_subsampled_references))
 
-            subsampled_references = all_references[:num_subsampled_references]
+            subsampled_references = references[:num_subsampled_references]
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
