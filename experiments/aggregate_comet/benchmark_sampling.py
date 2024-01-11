@@ -1,4 +1,5 @@
 from datetime import time
+import random
 
 import sacrebleu
 from datasets import load_dataset
@@ -18,7 +19,7 @@ for language_pair in language_pairs:
     src_path = sacrebleu.get_source_file("wmt22", language_pair)
     dataset = load_dataset("text", data_files={"test": src_path})
     source_sentences = dataset["test"]["text"]
-    source_sentences = source_sentences[:num_segments / len(language_pairs)]
+    source_sentences = random.sample(source_sentences, num_segments // len(language_pairs))
     model = load_model(language_pair)
 
     time_start = time.time()
