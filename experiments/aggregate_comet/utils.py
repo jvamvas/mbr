@@ -327,9 +327,9 @@ def run_all_comet_n_by_s(
 
             # Collect all input triples in a list
             input_triples: Set[Tuple[str, str, str]] = set()
-            for j in range(len(samples)):
-                for k in range(len(subsampled_references)):
-                    input_triples.add((inputs[i], samples[j][i], subsampled_references[k][i]))
+            for k in range(len(samples)):
+                for m in range(len(subsampled_references)):
+                    input_triples.add((inputs[i], samples[k][i], subsampled_references[m][i]))
 
             input_triple_scores: Dict[Tuple[str, str, str], torch.FloatTensor] = {}
             # Compute scores for input triples
@@ -344,14 +344,14 @@ def run_all_comet_n_by_s(
                     mt_sentemb=torch.stack([all_embeddings[triple[1]] for triple in batch]),
                     ref_sentemb=torch.stack([all_embeddings[triple[2]] for triple in batch]),
                 )
-                for j in range(start_idx, end_idx if end_idx is not None else len(input_triples)):
-                    triple = batch[j - start_idx]
-                    score = batch_scores.score[j - start_idx]
+                for k in range(start_idx, end_idx if end_idx is not None else len(input_triples)):
+                    triple = batch[k - start_idx]
+                    score = batch_scores.score[k - start_idx]
                     input_triple_scores[triple] = score
 
-            for j in range(len(samples)):
-                for k in range(len(subsampled_references)):
-                    metric_scores[j, k] = input_triple_scores[(inputs[i], samples[j][i], subsampled_references[k][i])]
+            for k in range(len(samples)):
+                for m in range(len(subsampled_references)):
+                    metric_scores[k, m] = input_triple_scores[(inputs[i], samples[k][i], subsampled_references[m][i])]
 
             metric_scores = metric_scores.mean(dim=-1)
             max_index = metric_scores.argmax()
