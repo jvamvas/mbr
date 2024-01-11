@@ -45,7 +45,7 @@ for row in samples:
 unique_sample_counts = [len(set(row)) for row in samples]
 print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_cometinho_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_cometinho_n_by_s_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
 
 chrf = evaluate.load("chrf")
 cometinho = evaluate.load("comet", "eamt22-cometinho-da")
