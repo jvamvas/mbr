@@ -314,6 +314,8 @@ def run_all_comet_n_by_s(
         total_embedding_time += (end - start)
 
         iterations = list(range(num_iterations))
+        # Skip last iteration, since identical to N-by-N MBR
+        iterations = iterations[:-1]
         # Shuffle to make time measurements more robust
         random.shuffle(iterations)
         for j in iterations:
