@@ -1,4 +1,4 @@
-from datetime import time
+import time
 import random
 
 import sacrebleu
@@ -9,9 +9,10 @@ from fairseq_utils import load_model
 language_pairs = ["de-en", "en-de", "en-ru", "ru-en"]
 
 num_samples = 1024
+epsilon_cutoff = 0.02
+
 num_segments = 32  # total over all language pairs
 assert num_segments % len(language_pairs) == 0
-epsilon_cutoff = 0.02
 
 total_time = 0
 
