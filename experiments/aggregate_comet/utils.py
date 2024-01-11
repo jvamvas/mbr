@@ -351,7 +351,7 @@ def run_all_comet_n_by_s(
 
             for j in range(len(samples)):
                 for k in range(len(references)):
-                    metric_scores[i, j, k] = input_triple_scores[(inputs[i], samples[j][i], subsampled_references[k][i])]
+                    metric_scores[j, k] = input_triple_scores[(inputs[i], samples[j][i], subsampled_references[k][i])]
 
             metric_scores = metric_scores.mean(dim=-1)
             max_index = metric_scores.argmax()
