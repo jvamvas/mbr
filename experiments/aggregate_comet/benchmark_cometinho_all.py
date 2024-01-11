@@ -72,9 +72,9 @@ for language_pair in language_pairs:
     total_times += durations
 
 print("Total:")
-for i, aggregation_factor in [(i, 2**i) for i in range(len(total_times))]:
+for i, aggregation_factor in enumerate(reversed([2**i for i in range(len(total_times))])):
     print(f"Aggregation factor {aggregation_factor}: {total_times[i]:.2f}s")
 
 print("Average per segment:")
-for i, aggregation_factor in [(i, 2**i) for i in range(len(total_times))]:
+for i, aggregation_factor in enumerate(reversed([2**i for i in range(len(total_times))])):
     print(f"Aggregation factor {aggregation_factor}: {total_times[i] / num_segments:.2f}s")
