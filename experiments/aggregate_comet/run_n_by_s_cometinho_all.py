@@ -74,6 +74,9 @@ translation_lists, durations = run_all_comet_n_by_s(
 )
 
 for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
+    if not translations:
+        continue
+
     chrf_score = chrf.compute(
         predictions=translations,
         references=references,
