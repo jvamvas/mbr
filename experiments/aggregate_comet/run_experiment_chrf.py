@@ -77,13 +77,13 @@ for language_pair in ["de-en", "en-de", "en-ru", "ru-en"]:
             predictions=translations,
             references=references,
             sources=source_sequences,
-            gpus=0,
+            # gpus=0,
         )
         comet22_score = comet.compute(
             predictions=translations,
             references=references,
             sources=source_sequences,
-            gpus=0,
+            # gpus=0,
         )
         results_file.write({
             "language_pair": language_pair,
