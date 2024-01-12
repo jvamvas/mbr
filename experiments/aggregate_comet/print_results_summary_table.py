@@ -56,6 +56,7 @@ sampling_chrf_results_paths = [
     Path(f"results_chrf_{testset}_1024samples_seed{seed_no}.jsonl")
     for seed_no in seed_nos
 ]
+print(sampling_chrf_results_paths)
 chrf_data = []
 for path in sampling_chrf_results_paths:
     with jsonlines.open(path) as f:
