@@ -56,35 +56,34 @@ sampling_chrf_results_paths = [
     Path(f"results_chrf_{testset}_1024samples_seed{seed_no}.jsonl")
     for seed_no in seed_nos
 ]
-print(sampling_chrf_results_paths)
 chrf_data = []
 for path in sampling_chrf_results_paths:
     with jsonlines.open(path) as f:
         chrf_data.append(list(f))
 
-    sampling_results = defaultdict(list)
-    for i, seed_no in enumerate(seed_nos):
-        for result in chrf_data[i]:
-            if result["method"] == "Sampling":
-                sampling_results[result["language_pair"]].append(result[metric])
-    print(f"Epsilon sampling (\epsilon=0.02) & {sum(sampling_results['en-de']) / num_seeds:.1f} & {sum(sampling_results['de-en']) / num_seeds:.1f} & {sum(sampling_results['en-ru']) / num_seeds:.1f} & {sum(sampling_results['ru-en']) / num_seeds:.1f} & tba / - \\\\")
-    print(r"\midrule")
+sampling_results = defaultdict(list)
+for i, seed_no in enumerate(seed_nos):
+    for result in chrf_data[i]:
+        if result["method"] == "Sampling":
+            sampling_results[result["language_pair"]].append(result[metric])
+print(f"Epsilon sampling (\epsilon=0.02) & {sum(sampling_results['en-de']) / num_seeds:.1f} & {sum(sampling_results['de-en']) / num_seeds:.1f} & {sum(sampling_results['en-ru']) / num_seeds:.1f} & {sum(sampling_results['ru-en']) / num_seeds:.1f} & tba / - \\\\")
+print(r"\midrule")
 
-    print(r"MBR with \chrf{} metric & & & & &  \\")
-    chrf_pairwise_results = defaultdict(list)
-    for i, seed_no in enumerate(seed_nos):
-        for result in chrf_data[i]:
-            if result["method"] == "MBR with standard ChrF":
-                chrf_pairwise_results[result["language_pair"]].append(result[metric])
+print(r"MBR with \chrf{} metric & & & & &  \\")
+chrf_pairwise_results = defaultdict(list)
+for i, seed_no in enumerate(seed_nos):
+    for result in chrf_data[i]:
+        if result["method"] == "MBR with standard ChrF":
+            chrf_pairwise_results[result["language_pair"]].append(result[metric])
 
-    print(f"– pairwise & {sum(chrf_pairwise_results['en-de']) / num_seeds:.1f} & {sum(chrf_pairwise_results['de-en']) / num_seeds:.1f} & {sum(chrf_pairwise_results['en-ru']) / num_seeds:.1f} & {sum(chrf_pairwise_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
+print(f"– pairwise & {sum(chrf_pairwise_results['en-de']) / num_seeds:.1f} & {sum(chrf_pairwise_results['de-en']) / num_seeds:.1f} & {sum(chrf_pairwise_results['en-ru']) / num_seeds:.1f} & {sum(chrf_pairwise_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
 
-    chrf_aggregate_results = defaultdict(list)
-    for i, seed_no in enumerate(seed_nos):
-        for result in chrf_data[i]:
-            if result["method"] == "MBR with aggregate ChrF":
-                chrf_aggregate_results[result["language_pair"]].append(result[metric])
-    print(f"– reference aggregation (factor {factor}) & {sum(chrf_aggregate_results['en-de']) / num_seeds:.1f} & {sum(chrf_aggregate_results['de-en']) / num_seeds:.1f} & {sum(chrf_aggregate_results['en-ru']) / num_seeds:.1f} & {sum(chrf_aggregate_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
+chrf_aggregate_results = defaultdict(list)
+for i, seed_no in enumerate(seed_nos):
+    for result in chrf_data[i]:
+        if result["method"] == "MBR with aggregate ChrF":
+            chrf_aggregate_results[result["language_pair"]].append(result[metric])
+print(f"– reference aggregation (factor {factor}) & {sum(chrf_aggregate_results['en-de']) / num_seeds:.1f} & {sum(chrf_aggregate_results['de-en']) / num_seeds:.1f} & {sum(chrf_aggregate_results['en-ru']) / num_seeds:.1f} & {sum(chrf_aggregate_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
 
 print(r"\midrule")
 
