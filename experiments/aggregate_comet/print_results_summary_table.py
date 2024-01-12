@@ -10,7 +10,7 @@ language_pairs = ["en-de", "de-en", "en-ru", "ru-en"]
 metric = "comet22"
 factor = 128
 
-seed_nos = [0]  # Average results over multiple seeds
+seed_nos = [0, 1]  # Average results over multiple seeds
 num_seeds = len(seed_nos)
 
 # \begin{tabularx}{\textwidth}{Xrrrrr}
