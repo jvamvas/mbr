@@ -52,13 +52,11 @@ for row in samples:
 src_path = sacrebleu.get_source_file(wmt, language_pair)
 ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
-references = Path(ref_path).read_text().splitlines()
 source_sequences = dataset["test"]["text"]
-assert len(dataset["test"]) == len(references) == len(source_sequences)
+assert len(dataset["test"]) == len(source_sequences)
 
 samples = [samples[i] for i in random_indices]
 source_sequences = [source_sequences[i] for i in random_indices]
-references = [references[i] for i in random_indices]
 translation_lists, durations = run_all_comet_factors(
     cometinho,
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
