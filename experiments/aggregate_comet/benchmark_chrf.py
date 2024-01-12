@@ -17,7 +17,7 @@ split = "test"
 num_samples = 1024
 epsilon_cutoff = 0.02
 
-num_segments = 16
+num_segments = 256
 
 if split == "valid":
     wmt = "wmt21"
@@ -51,9 +51,6 @@ dataset = load_dataset("text", data_files={"test": src_path})
 references = Path(ref_path).read_text().splitlines()
 
 samples = [samples[i] for i in random_indices]
-
-print(samples)
-print(references)
 
 # pairwise chrf
 time_start = time.time()
