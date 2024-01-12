@@ -129,6 +129,7 @@ print(r"tba / tba \\")
 print(r"\midrule")
 
 print(r"MBR with \comettt{} metric & & & & &  \\")
+print(r"– pairwise & ", end="")
 for lang_pair in language_pairs:
     paths = [
         Path(f"results_comet22_{testset}_{lang_pair}_1024samples_seed{seed_no}.jsonl")
