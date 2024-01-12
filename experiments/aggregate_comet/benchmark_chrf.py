@@ -17,7 +17,7 @@ split = "test"
 num_samples = 1024
 epsilon_cutoff = 0.02
 
-num_segments = 512
+num_segments = 256
 
 if split == "valid":
     wmt = "wmt21"
