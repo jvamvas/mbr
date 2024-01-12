@@ -1,3 +1,4 @@
+from collections import defaultdict
 from pathlib import Path
 
 import jsonlines
@@ -7,7 +8,10 @@ split = 'test'
 
 language_pairs = ["en-de", "de-en", "en-ru", "ru-en"]
 metric = "comet22"
-factor = 8
+factor = 128
+
+seed_nos = [0, 1]  # Average results over multiple seeds
+num_seeds = len(seed_nos)
 
 # \begin{tabularx}{\textwidth}{Xrrrrr}
 # \toprule
@@ -22,11 +26,11 @@ factor = 8
 # \midrule
 # MBR with \cometinho{} metric & & & & &  \\
 # – pairwise & tba & tba & tba & tba & tba / tba \\
-# – reference aggregation (factor 32) & tba & tba & tba & tba & tba / tba \\
+# – reference aggregation (factor 128) & tba & tba & tba & tba & tba / tba \\
 # \midrule
 # MBR with \comettt{} metric & & & & &  \\
 # – pairwise & tba & tba & tba & tba & tba / tba \\
-# – reference aggregation (factor 32) & tba & tba & tba & tba & tba / tba \\
+# – reference aggregation (factor 128) & tba & tba & tba & tba & tba / tba \\
 # \bottomrule
 # \end{tabularx}
 
@@ -48,76 +52,118 @@ if beam_results_path.exists():
     results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset}
     print(f"Beam search (size 4) & {results['en-de']:.1f} & {results['de-en']:.1f} & {results['en-ru']:.1f} & {results['ru-en']:.1f} & tba / - \\\\")
 
-sampling_chrf_results_path = Path(f"results_chrf_{testset}_1024samples_seed0.jsonl")
+sampling_chrf_results_paths = [
+    Path(f"results_chrf_{testset}_1024samples_seed{seed_no}.jsonl")
+    for seed_no in seed_nos
+]
+chrf_data = []
+for path in sampling_chrf_results_paths:
+    with jsonlines.open(path) as f:
+        chrf_data.append(list(f))
 
-if sampling_chrf_results_path.exists():
-    with jsonlines.open(sampling_chrf_results_path) as f:
-        data = list(f)
-    sampling_results = {result["language_pair"]: result[metric] for result in data if result["method"] == "Sampling"}
-    print(f"Epsilon sampling (\epsilon=0.02) & {sampling_results['en-de']:.1f} & {sampling_results['de-en']:.1f} & {sampling_results['en-ru']:.1f} & {sampling_results['ru-en']:.1f} & tba / - \\\\")
+    sampling_results = defaultdict(list)
+    for i, seed_no in enumerate(seed_nos):
+        for result in chrf_data[i]:
+            if result["method"] == "Sampling":
+                sampling_results[result["language_pair"]].append(result[metric])
+    print(f"Epsilon sampling (\epsilon=0.02) & {sum(sampling_results['en-de']) / num_seeds:.1f} & {sum(sampling_results['de-en']) / num_seeds:.1f} & {sum(sampling_results['en-ru']) / num_seeds:.1f} & {sum(sampling_results['ru-en']) / num_seeds:.1f} & tba / - \\\\")
     print(r"\midrule")
+
     print(r"MBR with \chrf{} metric & & & & &  \\")
-    chrf_pairwise_results = {result["language_pair"]: result[metric] for result in data if result["method"] == "MBR with standard ChrF"}
-    print(f"– pairwise & {chrf_pairwise_results['en-de']:.1f} & {chrf_pairwise_results['de-en']:.1f} & {chrf_pairwise_results['en-ru']:.1f} & {chrf_pairwise_results['ru-en']:.1f} & tba / tba \\\\")
-    chrf_aggregate_results = {result["language_pair"]: result[metric] for result in data if result["method"] == "MBR with aggregate ChrF"}
-    print(f"– reference aggregation (factor 1024) & {chrf_aggregate_results['en-de']:.1f} & {chrf_aggregate_results['de-en']:.1f} & {chrf_aggregate_results['en-ru']:.1f} & {chrf_aggregate_results['ru-en']:.1f} & tba / tba \\\\")
-else:
-    print(r"Epsilon sampling (\epsilon=0.02) & & & & & tba / - \\")
-    print(r"\midrule")
-    print(r"MBR with \chrf{} metric & & & & &  \\")
-    print(r"– pairwise & & & & & tba / tba \\")
-    print(r"– reference aggregation (factor 1024) & & & & & tba / tba \\")
+    chrf_pairwise_results = defaultdict(list)
+    for i, seed_no in enumerate(seed_nos):
+        for result in chrf_data[i]:
+            if result["method"] == "MBR with standard ChrF":
+                chrf_pairwise_results[result["language_pair"]].append(result[metric])
+
+    print(f"– pairwise & {sum(chrf_pairwise_results['en-de']) / num_seeds:.1f} & {sum(chrf_pairwise_results['de-en']) / num_seeds:.1f} & {sum(chrf_pairwise_results['en-ru']) / num_seeds:.1f} & {sum(chrf_pairwise_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
+
+    chrf_aggregate_results = defaultdict(list)
+    for i, seed_no in enumerate(seed_nos):
+        for result in chrf_data[i]:
+            if result["method"] == "MBR with aggregate ChrF":
+                chrf_aggregate_results[result["language_pair"]].append(result[metric])
+    print(f"– reference aggregation (factor {factor}) & {sum(chrf_aggregate_results['en-de']) / num_seeds:.1f} & {sum(chrf_aggregate_results['de-en']) / num_seeds:.1f} & {sum(chrf_aggregate_results['en-ru']) / num_seeds:.1f} & {sum(chrf_aggregate_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
 
 print(r"\midrule")
 
 print(r"MBR with \cometinho{} metric & & & & &  \\")
 print(r"– pairwise & ", end="")
 for lang_pair in language_pairs:
-    path = Path(f"results_cometinho_{testset}_{lang_pair}_1024samples_seed0.jsonl")
-    if path.exists() and path.stat().st_size > 0:
+    paths = [
+        Path(f"results_cometinho_{testset}_{lang_pair}_1024samples_seed{seed_no}.jsonl")
+        for seed_no in seed_nos
+    ]
+    data = []
+    for path in paths:
         with jsonlines.open(path) as f:
-            data = list(f)
-        results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 1024}
-        print(f"{results[lang_pair]:.1f} & ", end="")
-    else:
-        print("tba & ", end="")
+            data.append(list(f))
+
+    results = defaultdict(list)
+    for i, seed_no in enumerate(seed_nos):
+        for result in data[i]:
+            if result["num_aggregates"] == 1024 and result["testset"] == testset:
+                results[result["language_pair"]].append(result[metric])
+    print(f"{sum(results[lang_pair]) / num_seeds:.1f} & ", end="")
 print(r"tba / tba \\")
+
 print(rf"– reference aggregation (factor {factor}) & ", end="")
 for lang_pair in language_pairs:
-    path = Path(f"results_cometinho_{testset}_{lang_pair}_1024samples_seed0.jsonl")
-    if path.exists() and path.stat().st_size > 0:
+    paths = [
+        Path(f"results_cometinho_{testset}_{lang_pair}_1024samples_seed{seed_no}.jsonl")
+        for seed_no in seed_nos
+    ]
+    data = []
+    for path in paths:
         with jsonlines.open(path) as f:
-            data = list(f)
-        results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 1024 // factor}
-        print(f"{results[lang_pair]:.1f} & ", end="")
-    else:
-        print("tba & ", end="")
+            data.append(list(f))
+
+    results = defaultdict(list)
+    for i, seed_no in enumerate(seed_nos):
+        for result in data[i]:
+            if result["num_aggregates"] == 1024 // factor and result["testset"] == testset:
+                results[result["language_pair"]].append(result[metric])
+    print(f"{sum(results[lang_pair]) / num_seeds:.1f} & ", end="")
 print(r"tba / tba \\")
 
 print(r"\midrule")
 
 print(r"MBR with \comettt{} metric & & & & &  \\")
-print(r"– pairwise & ", end="")
 for lang_pair in language_pairs:
-    path = Path(f"results_comet22_{testset}_{lang_pair}_1024samples_seed0.jsonl")
-    if path.exists() and path.stat().st_size > 0:
+    paths = [
+        Path(f"results_comet22_{testset}_{lang_pair}_1024samples_seed{seed_no}.jsonl")
+        for seed_no in seed_nos
+    ]
+    data = []
+    for path in paths:
         with jsonlines.open(path) as f:
-            data = list(f)
-        results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 1024}
-        print(f"{results[lang_pair]:.1f} & ", end="")
-    else:
-        print("tba & ", end="")
+            data.append(list(f))
+
+    results = defaultdict(list)
+    for i, seed_no in enumerate(seed_nos):
+        for result in data[i]:
+            if result["num_aggregates"] == 1024 and result["testset"] == testset:
+                results[result["language_pair"]].append(result[metric])
+    print(f"{sum(results[lang_pair]) / num_seeds:.1f} & ", end="")
 print(r"tba / tba \\")
+
 print(rf"– reference aggregation (factor {factor}) & ", end="")
 for lang_pair in language_pairs:
-    path = Path(f"results_comet22_{testset}_{lang_pair}_1024samples_seed0.jsonl")
-    if path.exists() and path.stat().st_size > 0:
+    paths = [
+        Path(f"results_comet22_{testset}_{lang_pair}_1024samples_seed{seed_no}.jsonl")
+        for seed_no in seed_nos
+    ]
+    data = []
+    for path in paths:
         with jsonlines.open(path) as f:
-            data = list(f)
-        results = {result["language_pair"]: result[metric] for result in data if result["testset"] == testset and result["num_aggregates"] == 1024 // factor}
-        print(f"{results[lang_pair]:.1f} & ", end="")
-    else:
-        print("tba & ", end="")
+            data.append(list(f))
+
+    results = defaultdict(list)
+    for i, seed_no in enumerate(seed_nos):
+        for result in data[i]:
+            if result["num_aggregates"] == 1024 // factor and result["testset"] == testset:
+                results[result["language_pair"]].append(result[metric])
+    print(f"{sum(results[lang_pair]) / num_seeds:.1f} & ", end="")
 print(r"tba / tba \\")
 
 print(r"\bottomrule")
