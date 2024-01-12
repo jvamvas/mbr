@@ -83,7 +83,7 @@ for i, seed_no in enumerate(seed_nos):
     for result in chrf_data[i]:
         if result["method"] == "MBR with aggregate ChrF":
             chrf_aggregate_results[result["language_pair"]].append(result[metric])
-print(f"– reference aggregation (factor {factor}) & {sum(chrf_aggregate_results['en-de']) / num_seeds:.1f} & {sum(chrf_aggregate_results['de-en']) / num_seeds:.1f} & {sum(chrf_aggregate_results['en-ru']) / num_seeds:.1f} & {sum(chrf_aggregate_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
+print(f"– reference aggregation (factor 1024) & {sum(chrf_aggregate_results['en-de']) / num_seeds:.1f} & {sum(chrf_aggregate_results['de-en']) / num_seeds:.1f} & {sum(chrf_aggregate_results['en-ru']) / num_seeds:.1f} & {sum(chrf_aggregate_results['ru-en']) / num_seeds:.1f} & tba / tba \\\\")
 
 print(r"\midrule")
 
