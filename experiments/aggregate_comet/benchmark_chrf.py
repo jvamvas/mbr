@@ -56,6 +56,9 @@ samples = [samples[i] for i in random_indices]
 source_sequences = [source_sequences[i] for i in random_indices]
 references = [references[i] for i in random_indices]
 
+print(samples)
+print(references)
+
 # pairwise chrf
 time_start = time.time()
 translations = mbr_standard_chrf(
