@@ -64,8 +64,8 @@ translation_lists, durations = run_all_comet_factors(
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
     references=[[row[i] for row in samples] for i in range(len(samples[0]))],
     inputs=source_sequences,
-    batch_size_embed=1024,
-    batch_size_estimate=1024,
+    batch_size_embed=512,
+    batch_size_estimate=512,
 )
 
 print("Total:")
