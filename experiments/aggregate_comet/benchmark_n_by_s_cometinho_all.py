@@ -68,8 +68,12 @@ translation_lists, durations = run_all_comet_n_by_s(
 
 print("Total:")
 for i, aggregation_factor in enumerate(([2**i for i in range(1, len(durations))])):
+    if aggregation_factor == 1:
+        continue  # Identical to pairwise
     print(f"Aggregation factor {aggregation_factor}: {durations[i]:.2f}s")
 
 print("Average per segment:")
 for i, aggregation_factor in enumerate(([2**i for i in range(1, len(durations))])):
+    if aggregation_factor == 1:
+        continue  # Identical to pairwise
     print(f"Aggregation factor {aggregation_factor}: {durations[i] / num_segments:.2f}s")
