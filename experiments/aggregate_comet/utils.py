@@ -275,7 +275,7 @@ def run_all_comet_n_by_s(
     - MBR N-by-S where S = 2**1 = 2
     - MBR N-by-S where S = 2**2 = 4
     ...
-    - MBR N-by-S where S = 2**log2(n) = n => corresponds to N-by-N MBR
+    - (skipped) MBR N-by-S where S = 2**log2(n) = n => corresponds to N-by-N MBR
     Also returns the duration of each method.
     """
     batch_size = len(samples[0])
@@ -441,6 +441,57 @@ def run_all_chrf_factors(
                 reference_subsets,
             )
             scores = np.array(scores)
+            scores = scores.mean(axis=-1)
+            max_index = scores.argmax()
+            translation = samples[i][max_index]
+            all_translations[j].append(translation)
+            end = time.time()
+            scoring_times[j] += (end - start)
+
+    durations = total_embedding_time + scoring_times
+    return tuple(all_translations), tuple(durations)
+
+
+def run_all_chrf_n_by_s(
+        samples: List[List[str]],  # batch_size x num_samples
+        references: List[List[str]],  # batch_size x num_references
+) -> Tuple[Tuple[List[str], ...], Tuple[float, ...]]:
+    """
+    Experimental implementation of N-by-S MBR with ChrF.
+    Returns several sets of translations
+    - MBR N-by-S where S = 2**0 = 1 => corresponds to sampling
+    - MBR N-by-S where S = 2**1 = 2
+    - MBR N-by-S where S = 2**2 = 4
+    ...
+    - (skipped) MBR N-by-S where S = 2**log2(n) = n => corresponds to N-by-N MBR
+    Also returns the duration of each method.
+    """
+    batch_size = len(samples)
+    num_samples = len(samples[0])
+    num_references = len(references[0])
+    num_iterations = math.log2(num_references) + 1
+    assert num_iterations.is_integer()
+    num_iterations = int(num_iterations)
+
+    total_embedding_time = 0
+    scoring_times = np.zeros(num_iterations)
+
+    all_translations: List[List[str]] = [list() for _ in range(num_iterations)]
+
+    for i in tqdm(list(range(batch_size)), desc="chrf"):
+        iterations = list(range(num_iterations))
+        # Shuffle to make time measurements more robust
+        random.shuffle(iterations)
+        for j in iterations:
+            start = time.time()
+            num_subsampled_references = int(2 ** j)
+            subsampled_references = references[i][:num_subsampled_references]
+            scores = pairwise_chrf(
+                [samples[i]],
+                [subsampled_references],
+            )
+            scores = np.array(scores)
+            scores = scores.squeeze(0)
             scores = scores.mean(axis=-1)
             max_index = scores.argmax()
             translation = samples[i][max_index]
