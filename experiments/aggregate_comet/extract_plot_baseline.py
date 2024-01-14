@@ -81,15 +81,15 @@ for language_pair in language_pairs:
     # N-by-S
     baseline_series = []
     for x in X:
-        if x != X[-1]:
+        if x == X[0]:
+            # Copy result from aggregate, which is identical
+            baseline_series.append(aggregate_series[0])
+        else:
             baseline_row = [line for line in baseline_data if line["num_subsamples"] == x]
             assert len(baseline_row) == 1
             assert baseline_row[0]["num_samples"] == num_samples
             baseline_result = baseline_row[0][evaluation_metric]
             delta = baseline_result - beam_result
             baseline_series.append((x, delta))
-        else:
-            # Copy result from aggregate, which is identical
-            baseline_series.append(aggregate_series[-1])
     print("".join(f"({x},{delta:.5f})" for x, delta in baseline_series))
     print()
