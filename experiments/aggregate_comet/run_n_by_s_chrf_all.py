@@ -81,13 +81,13 @@ for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
         predictions=translations,
         references=references,
         sources=source_sequences,
-        # gpus=0,
+        gpus=0,
     )
     comet22_score = comet.compute(
         predictions=translations,
         references=references,
         sources=source_sequences,
-        # gpus=0,
+        gpus=0,
     )
     results_file.write({
         "testset": wmt,
