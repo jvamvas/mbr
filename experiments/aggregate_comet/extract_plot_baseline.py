@@ -20,34 +20,34 @@ seed_no = 0
 evaluation_metric = "comet22"
 num_samples = 1024
 num_references = num_samples
-
-aggregate_path = Path(__file__).parent / f"results_{utility_metric}_{wmt}_{num_samples}samples_seed{seed_no}.jsonl"
-baseline_path = Path(__file__).parent / f"results_{utility_metric}_n_by_s_{wmt}_{num_samples}samples_seed{seed_no}.jsonl"
-beam_path = Path(__file__).parent / f"results_beam4.jsonl"
-
-with jsonlines.open(aggregate_path) as f:
-    aggregate_data = list(f)
-
-with jsonlines.open(baseline_path) as f:
-    baseline_data = list(f)
-
-with jsonlines.open(beam_path) as f:
-    beam_data = list(f)
-
-# Line example: {"testset": "wmt21", "language_pair": "de-en", "seed_no": 0, "method": "MBR with aggregate COMET (1
-# aggregates from 1024 refs)", "num_aggregates": 1, "num_samples": 1024, "chrf": 57.662579358040325, "cometinho":
-# 60.126039303373545, "comet22": 85.5144088923931, "duration": 489.24234914779663, "transl...
-
-# Filter data for testset and seed_no
-aggregate_data = [line for line in aggregate_data if line["testset"] == wmt and line["seed_no"] == seed_no]
-assert aggregate_data
-baseline_data = [line for line in baseline_data if line["testset"] == wmt and line["seed_no"] == seed_no]
-assert baseline_data
-beam_data = [line for line in beam_data if line["testset"] == wmt]  # no seed (deterministic)
-assert beam_data
-
 for language_pair in language_pairs:
     print(f"Language pair: {language_pair}")
+
+    aggregate_path = Path(__file__).parent / f"results_{utility_metric}_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl"
+    baseline_path = Path(
+        __file__).parent / f"results_{utility_metric}_n_by_s_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl"
+    beam_path = Path(__file__).parent / f"results_beam4.jsonl"
+
+    with jsonlines.open(aggregate_path) as f:
+        aggregate_data = list(f)
+
+    with jsonlines.open(baseline_path) as f:
+        baseline_data = list(f)
+
+    with jsonlines.open(beam_path) as f:
+        beam_data = list(f)
+
+    # Line example: {"testset": "wmt21", "language_pair": "de-en", "seed_no": 0, "method": "MBR with aggregate COMET (1
+    # aggregates from 1024 refs)", "num_aggregates": 1, "num_samples": 1024, "chrf": 57.662579358040325, "cometinho":
+    # 60.126039303373545, "comet22": 85.5144088923931, "duration": 489.24234914779663, "transl...
+
+    # Filter data for testset and seed_no
+    aggregate_data = [line for line in aggregate_data if line["testset"] == wmt and line["seed_no"] == seed_no]
+    assert aggregate_data
+    baseline_data = [line for line in baseline_data if line["testset"] == wmt and line["seed_no"] == seed_no]
+    assert baseline_data
+    beam_data = [line for line in beam_data if line["testset"] == wmt]  # no seed (deterministic)
+    assert beam_data
 
     # Filter data for language pair
     aggregate_data = [line for line in aggregate_data if line["language_pair"] == language_pair]
