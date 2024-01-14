@@ -441,7 +441,7 @@ def run_all_chrf_factors(
                 reference_subsets,
             )
             scores = np.array(scores)
-            scores = scores.mean(axis=-1)
+            scores = scores.mean(axis=0)
             max_index = scores.argmax()
             translation = samples[i][max_index]
             all_translations[j].append(translation)

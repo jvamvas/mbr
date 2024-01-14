@@ -2,6 +2,8 @@ import math
 from unittest import TestCase
 
 import evaluate
+import fastchrf
+import numpy as np
 
 from ..utils import run_all_comet_factors, run_all_comet_n_by_s, run_all_chrf_factors, run_all_chrf_n_by_s
 
@@ -58,6 +60,31 @@ class UtilsTestCase(TestCase):
                 self.assertIn(translation, [sample[i] for sample in self.samples])
         for duration in durations:
             self.assertGreater(duration, 0)
+            
+        # Check that index 0 is equal to aggregate
+        aggregate_scores = fastchrf.aggregate_chrf(
+            list(zip(*self.samples)),
+            list(zip(*self.references)),
+        )
+        aggregate_scores = np.array(aggregate_scores)
+        aggregate_translations = []
+        for i in range(len(self.inputs)):
+            best_index = np.argmax(aggregate_scores[i])
+            aggregate_translations.append(self.samples[best_index][i])
+        self.assertEqual(translations[0], aggregate_translations)
+        
+        # Check that index -1 is equal to pairwise
+        pairwise_scores = fastchrf.pairwise_chrf(
+            list(zip(*self.samples)),
+            list(zip(*self.references)),
+        )
+        pairwise_scores = np.array(pairwise_scores).mean(axis=-1)
+        pairwise_translations = []
+        for i in range(len(self.inputs)):
+            best_index = np.argmax(pairwise_scores[i])
+            pairwise_translations.append(self.samples[best_index][i])
+        self.assertEqual(translations[-1], pairwise_translations)
+
 
     def test_run_all_chrf_n_by_s(self):
         translations, durations = run_all_chrf_n_by_s(
