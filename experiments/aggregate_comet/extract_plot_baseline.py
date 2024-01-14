@@ -17,7 +17,7 @@ else:
 
 language_pairs = ["en-de", "de-en", "en-ru", "ru-en"]
 seed_no = 0
-evaluation_metric = "comet22"
+evaluation_metric = utility_metric
 num_samples = 1024
 num_references = num_samples
 
