@@ -79,7 +79,9 @@ for language_pair in language_pairs:
         delta = aggregate_result - beam_result
         aggregate_series.append((x, delta))
         all_y_values.append(delta)
-    print("".join(f"({x},{delta:.5f})" for x, delta in aggregate_series))
+    # To make plotting easier, we will invert the ticks, so 1024 corresponds to 1, 512 to 2, 256 to 4, etc.
+    inverted_aggregate_series = [(num_references / x, delta) for x, delta in aggregate_series]
+    print("".join(f"({x},{delta:.5f})" for x, delta in inverted_aggregate_series))
     print()
 
     # N-by-S
@@ -96,7 +98,8 @@ for language_pair in language_pairs:
             delta = baseline_result - beam_result
             baseline_series.append((x, delta))
             all_y_values.append(delta)
-    print("".join(f"({x},{delta:.5f})" for x, delta in baseline_series))
+    inverted_baseline_series = [(num_references / x, delta) for x, delta in baseline_series]
+    print("".join(f"({x},{delta:.5f})" for x, delta in inverted_baseline_series))
     print()
 
 print(f"ymin={min(all_y_values):.2f}, ymax={max(all_y_values):.2f},")
