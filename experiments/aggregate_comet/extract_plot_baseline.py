@@ -20,6 +20,9 @@ seed_no = 0
 evaluation_metric = "comet22"
 num_samples = 1024
 num_references = num_samples
+
+all_y_values = []  # Needed to determine y-axis range
+
 for language_pair in language_pairs:
     print(f"Language pair: {language_pair}")
 
@@ -75,6 +78,7 @@ for language_pair in language_pairs:
         aggregate_result = aggregate_row[0][evaluation_metric]
         delta = aggregate_result - beam_result
         aggregate_series.append((x, delta))
+        all_y_values.append(delta)
     print("".join(f"({x},{delta:.5f})" for x, delta in aggregate_series))
     print()
 
@@ -91,5 +95,8 @@ for language_pair in language_pairs:
             baseline_result = baseline_row[0][evaluation_metric]
             delta = baseline_result - beam_result
             baseline_series.append((x, delta))
+            all_y_values.append(delta)
     print("".join(f"({x},{delta:.5f})" for x, delta in baseline_series))
     print()
+
+print(f"ymin={min(all_y_values):.2f}, ymax={max(all_y_values):.2f},")
