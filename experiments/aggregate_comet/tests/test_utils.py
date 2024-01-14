@@ -93,9 +93,21 @@ class UtilsTestCase(TestCase):
         )
         self.assertEqual(len(translations), math.log2(len(self.references)) + 1)
         self.assertEqual(len(durations), len(translations))
-        for translation_list in translations[:-1]:
+        for translation_list in translations:
             self.assertEqual(len(translation_list), len(self.inputs))
             for i, translation in enumerate(translation_list):
                 self.assertIn(translation, [sample[i] for sample in self.samples])
-        for duration in durations[:-1]:
+        for duration in durations:
             self.assertGreater(duration, 0)
+
+        # Check that index -1 is equal to pairwise
+        pairwise_scores = fastchrf.pairwise_chrf(
+            list(zip(*self.samples)),
+            list(zip(*self.references)),
+        )
+        pairwise_scores = np.array(pairwise_scores).mean(axis=-1)
+        pairwise_translations = []
+        for i in range(len(self.inputs)):
+            best_index = np.argmax(pairwise_scores[i])
+            pairwise_translations.append(self.samples[best_index][i])
+        self.assertEqual(translations[-1], pairwise_translations)

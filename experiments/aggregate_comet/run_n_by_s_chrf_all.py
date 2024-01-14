@@ -66,6 +66,7 @@ references = references[:16]
 translation_lists, durations = run_all_chrf_n_by_s(
     samples=samples,
     references=samples,
+    skip_last=True,
 )
 
 for i, (translations, duration) in enumerate(zip(translation_lists, durations)):

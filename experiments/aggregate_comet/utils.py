@@ -455,6 +455,7 @@ def run_all_chrf_factors(
 def run_all_chrf_n_by_s(
         samples: List[List[str]],  # batch_size x num_samples
         references: List[List[str]],  # batch_size x num_references
+        skip_last=False,
 ) -> Tuple[Tuple[List[str], ...], Tuple[float, ...]]:
     """
     Experimental implementation of N-by-S MBR with ChrF.
@@ -467,7 +468,6 @@ def run_all_chrf_n_by_s(
     Also returns the duration of each method.
     """
     batch_size = len(samples)
-    num_samples = len(samples[0])
     num_references = len(references[0])
     num_iterations = math.log2(num_references) + 1
     assert num_iterations.is_integer()
@@ -480,6 +480,9 @@ def run_all_chrf_n_by_s(
 
     for i in tqdm(list(range(batch_size)), desc="chrf"):
         iterations = list(range(num_iterations))
+        if skip_last:
+            # Skip last iteration, since identical to N-by-N MBR
+            iterations = iterations[:-1]
         # Shuffle to make time measurements more robust
         random.shuffle(iterations)
         for j in iterations:
