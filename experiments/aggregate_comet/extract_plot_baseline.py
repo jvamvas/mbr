@@ -67,25 +67,29 @@ for language_pair in language_pairs:
 
     # Reference aggregation
     # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
-    series: List[Tuple[int, float]] = []
+    aggregate_series: List[Tuple[int, float]] = []
     for x in X:
         aggregate_row = [line for line in aggregate_data if line["num_aggregates"] == x]
         assert len(aggregate_row) == 1
         assert aggregate_row[0]["num_samples"] == num_samples
         aggregate_result = aggregate_row[0][evaluation_metric]
         delta = aggregate_result - beam_result
-        series.append((x, delta))
-    print("".join(f"({x},{delta:.5f})" for x, delta in series))
+        aggregate_series.append((x, delta))
+    print("".join(f"({x},{delta:.5f})" for x, delta in aggregate_series))
     print()
 
     # N-by-S
-    series = []
+    baseline_series = []
     for x in X:
-        baseline_row = [line for line in baseline_data if line["num_subsamples"] == x]
-        assert len(baseline_row) == 1
-        assert baseline_row[0]["num_samples"] == num_samples
-        baseline_result = baseline_row[0][evaluation_metric]
-        delta = baseline_result - beam_result
-        series.append((x, delta))
-    print("".join(f"({x},{delta:.5f})" for x, delta in series))
+        if x != X[-1]:
+            baseline_row = [line for line in baseline_data if line["num_subsamples"] == x]
+            assert len(baseline_row) == 1
+            assert baseline_row[0]["num_samples"] == num_samples
+            baseline_result = baseline_row[0][evaluation_metric]
+            delta = baseline_result - beam_result
+            baseline_series.append((x, delta))
+        else:
+            # Copy result from aggregate, which is identical
+            baseline_series.append(aggregate_series[-1])
+    print("".join(f"({x},{delta:.5f})" for x, delta in baseline_series))
     print()
