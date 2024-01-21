@@ -17,6 +17,7 @@ seed_no = int(sys.argv[3])
 
 num_samples = 1024
 epsilon_cutoff = 0.02
+topn = 50
 
 if split == "valid":
     wmt = "wmt21"
@@ -44,7 +45,7 @@ for row in samples:
 unique_sample_counts = [len(set(row)) for row in samples]
 print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_chrf_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_chrf_coarse{topn}_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
 
 src_path = sacrebleu.get_source_file(wmt, language_pair)
 ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
@@ -53,15 +54,15 @@ references = Path(ref_path).read_text().splitlines()
 source_sequences = dataset["test"]["text"]
 assert len(dataset["test"]) == len(references) == len(source_sequences)
 
-print("Only using 16 samples for testing")
-samples = samples[:16]
-source_sequences = source_sequences[:16]
-references = references[:16]
+# print("Only using 16 samples for testing")
+# samples = samples[:16]
+# source_sequences = source_sequences[:16]
+# references = references[:16]
 
 translation_lists, durations = run_all_chrf_factors(
     samples=samples,
     references=samples,
-    return_top_n=50,
+    return_top_n=topn,
 )
 
 for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
@@ -73,7 +74,7 @@ for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
         "num_aggregates": int(2**i),
         "num_samples": num_samples,
         "duration": duration,
-        "translations": translations,
+        "topn": translations,
     })
 
 results_file.close()

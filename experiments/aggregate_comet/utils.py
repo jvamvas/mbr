@@ -160,7 +160,8 @@ def run_all_comet_factors(
         inputs: List[str],  # batch_size
         batch_size_embed: int = 1,
         batch_size_estimate: int = 1,
-) -> Tuple[Tuple[List[str], ...], Tuple[float, ...]]:
+        return_top_n: int = 1,
+) -> Tuple[Tuple[List[List[str]], ...], Tuple[float, ...]]:
     """
     Experimental implementation of reference aggregation with COMET.
     Returns several sets of translations
@@ -181,7 +182,7 @@ def run_all_comet_factors(
     total_embedding_time = 0
     scoring_times = np.zeros(num_iterations)
 
-    all_translations: List[List[str]] = [list() for _ in range(num_iterations)]
+    all_translations: List[List[List[str]]] = [list() for _ in range(num_iterations)]
 
     for i in tqdm(list(range(batch_size)), desc="comet"):
 
@@ -249,9 +250,14 @@ def run_all_comet_factors(
                     metric_scores[k, m] = input_triple_scores[(inputs[i], samples[k][i], f"agg{m}")]
 
             metric_scores = metric_scores.mean(dim=-1)
-            max_index = metric_scores.argmax()
-            translation = samples[max_index][i]
-            all_translations[j].append(translation)
+            if return_top_n == 1:
+                max_index = metric_scores.argmax()
+                translation = samples[max_index][i]
+                all_translations[j].append(translation)
+            else:
+                top_n_indices = metric_scores.cpu().numpy().argsort()[-return_top_n:][::-1]
+                translations = [samples[index][i] for index in top_n_indices]
+                all_translations[j].append(translations)
             end = time.time()
             scoring_times[j] += (end - start)
 
