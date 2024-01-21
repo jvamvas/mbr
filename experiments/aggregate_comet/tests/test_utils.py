@@ -85,6 +85,29 @@ class UtilsTestCase(TestCase):
             pairwise_translations.append(self.samples[best_index][i])
         self.assertEqual(translations[-1], pairwise_translations)
 
+    def test_run_all_chrf_factors_top_n(self):
+        translations, durations = run_all_chrf_factors(
+            list(zip(*self.samples)),
+            list(zip(*self.references)),
+            return_top_n=2,
+        )
+        self.assertEqual(len(translations), math.log2(len(self.references)) + 1)
+        self.assertEqual(len(durations), len(translations))
+        for translation_list in translations:
+            self.assertEqual(len(translation_list), len(self.inputs))
+            for i, top_translations in enumerate(translation_list):
+                self.assertEqual(len(top_translations), 2)
+                for translation in top_translations:
+                    self.assertIn(translation, [sample[i] for sample in self.samples])
+
+        # Check that top translation is equal to top_n=1
+        top1_translations, _ = run_all_chrf_factors(
+            list(zip(*self.samples)),
+            list(zip(*self.references)),
+        )
+        for topn_translation_batch, top1_translation_batch in zip(translations, top1_translations):
+            for topn_translation_list, top1_translation in zip(topn_translation_batch, top1_translation_batch):
+                self.assertEqual(topn_translation_list[0], top1_translation)
 
     def test_run_all_chrf_n_by_s(self):
         translations, durations = run_all_chrf_n_by_s(

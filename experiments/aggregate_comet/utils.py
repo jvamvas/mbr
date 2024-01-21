@@ -404,7 +404,8 @@ def mbr_aggregate_chrf(
 def run_all_chrf_factors(
         samples: List[List[str]],  # batch_size x num_samples
         references: List[List[str]],  # batch_size x num_references
-) -> Tuple[Tuple[List[str], ...], Tuple[float, ...]]:
+        return_top_n: int = 1,
+) -> Tuple[Tuple[List[List[str]], ...], Tuple[float, ...]]:
     """
     Experimental implementation of reference aggregation with chrF.
     Returns several sets of translations
@@ -424,7 +425,7 @@ def run_all_chrf_factors(
     total_embedding_time = 0
     scoring_times = np.zeros(num_iterations)
 
-    all_translations: List[List[str]] = [list() for _ in range(num_iterations)]
+    all_translations: List[List[List[str]]] = [list() for _ in range(num_iterations)]
 
     for i in tqdm(list(range(batch_size)), desc="chrf"):
         iterations = list(range(num_iterations))
@@ -442,9 +443,14 @@ def run_all_chrf_factors(
             )
             scores = np.array(scores)
             scores = scores.mean(axis=0)
-            max_index = scores.argmax()
-            translation = samples[i][max_index]
-            all_translations[j].append(translation)
+            if return_top_n == 1:
+                max_index = scores.argmax()
+                translation = samples[i][max_index]
+                all_translations[j].append(translation)
+            else:
+                top_n_indices = scores.argsort()[-return_top_n:][::-1]
+                translations = [samples[i][index] for index in top_n_indices]
+                all_translations[j].append(translations)
             end = time.time()
             scoring_times[j] += (end - start)
 
