@@ -12,6 +12,8 @@ from experiments.aggregate_comet.gemba.prompt import prompts, language_codes
 
 OPENAI_MODEL = "babbage-002"
 
+LIMIT_N = 10
+
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
 translations_path = Path(sys.argv[2])
@@ -25,6 +27,12 @@ references = Path(ref_path).read_text().splitlines()
 assert len(source_sequences) == len(references)
 translations = Path(translations_path).read_text().splitlines()
 assert len(source_sequences) == len(translations)
+
+if LIMIT_N is not None:
+    print(f"Limiting to {LIMIT_N} segments")
+    source_sequences = source_sequences[:LIMIT_N]
+    references = references[:LIMIT_N]
+    translations = translations[:LIMIT_N]
 
 cache_filename = f"{OPENAI_MODEL}_{wmt}_{language_pair}.jsonl"
 cache = Cache(cache_filename)
