@@ -33,10 +33,10 @@ class GembaMetric:
         """
         :return: Path of the SQLite database where the translations and scores are cached
         """
-        cache_dir = Path(os.getenv("GEMBA_CACHE", Path.home() / ".cache" / "gemba"))
+        cache_dir = Path(os.getenv("GEMBA_CACHE", Path.home() / ".cache" / "gemba" / self.model.replace("/", "_")))
         if not cache_dir.exists():
             cache_dir.mkdir(parents=True)
-        return cache_dir / (self.model.replace("/", "_") + ".sqlite")
+        return cache_dir / (str(self).replace("/", "_") + ".sqlite")
 
     def load_cache(self) -> SqliteDict:
         """
