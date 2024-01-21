@@ -19,7 +19,7 @@ class GembaMetric:
         :param hyp: Machine translation
         :param src_lang: Source language
         :param tgt_lang: Target language
-        :return: Score between 0 and 9, where 0 means "no meaning preserved" and 9 means "perfect meaning and grammar"
+        :return: Score between 0 and 100, where 0 means "no meaning preserved" and 100 means "perfect meaning and grammar"
         """
         with self.load_cache() as cache:
             score = cache.get(f"{src}_{ref}_{hyp}_{src_lang}_{tgt_lang}", None)
@@ -56,13 +56,13 @@ class GembaMetric:
 @lmql.query(model="openai/babbage-002", decoder="argmax", max_len=500)
 def gemba(src: str, ref: str, hyp: str, src_lang: str, tgt_lang: str):
     '''lmql
-    """Score the following translation from {src_lang} to {tgt_lang} with respect to the human reference on a continuous scale from 0 to 9, where a score of zero means "no meaning preserved" and a score of nine means "perfect meaning and grammar".
+    """Score the following translation from {src_lang} to {tgt_lang} with respect to the human reference on a continuous scale from 0 to 100, where a score of zero means "no meaning preserved" and a score of one hundred means "perfect meaning and grammar".
 
     {src_lang} source: "{src}"
     {tgt_lang} human reference: "{ref}"
     {tgt_lang} machine translation: "{hyp}"
     Score: [SCORE]
-    """ where INT(SCORE)
+    """ where SCORE in set(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99", "100"])
     return SCORE
     '''
 
