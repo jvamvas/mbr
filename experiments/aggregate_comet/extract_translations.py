@@ -24,8 +24,7 @@ for language_pair in language_pairs:
         samples_path = samples_dir / f"transformer.wmt19.{language_pair}.single_model.1024samples.epsilon0.02.seed{seed_no}.jsonl"
         out_path = out_dir / f"epsilon_sampling_{testset}_{language_pair}_seed{seed_no}.txt"
         with jsonlines.open(samples_path) as f_in, open(out_path, "w") as f_out:
-            for line in f_in:
-                f_out.write(line["samples"][0] + "\n")
+            f_out.write("\n".join([line["samples"][0] for line in f_in]))
 
         # ChrF
         chrf_results_path = Path(f"results_chrf_{testset}_{language_pair}_1024samples_seed{seed_no}.jsonl")
