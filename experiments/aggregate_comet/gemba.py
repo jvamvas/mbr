@@ -35,7 +35,7 @@ class GembaMetric:
         """
         cache_dir = Path(os.getenv("GEMBA_CACHE", Path.home() / ".cache" / "gemba" / self.model.replace("/", "_")))
         if not cache_dir.exists():
-            cache_dir.mkdir(parents=True)
+            os.mkdir(cache_dir)
         return cache_dir / (str(self).replace("/", "_") + ".sqlite")
 
     def load_cache(self) -> SqliteDict:
