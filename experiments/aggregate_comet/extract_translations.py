@@ -28,7 +28,7 @@ for language_pair in language_pairs:
                 f_out.write("\n".join([samples[0] for samples in line["samples"]]))
 
         # ChrF
-        chrf_results_path = Path(f"results_chrf_{testset}_1024samples_seed{seed_no}.jsonl")
+        chrf_results_path = Path(f"results_chrf_{testset}_{language_pair}_1024samples_seed{seed_no}.jsonl")
         with jsonlines.open(chrf_results_path) as f:
             data = list(f)
         for row in data:
