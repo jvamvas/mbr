@@ -5,13 +5,7 @@ import numpy as np
 import sacrebleu
 from tqdm import tqdm
 
-from gemba import CREDENTIALS
-from gemba.cache import Cache
-from gemba.gpt_api import GptApi
-from gemba.prompt import prompts, language_codes
-
-# OPENAI_MODEL = "babbage-002"
-OPENAI_MODEL = "gpt-4-1106-preview"
+from gemba import GembaMetric
 
 LIMIT_N = 10
 
@@ -19,6 +13,16 @@ language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
 translations_path = Path(sys.argv[2])
 assert translations_path.exists()
+
+language_codes = {
+    "en": "English",
+    "de": "German",
+    "ru": "Russian",
+}
+
+OPENAI_MODEL = "openai/babbage-002"
+# OPENAI_MODEL = "openai/gpt-4-1106-preview"
+gemba = GembaMetric(OPENAI_MODEL)
 
 wmt = "wmt22"
 src_path = sacrebleu.get_source_file(wmt, language_pair)
@@ -35,24 +39,16 @@ if LIMIT_N is not None:
     references = references[:LIMIT_N]
     translations = translations[:LIMIT_N]
 
-cache_filename = f"{OPENAI_MODEL}_{wmt}_{language_pair}.jsonl"
-cache = Cache(cache_filename)
-
-gptapi = GptApi(CREDENTIALS.credentials)
-gemba_type = "GEMBA-DA_ref"
-
 scores = []
 for source, reference, translation in zip(tqdm(source_sequences), references, translations):
     data = {
-        "source_seg": source,
-        "target_seg": translation,
-        "reference_seg": reference,
-        "source_lang": language_codes[language_pair.split("-")[0]],
-        "target_lang": language_codes[language_pair.split("-")[1]],
+        "src": source,
+        "tgt": translation,
+        "ref": reference,
+        "src_lang": language_codes[language_pair.split("-")[0]],
+        "tgt_lang": language_codes[language_pair.split("-")[1]],
     }
-    prompt = prompts[gemba_type]["prompt"].format(**data)
-    parsed_answers = gptapi.request(prompt, OPENAI_MODEL, prompts[gemba_type]["validate_answer"], cache=cache)
-    score = parsed_answers[0]["answer"]
+    score = gemba.score(**data)
     scores.append(score)
 
 print("Number of segments", len(scores))
