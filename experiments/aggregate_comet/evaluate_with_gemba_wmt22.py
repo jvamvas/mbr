@@ -43,8 +43,8 @@ scores = []
 for source, reference, translation in zip(tqdm(source_sequences), references, translations):
     data = {
         "src": source,
-        "tgt": translation,
         "ref": reference,
+        "hyp": translation,
         "src_lang": language_codes[language_pair.split("-")[0]],
         "tgt_lang": language_codes[language_pair.split("-")[1]],
     }
