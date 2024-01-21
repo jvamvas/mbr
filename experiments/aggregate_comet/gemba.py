@@ -45,7 +45,7 @@ class GembaMetric:
         return SqliteDict(self.cache_path, timeout=15, encode=json.dumps, decode=json.loads)
 
 
-@lmql.query(model="openai/babbage-002", is_async=False, decoder="argmax", max_len=500)
+@lmql.query(model="openai/babbage-002", decoder="argmax", max_len=500)
 def gemba(src: str, ref: str, hyp: str, src_lang: str, tgt_lang: str):
     '''lmql
     """Score the following translation from {src_lang} to {tgt_lang} with respect to the human reference on a continuous scale from 0 to 100, where a score of zero means "no meaning preserved" and a score of one hundred means "perfect meaning and grammar".
