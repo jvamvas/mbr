@@ -52,11 +52,7 @@ for source, reference, translation in zip(tqdm(source_sequences), references, tr
     score = gemba.score(**data)
     scores.append(score)
 
-try:
-    print(get_stats())
-except RuntimeError:
-    pass
-
+print(get_stats())
 print("Number of segments", len(scores))
 print("NaN rate", sum([1 for score in scores if score is None]) / len(scores))
 print("Average score:", np.nanmean(np.array(scores, dtype=float)))
