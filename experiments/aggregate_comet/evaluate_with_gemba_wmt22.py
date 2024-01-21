@@ -10,7 +10,8 @@ from gemba.cache import Cache
 from gemba.gpt_api import GptApi
 from gemba.prompt import prompts, language_codes
 
-OPENAI_MODEL = "babbage-002"
+# OPENAI_MODEL = "babbage-002"
+OPENAI_MODEL = "gpt-4-1106-preview"
 
 LIMIT_N = 10
 
