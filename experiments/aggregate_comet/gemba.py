@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from pathlib import Path
@@ -22,8 +23,15 @@ class GembaMetric:
         """
         with self.load_cache() as cache:
             score = cache.get(f"{src}_{ref}_{hyp}_{src_lang}_{tgt_lang}", None)
+
             if score is None:
-                score = gemba(src, ref, hyp, src_lang, tgt_lang, model=lmql.model(self.model))
+
+                def async_to_sync(awaitable):
+                    loop = asyncio.get_event_loop()
+                    return loop.run_until_complete(awaitable)
+
+                score = async_to_sync(gemba(src, ref, hyp, src_lang, tgt_lang, model=lmql.model(self.model)))
+
                 cache[f"{src}_{ref}_{hyp}_{src_lang}_{tgt_lang}"] = score
                 cache.commit()
         return score
@@ -45,7 +53,7 @@ class GembaMetric:
         return SqliteDict(self.cache_path, timeout=15, encode=json.dumps, decode=json.loads)
 
 
-@lmql.query(model="openai/babbage-002", is_async=False, decoder="argmax", max_len=500)
+@lmql.query(model="openai/babbage-002", decoder="argmax", max_len=500)
 def gemba(src: str, ref: str, hyp: str, src_lang: str, tgt_lang: str):
     '''lmql
     """Score the following translation from {src_lang} to {tgt_lang} with respect to the human reference on a continuous scale from 0 to 100, where a score of zero means "no meaning preserved" and a score of one hundred means "perfect meaning and grammar".
