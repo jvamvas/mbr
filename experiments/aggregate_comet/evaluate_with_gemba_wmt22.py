@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import sacrebleu
 from tqdm import tqdm
+from lmql.runtime.bopenai import get_stats
 
 from gemba import GembaMetric
 
@@ -51,6 +52,7 @@ for source, reference, translation in zip(tqdm(source_sequences), references, tr
     score = gemba.score(**data)
     scores.append(score)
 
+print(get_stats())
 print("Number of segments", len(scores))
 print("NaN rate", sum([1 for score in scores if score is None]) / len(scores))
 print("Average score:", np.nanmean(np.array(scores, dtype=float)))
