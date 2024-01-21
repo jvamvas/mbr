@@ -273,7 +273,8 @@ def run_all_comet_n_by_s(
         inputs: List[str],  # batch_size
         batch_size_embed: int = 1,
         batch_size_estimate: int = 1,
-) -> Tuple[Tuple[List[str], ...], Tuple[float, ...]]:
+        return_top_n: int = 1,
+) -> Tuple[Tuple[List[List[str]], ...], Tuple[float, ...]]:
     """
     Experimental implementation of N-by-S MBR with COMET.
     Returns several sets of translations
@@ -294,7 +295,7 @@ def run_all_comet_n_by_s(
     total_embedding_time = 0
     scoring_times = np.zeros(num_iterations)
 
-    all_translations: List[List[str]] = [list() for _ in range(num_iterations)]
+    all_translations: List[List[List[str]]] = [list() for _ in range(num_iterations)]
 
     for i in tqdm(list(range(batch_size)), desc="comet"):
         # Compute embeddings
@@ -360,9 +361,14 @@ def run_all_comet_n_by_s(
                     metric_scores[k, m] = input_triple_scores[(inputs[i], samples[k][i], subsampled_references[m][i])]
 
             metric_scores = metric_scores.mean(dim=-1)
-            max_index = metric_scores.argmax()
-            translation = samples[max_index][i]
-            all_translations[j].append(translation)
+            if return_top_n == 1:
+                max_index = metric_scores.argmax()
+                translation = samples[max_index][i]
+                all_translations[j].append(translation)
+            else:
+                top_n_indices = metric_scores.cpu().numpy().argsort()[-return_top_n:][::-1]
+                translations = [samples[index][i] for index in top_n_indices]
+                all_translations[j].append(translations)
             end = time.time()
             scoring_times[j] += (end - start)
 
@@ -468,7 +474,8 @@ def run_all_chrf_n_by_s(
         samples: List[List[str]],  # batch_size x num_samples
         references: List[List[str]],  # batch_size x num_references
         skip_last=False,
-) -> Tuple[Tuple[List[str], ...], Tuple[float, ...]]:
+        return_top_n: int = 1,
+) -> Tuple[Tuple[List[List[str]], ...], Tuple[float, ...]]:
     """
     Experimental implementation of N-by-S MBR with ChrF.
     Returns several sets of translations
@@ -488,7 +495,7 @@ def run_all_chrf_n_by_s(
     total_embedding_time = 0
     scoring_times = np.zeros(num_iterations)
 
-    all_translations: List[List[str]] = [list() for _ in range(num_iterations)]
+    all_translations: List[List[List[str]]] = [list() for _ in range(num_iterations)]
 
     for i in tqdm(list(range(batch_size)), desc="chrf"):
         iterations = list(range(num_iterations))
@@ -508,9 +515,14 @@ def run_all_chrf_n_by_s(
             scores = np.array(scores)
             scores = scores.squeeze(0)
             scores = scores.mean(axis=-1)
-            max_index = scores.argmax()
-            translation = samples[i][max_index]
-            all_translations[j].append(translation)
+            if return_top_n == 1:
+                max_index = scores.argmax()
+                translation = samples[i][max_index]
+                all_translations[j].append(translation)
+            else:
+                top_n_indices = scores.argsort()[-return_top_n:][::-1]
+                translations = [samples[i][index] for index in top_n_indices]
+                all_translations[j].append(translations)
             end = time.time()
             scoring_times[j] += (end - start)
 

@@ -1,12 +1,11 @@
 import sys
 from pathlib import Path
 
-import evaluate
 import jsonlines
 import sacrebleu
 from datasets import load_dataset
 
-from utils import run_all_comet_factors
+from utils import run_all_chrf_n_by_s
 
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
@@ -46,9 +45,7 @@ for row in samples:
 unique_sample_counts = [len(set(row)) for row in samples]
 print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_comet22_coarse{topn}_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
-
-comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
+results_file = jsonlines.open(Path(__file__).parent / f"results_chrf_n_by_s_coarse{topn}_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
 
 src_path = sacrebleu.get_source_file(wmt, language_pair)
 ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
@@ -62,24 +59,23 @@ assert len(dataset["test"]) == len(references) == len(source_sequences)
 # source_sequences = source_sequences[:16]
 # references = references[:16]
 
-comet.scorer = comet.scorer.to("cuda:0")
-translation_lists, durations = run_all_comet_factors(
-    comet,
-    samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
-    references=[[row[i] for row in samples] for i in range(len(samples[0]))],
-    inputs=source_sequences,
-    batch_size_embed=128,
-    batch_size_estimate=128,
+translation_lists, durations = run_all_chrf_n_by_s(
+    samples=samples,
+    references=samples,
+    skip_last=True,
     return_top_n=topn,
 )
 
 for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
+    if not translations:
+        continue
+
     results_file.write({
         "testset": wmt,
         "language_pair": language_pair,
         "seed_no": seed_no,
-        "method": f"MBR with aggregate COMET ({int(2**i)} aggregates from {num_samples} refs)",
-        "num_aggregates": int(2**i),
+        "method": f"N-by-S MBR with ChrF (S={int(2**i)} subsamples from {num_samples} refs)",
+        "num_subsamples": int(2**i),
         "num_samples": num_samples,
         "duration": duration,
         "topn": translations,

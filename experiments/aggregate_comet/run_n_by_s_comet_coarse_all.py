@@ -6,7 +6,7 @@ import jsonlines
 import sacrebleu
 from datasets import load_dataset
 
-from utils import run_all_comet_factors
+from utils import run_all_comet_n_by_s
 
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
@@ -46,7 +46,7 @@ for row in samples:
 unique_sample_counts = [len(set(row)) for row in samples]
 print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_comet22_coarse{topn}_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_comet22_n_by_s_coarse{topn}_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
 
 comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
@@ -63,7 +63,7 @@ assert len(dataset["test"]) == len(references) == len(source_sequences)
 # references = references[:16]
 
 comet.scorer = comet.scorer.to("cuda:0")
-translation_lists, durations = run_all_comet_factors(
+translation_lists, durations = run_all_comet_n_by_s(
     comet,
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
     references=[[row[i] for row in samples] for i in range(len(samples[0]))],
@@ -74,12 +74,15 @@ translation_lists, durations = run_all_comet_factors(
 )
 
 for i, (translations, duration) in enumerate(zip(translation_lists, durations)):
+    if not translations:
+        continue
+
     results_file.write({
         "testset": wmt,
         "language_pair": language_pair,
         "seed_no": seed_no,
-        "method": f"MBR with aggregate COMET ({int(2**i)} aggregates from {num_samples} refs)",
-        "num_aggregates": int(2**i),
+        "method": f"N-by-S MBR with COMET (S={int(2**i)} subsamples from {num_samples} refs)",
+        "num_subsamples": int(2**i),
         "num_samples": num_samples,
         "duration": duration,
         "topn": translations,
