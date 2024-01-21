@@ -5,10 +5,10 @@ import numpy as np
 import sacrebleu
 from tqdm import tqdm
 
-from experiments.aggregate_comet.gemba import CREDENTIALS
-from experiments.aggregate_comet.gemba.cache import Cache
-from experiments.aggregate_comet.gemba.gpt_api import GptApi
-from experiments.aggregate_comet.gemba.prompt import prompts, language_codes
+from gemba import CREDENTIALS
+from gemba.cache import Cache
+from gemba.gpt_api import GptApi
+from gemba.prompt import prompts, language_codes
 
 OPENAI_MODEL = "babbage-002"
 
