@@ -5,5 +5,4 @@ fastBPE==0.1.0
 requests
 jsonlines
 git+https://github.com/mjpost/sacrebleu.git  # wmt23 data
-lmql==0.7.3  # gemba
-sqlitedict==2.1.0  # gemba
+openai==0.28.0  # gemba
