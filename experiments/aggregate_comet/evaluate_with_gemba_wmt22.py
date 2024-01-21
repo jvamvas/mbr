@@ -21,8 +21,7 @@ language_codes = {
     "ru": "Russian",
 }
 
-# OPENAI_MODEL = "openai/babbage-002"
-OPENAI_MODEL = "gpt-3.5-turbo-1106"
+OPENAI_MODEL = "openai/babbage-002"
 # OPENAI_MODEL = "openai/gpt-4-1106-preview"
 gemba = GembaMetric(OPENAI_MODEL)
 
