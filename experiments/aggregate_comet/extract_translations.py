@@ -25,7 +25,7 @@ for language_pair in language_pairs:
         out_path = out_dir / f"epsilon_sampling_{testset}_{language_pair}_seed{seed_no}.txt"
         with jsonlines.open(samples_path) as f_in, open(out_path, "w") as f_out:
             for line in f_in:
-                f_out.write("\n".join([samples[0] for samples in line["samples"]]))
+                f_out.write(line["samples"][0] + "\n")
 
         # ChrF
         chrf_results_path = Path(f"results_chrf_{testset}_{language_pair}_1024samples_seed{seed_no}.jsonl")
