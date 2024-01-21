@@ -35,7 +35,7 @@ class GptApi:
         self.non_batchable_models = ["gpt-3.5-turbo", "gpt-4", "gpt-4-32k", "gpt-4-1106-preview", "gpt-3.5-turbo-1106"]
 
     # answer_id is used for determining if it was the top answer or how deep in the list it was
-    def request(self, prompt, model, parse_response, temperature=0, answer_id=-1, cache=None, max_tokens=10):
+    def request(self, prompt, model, parse_response, temperature=0, answer_id=-1, cache=None, max_tokens=5):
         answers = None
         if cache is not None:
             answers = cache.get({
@@ -92,7 +92,7 @@ class GptApi:
 
         return parsed_answers
 
-    def request_api(self, prompt, model, temperature=0, max_tokens=10):
+    def request_api(self, prompt, model, temperature=0, max_tokens=5):
         # if temperature is 0, then request only 1 response
         n = 1
         if temperature > 0:
@@ -190,7 +190,7 @@ class GptApi:
 
         return completion_function(**parameters)
     
-    def bulk_request(self, df, model, parse_mqm_answer, cache, max_tokens=10):
+    def bulk_request(self, df, model, parse_mqm_answer, cache, max_tokens=5):
         answers = []
         for i, row in df.iterrows():
             prompt = row["prompt"]
