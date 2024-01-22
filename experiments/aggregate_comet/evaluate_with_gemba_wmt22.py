@@ -18,7 +18,7 @@ OPENAI_MODEL = "gpt-3.5-turbo-1106"
 LIMIT_N = None
 
 if OPENAI_MODEL == "gpt-4-1106-preview":
-    max_tokens = 20  # Often starts with "I would score ..."
+    max_tokens = 12  # Often starts with "I would score ..."
 else:
     max_tokens = 5
 
