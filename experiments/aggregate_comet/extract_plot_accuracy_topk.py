@@ -69,7 +69,7 @@ for language_pair in language_pairs:
         aggregate_row = [line for line in aggregate_data if line["num_aggregates"] == x]
         assert len(aggregate_row) == 1
         assert aggregate_row[0]["num_samples"] == num_samples
-        aggregate_translations = aggregate_row[0]["translations"]
+        aggregate_translations = [translations[:TOPK] for translations in aggregate_row[0]["topn"]]
         accuracy = np.mean([1 if b in {a_.strip() for a_ in a} else 0 for a, b in zip(aggregate_translations, n_by_n_translations)])
         aggregate_series.append((x, accuracy))
     # To make plotting easier, we will invert the ticks, so 1024 corresponds to 1, 512 to 2, 256 to 4, etc.
@@ -87,7 +87,7 @@ for language_pair in language_pairs:
             n_by_s_row = [line for line in n_by_s_data if line["num_subsamples"] == x]
             assert len(n_by_s_row) == 1
             assert n_by_s_row[0]["num_samples"] == num_samples
-            n_by_s_translations = n_by_s_row[0]["translations"]
+            n_by_s_translations = [translations[:TOPK] for translations in n_by_s_row[0]["topn"]]
             accuracy = np.mean([1 if b in {a_.strip() for a_ in a} else 0 for a, b in zip(n_by_s_translations, n_by_n_translations)])
             n_by_s_series.append((x, accuracy))
     inverted_n_by_s_series = [(num_references / x, accuracy) for x, accuracy in n_by_s_series]
