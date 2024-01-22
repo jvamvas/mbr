@@ -11,8 +11,8 @@ from gemba.gpt_api import GptApi
 from gemba.prompt import prompts, language_codes
 
 # OPENAI_MODEL = "babbage-002"
-OPENAI_MODEL = "gpt-3.5-turbo-1106"
-# OPENAI_MODEL = "gpt-4-1106-preview"
+# OPENAI_MODEL = "gpt-3.5-turbo-1106"
+OPENAI_MODEL = "gpt-4-1106-preview"
 
 # LIMIT_N = 10
 LIMIT_N = None
