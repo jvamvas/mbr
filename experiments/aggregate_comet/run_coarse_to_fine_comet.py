@@ -97,6 +97,8 @@ for coarse_num_aggregates in coarse_nums_aggregates:
         "seed_no": seed_no,
         "method": f"Coarse-to-fine; coarse={coarse_metric}, top {num_coarse}, fine=COMET22",
         "num_coarse": num_coarse,
+        "coarse_metric": coarse_metric,
+        "coarse_num_aggregates": coarse_num_aggregates,
         "chrf": chrf_score["score"],
         "cometinho": 100 * cometinho_score["mean_score"],
         "comet22": 100 * comet22_score["mean_score"],
