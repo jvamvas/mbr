@@ -19,7 +19,6 @@ seed_no = int(sys.argv[3])
 coarse_metric = sys.argv[4]
 assert coarse_metric in ["chrf", "cometinho", "comet22"]
 
-
 num_samples = 1024
 num_coarse = 20
 coarse_num_aggregates = 1
@@ -59,10 +58,10 @@ references = Path(ref_path).read_text().splitlines()
 source_sequences = dataset["test"]["text"]
 assert len(dataset["test"]) == len(references) == len(source_sequences)
 
-print("Only using 16 samples for testing")
-samples = samples[:16]
-source_sequences = source_sequences[:16]
-references = references[:16]
+# print("Only using 16 samples for testing")
+# samples = samples[:16]
+# source_sequences = source_sequences[:16]
+# references = references[:16]
 
 comet.scorer = comet.scorer.to("cuda:0")
 translations = mbr_standard_comet(
