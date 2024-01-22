@@ -14,10 +14,11 @@ assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
 split = sys.argv[2]
 assert split in ["valid", "test"]
 
-coarse_metric = sys.argv[3]
+seed_no = int(sys.argv[3])
+
+coarse_metric = sys.argv[4]
 assert coarse_metric in ["chrf", "cometinho", "comet22"]
 
-seed_no = int(sys.argv[3])
 
 num_samples = 1024
 num_coarse = 20
