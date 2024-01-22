@@ -88,7 +88,7 @@ class GptApi:
 
         # there was no valid answer, increase temperature and try again
         if len(parsed_answers) == 0:
-            return self.request(prompt, model, parse_response, temperature=temperature + 1, answer_id=answer_id, cache=cache)
+            return self.request(prompt, model, parse_response, temperature=temperature + 1, answer_id=answer_id, cache=cache, max_tokens=max_tokens)
 
         return parsed_answers
 
