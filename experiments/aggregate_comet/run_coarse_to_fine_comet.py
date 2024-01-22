@@ -41,12 +41,12 @@ cometinho = evaluate.load("comet", "eamt22-cometinho-da")
 comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
 with jsonlines.open(coarse_path) as f:
-    coarse_lines = list(f)
+    all_coarse_lines = list(f)
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_comet22_fine_from_top{num_coarse}_{coarse_metric}_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl", "w")
 
 for coarse_num_aggregates in coarse_nums_aggregates:
-    coarse_lines = [line for line in coarse_lines if line["num_aggregates"] == coarse_num_aggregates]
+    coarse_lines = [line for line in all_coarse_lines if line["num_aggregates"] == coarse_num_aggregates]
     assert len(coarse_lines) == 1
     samples = [row[:num_coarse] for row in coarse_lines[0]["topn"]]  # segments x num_coarse
 
