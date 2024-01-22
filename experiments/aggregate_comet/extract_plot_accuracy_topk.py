@@ -55,6 +55,7 @@ for language_pair in language_pairs:
     n_by_n_data = [line for line in aggregate_data if line["num_aggregates"] == num_references]
     assert len(n_by_n_data) == 1
     n_by_n_translations = [translations[0].strip() for translations in n_by_n_data[0]["topn"]]
+    print("n-by-n translation example:", n_by_n_translations[0])
 
     # X-axis is ordered from most to least effective references
     # Reference aggregation: num_aggregates = num_references, num_references/2, num_references/4, ..., 1
@@ -70,6 +71,7 @@ for language_pair in language_pairs:
         assert len(aggregate_row) == 1
         assert aggregate_row[0]["num_samples"] == num_samples
         aggregate_translations = [translations[:TOPK] for translations in aggregate_row[0]["topn"]]
+        print("topn aggregate translations example:", aggregate_translations[0])
         accuracy = np.mean([1 if b in {a_.strip() for a_ in a} else 0 for a, b in zip(aggregate_translations, n_by_n_translations)])
         aggregate_series.append((x, accuracy))
     # To make plotting easier, we will invert the ticks, so 1024 corresponds to 1, 512 to 2, 256 to 4, etc.
