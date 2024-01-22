@@ -17,6 +17,11 @@ OPENAI_MODEL = "gpt-3.5-turbo-1106"
 # LIMIT_N = 10
 LIMIT_N = None
 
+if OPENAI_MODEL == "gpt-4-1106-preview":
+    max_tokens = 20  # Often starts with "I would score ..."
+else:
+    max_tokens = 5
+
 language_pair = sys.argv[1]
 assert language_pair in ["de-en", "en-de", "en-ru", "ru-en"]
 translations_path = Path(sys.argv[2])
@@ -53,7 +58,7 @@ for source, reference, translation in zip(tqdm(source_sequences), references, tr
         "target_lang": language_codes[language_pair.split("-")[1]],
     }
     prompt = prompts[gemba_type]["prompt"].format(**data)
-    parsed_answers = gptapi.request(prompt, OPENAI_MODEL, prompts[gemba_type]["validate_answer"], cache=cache)
+    parsed_answers = gptapi.request(prompt, OPENAI_MODEL, prompts[gemba_type]["validate_answer"], cache=cache, max_tokens=max_tokens)
     score = parsed_answers[0]["answer"]
     scores.append(score)
 
