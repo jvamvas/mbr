@@ -102,8 +102,10 @@ prompts = {
         "validate_answer": lambda x: validate_number(x),
         "use_ref": False},
 
+    # JV: Made the prompt more grammatically correct and consistent
+    # Cf. https://github.com/MicrosoftTranslator/GEMBA/pull/2
     "GEMBA-DA_ref": {
-        "prompt": 'Score the following translation from {source_lang} to {target_lang} with respect to human reference on a continuous scale 0 to 100 where score of zero means "no meaning preserved" and score of one hundred means "perfect meaning and grammar".\n\n{source_lang} source: "{source_seg}"\n{target_lang} human reference: {reference_seg}\n{target_lang} machine translation: "{target_seg}"\nScore: ',
+        "prompt": 'Score the following translation from {source_lang} to {target_lang} with respect to the human reference on a continuous scale from 0 to 100, where a score of zero means "no meaning preserved" and a score of one hundred means "perfect meaning and grammar".\n\n{source_lang} source:\n{source_seg}\n\n{target_lang} human reference:\n{reference_seg}\n\n{target_lang} machine translation:\n{target_seg}\n\nScore: ',
         "validate_answer": lambda x: validate_number(x),
         "use_ref": True},
 

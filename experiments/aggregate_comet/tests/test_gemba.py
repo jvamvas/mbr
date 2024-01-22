@@ -29,6 +29,7 @@ class GembaTestCase(TestCase):
             "target_lang": "English",
         }
         prompt1 = prompts[self.gemba_type]["prompt"].format(**data1)
+        print(prompt1)
         parsed_answers1 = self.gptapi.request(prompt1, self.model, prompts[self.gemba_type]["validate_answer"], cache=self.cache)
         print(parsed_answers1)
         score1 = parsed_answers1[0]["answer"]
