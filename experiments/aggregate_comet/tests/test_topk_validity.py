@@ -62,9 +62,12 @@ class TopkValidityTestCase(TestCase):
             batch_size_embed=128,
             batch_size_estimate=128,
         )
-        for direct_translation_list1, direct_translation_list2 in zip(direct_translation_lists1, direct_translation_lists2):
-            for direct_translation1, direct_translation2 in zip(direct_translation_list1, direct_translation_list2):
-                self.assertEqual(direct_translation1, direct_translation2)
+        # Pairwise
+        for direct_translation1, direct_translation2 in zip(direct_translation_lists1[0], direct_translation_lists2[0]):
+            self.assertEqual(direct_translation1, direct_translation2)
+        # Aggregate
+        for direct_translation1, direct_translation2 in zip(direct_translation_lists1[-1], direct_translation_lists2[-1]):
+            self.assertEqual(direct_translation1, direct_translation2)
 
     def test_topk(self):
         """
