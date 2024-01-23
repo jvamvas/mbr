@@ -78,7 +78,8 @@ for coarse_num_aggregates in coarse_nums_aggregates:
     assert len(dataset["test"]) == len(references) == len(source_sequences)
 
     print("Only using 16 samples for testing")
-    samples = samples[:16]
+    samples_hypotheses = samples_hypotheses[:16]
+    samples_references = samples_references[:16]
     source_sequences = source_sequences[:16]
     references = references[:16]
 
