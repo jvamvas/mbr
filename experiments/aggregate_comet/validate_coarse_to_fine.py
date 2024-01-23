@@ -25,10 +25,10 @@ print("Top-1 of coarse should be identical to output of direct")
 for coarse_line, direct_line in zip(coarse_data, direct_data):
     assert coarse_line["num_aggregates"] == direct_line["num_aggregates"]
     num_identical = 0
-    for coarse_translation, direct_translation in zip(coarse_line["topn"][0], direct_line["translations"]):
-        if coarse_translation == direct_translation:
+    for coarse_translations, direct_translation in zip(coarse_line["topn"], direct_line["translations"]):
+        if coarse_translations[0] == direct_translation:
             num_identical += 1
-    print(f"Match rate for {coarse_line['num_aggregates']} aggregates: {num_identical / len(coarse_line['topn'][0])}")
+    print(f"Match rate for {coarse_line['num_aggregates']} aggregates: {num_identical / len(direct_line['translations'])}")
 
 print("Output of pairwise coarse-to-fine should be identical to output of pairwise direct")
 fine_line = fine_data[-1]
