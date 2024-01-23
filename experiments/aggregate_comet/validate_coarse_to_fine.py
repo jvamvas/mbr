@@ -32,7 +32,7 @@ for coarse_line, direct_line in zip(coarse_data, direct_data):
 
 print("Output of pairwise coarse-to-fine should be identical to output of pairwise direct")
 fine_line = fine_data[-1]
-assert fine_line["num_aggregates"] == 1024
+assert fine_line["coarse_num_aggregates"] == 1024
 direct_line = direct_data[-1]
 assert direct_line["num_aggregates"] == 1024
 
@@ -40,4 +40,4 @@ num_identical = 0
 for fine_translation, direct_translation in zip(fine_line["translations"], direct_line["translations"]):
     if fine_translation == direct_translation:
         num_identical += 1
-print(f"Match rate for {fine_line['num_aggregates']} aggregates: {num_identical / len(fine_line['translations'])}")
+print(f"Match rate for pairwise: {num_identical / len(fine_line['translations'])}")
