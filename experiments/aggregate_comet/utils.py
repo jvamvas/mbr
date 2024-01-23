@@ -250,13 +250,11 @@ def run_all_comet_factors(
                     metric_scores[k, m] = input_triple_scores[(inputs[i], samples[k][i], f"agg{m}")]
 
             metric_scores = metric_scores.mean(dim=-1)
+            _, topk_indices = metric_scores.topk(return_top_n)
+            translations = [samples[index][i] for index in topk_indices]
             if return_top_n == 1:
-                max_index = metric_scores.argmax()
-                translation = samples[max_index][i]
-                all_translations[j].append(translation)
+                all_translations[j].append(translations[0])
             else:
-                _, topk_indices = metric_scores.topk(return_top_n)
-                translations = [samples[index][i] for index in topk_indices]
                 all_translations[j].append(translations)
             end = time.time()
             scoring_times[j] += (end - start)
