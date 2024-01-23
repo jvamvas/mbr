@@ -45,6 +45,8 @@ class TopkValidityTestCase(TestCase):
             samples=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
             references=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
             inputs=self.source_sequences,
+            batch_size_embed=128,
+            batch_size_estimate=128,
             return_top_n=20,
         )
         direct_translation_lists, _ = run_all_comet_factors(
@@ -52,6 +54,8 @@ class TopkValidityTestCase(TestCase):
             samples=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
             references=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
             inputs=self.source_sequences,
+            batch_size_embed=128,
+            batch_size_estimate=128,
         )
         for topk_translation_list, direct_translation_list in zip(topk_translation_lists, direct_translation_lists):
             for topk_translations, direct_translation in zip(topk_translation_list, direct_translation_list):
