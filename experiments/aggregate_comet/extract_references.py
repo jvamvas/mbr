@@ -19,5 +19,5 @@ for split in ["valid", "test"]:
     for language_pair in language_pairs:
         ref_path = sacrebleu.get_reference_files(testset, language_pair)[0]
         references = Path(ref_path).read_text().splitlines()
-        with open(out_dir / f"{testset}_{language_pair}.{language_pair.split('-')[0]}", "w") as f:
+        with open(out_dir / f"{testset}_{language_pair}.{language_pair.split('-')[1]}", "w") as f:
             f.write("\n".join(references))
