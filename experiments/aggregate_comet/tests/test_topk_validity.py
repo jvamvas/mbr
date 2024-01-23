@@ -32,6 +32,7 @@ class TopkValidityTestCase(TestCase):
         print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
         self.comet = evaluate.load("comet", "eamt22-cometinho-da")
         self.comet.scorer = self.comet.scorer.to("cuda:0")
+        self.comet.scorer.eval()
         src_path = sacrebleu.get_source_file(wmt, language_pair)
         ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
         dataset = load_dataset("text", data_files={"test": src_path})
