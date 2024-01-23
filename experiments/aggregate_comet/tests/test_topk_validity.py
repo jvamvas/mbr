@@ -24,7 +24,7 @@ class TopkValidityTestCase(TestCase):
         with jsonlines.open(samples_path) as f:
             for line in f:
                 samples.append(line["samples"])
-        self.comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
+        self.comet = evaluate.load("comet", "eamt22-cometinho-da")
         self.comet.scorer = self.comet.scorer.to("cuda:0")
         src_path = sacrebleu.get_source_file(wmt, language_pair)
         ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
