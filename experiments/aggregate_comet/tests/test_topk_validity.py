@@ -6,7 +6,7 @@ import jsonlines
 import sacrebleu
 from datasets import load_dataset
 
-from experiments.aggregate_comet.utils import run_all_comet_factors
+from ..utils import run_all_comet_factors
 
 
 class TopkValidityTestCase(TestCase):
