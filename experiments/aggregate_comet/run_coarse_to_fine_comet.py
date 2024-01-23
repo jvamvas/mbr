@@ -33,6 +33,23 @@ else:
 
 print(f"Using {split} split (={wmt})")
 
+samples_dir = Path(__file__).parent / f"samples_{wmt}"
+samples_name = f"transformer.wmt19.{language_pair}.single_model.1024samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
+samples_path = samples_dir / samples_name
+assert samples_path.exists(), samples_path
+
+samples_references = []  # segments x num_samples
+with jsonlines.open(samples_path) as f:
+    for line in f:
+        samples_references.append(line["samples"])
+
+# Cut to desired number of samples
+samples_references = [row[:num_samples] for row in samples_references]
+for row in samples_references:
+    assert len(row) == num_samples
+unique_sample_counts = [len(set(row)) for row in samples_references]
+print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
+
 coarse_path = Path(__file__).parent / f"results_{coarse_metric}_coarse50_{wmt}_{language_pair}_{num_samples}samples_seed{seed_no}.jsonl"
 assert coarse_path.exists(), coarse_path
 
@@ -48,10 +65,10 @@ results_file = jsonlines.open(Path(__file__).parent / f"results_comet22_fine_fro
 for coarse_num_aggregates in coarse_nums_aggregates:
     coarse_lines = [line for line in all_coarse_lines if line["num_aggregates"] == coarse_num_aggregates]
     assert len(coarse_lines) == 1
-    samples = [row[:num_coarse] for row in coarse_lines[0]["topn"]]  # segments x num_coarse
+    samples_hypotheses = [row[:num_coarse] for row in coarse_lines[0]["topn"]]  # segments x num_coarse
 
-    unique_sample_counts = [len(set(row)) for row in samples]
-    print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
+    unique_sample_counts = [len(set(row)) for row in samples_hypotheses]
+    print(f"Average number of unique top-n samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
 
     src_path = sacrebleu.get_source_file(wmt, language_pair)
     ref_path = sacrebleu.get_reference_files(wmt, language_pair)[0]
@@ -60,16 +77,16 @@ for coarse_num_aggregates in coarse_nums_aggregates:
     source_sequences = dataset["test"]["text"]
     assert len(dataset["test"]) == len(references) == len(source_sequences)
 
-    # print("Only using 16 samples for testing")
-    # samples = samples[:16]
-    # source_sequences = source_sequences[:16]
-    # references = references[:16]
+    print("Only using 16 samples for testing")
+    samples = samples[:16]
+    source_sequences = source_sequences[:16]
+    references = references[:16]
 
     comet.scorer = comet.scorer.to("cuda:0")
     translations = mbr_standard_comet(
         comet,
-        samples=[[row[i] for row in samples] for i in range(len(samples[0]))],
-        references=[[row[i] for row in samples] for i in range(len(samples[0]))],
+        samples=[[row[i] for row in samples_hypotheses] for i in range(len(samples_hypotheses[0]))],
+        references=[[row[i] for row in samples_references] for i in range(len(samples_references[0]))],
         inputs=source_sequences,
         batch_size_embed=128,
         batch_size_estimate=128,
