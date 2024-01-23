@@ -42,6 +42,30 @@ class TopkValidityTestCase(TestCase):
         self.source_sequences = source_sequences[:16]
         self.references = references[:16]
 
+    def test_direct(self):
+        """
+        Standard MBR should give consistent results
+        """
+        direct_translation_lists1, _ = run_all_comet_factors(
+            self.comet,
+            samples=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
+            references=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
+            inputs=self.source_sequences,
+            batch_size_embed=128,
+            batch_size_estimate=128,
+        )
+        direct_translation_lists2, _ = run_all_comet_factors(
+            self.comet,
+            samples=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
+            references=[[row[i] for row in self.samples] for i in range(len(self.samples[0]))],
+            inputs=self.source_sequences,
+            batch_size_embed=128,
+            batch_size_estimate=128,
+        )
+        for direct_translation_list1, direct_translation_list2 in zip(direct_translation_lists1, direct_translation_lists2):
+            for direct_translation1, direct_translation2 in zip(direct_translation_list1, direct_translation_list2):
+                self.assertEqual(direct_translation1, direct_translation2)
+
     def test_topk(self):
         """
         Top translation of top-k should be identical to the output of direct
