@@ -255,8 +255,8 @@ def run_all_comet_factors(
                 translation = samples[max_index][i]
                 all_translations[j].append(translation)
             else:
-                top_n_indices = metric_scores.cpu().numpy().argsort()[-return_top_n:][::-1]
-                translations = [samples[index][i] for index in top_n_indices]
+                _, topk_indices = metric_scores.topk(return_top_n)
+                translations = [samples[index][i] for index in topk_indices]
                 all_translations[j].append(translations)
             end = time.time()
             scoring_times[j] += (end - start)
@@ -366,8 +366,8 @@ def run_all_comet_n_by_s(
                 translation = samples[max_index][i]
                 all_translations[j].append(translation)
             else:
-                top_n_indices = metric_scores.cpu().numpy().argsort()[-return_top_n:][::-1]
-                translations = [samples[index][i] for index in top_n_indices]
+                _, topk_indices = metric_scores.topk(return_top_n)
+                translations = [samples[index][i] for index in topk_indices]
                 all_translations[j].append(translations)
             end = time.time()
             scoring_times[j] += (end - start)
