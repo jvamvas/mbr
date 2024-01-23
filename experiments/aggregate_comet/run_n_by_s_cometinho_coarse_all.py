@@ -62,7 +62,7 @@ assert len(dataset["test"]) == len(references) == len(source_sequences)
 # source_sequences = source_sequences[:16]
 # references = references[:16]
 
-cometinho.scorer = cometinho.scorer.to("cuda:0")
+cometinho.scorer = cometinho.scorer.to("cuda:0").eval()
 translation_lists, durations = run_all_comet_n_by_s(
     cometinho,
     samples=[[row[i] for row in samples] for i in range(len(samples[0]))],

@@ -32,7 +32,7 @@ random.seed(42)
 random_indices = random.sample(range(500), num_segments)
 
 cometinho = evaluate.load("comet", "eamt22-cometinho-da")
-cometinho.scorer = cometinho.scorer.to("cuda:0")
+cometinho.scorer = cometinho.scorer.to("cuda:0").eval()
 
 samples_dir = Path(__file__).parent / f"samples_{wmt}"
 samples_name = f"transformer.wmt19.{language_pair}.single_model.1024samples.epsilon{epsilon_cutoff}.seed0.jsonl"

@@ -83,7 +83,7 @@ for coarse_num_aggregates in coarse_nums_aggregates:
     # source_sequences = source_sequences[:16]
     # references = references[:16]
 
-    comet.scorer = comet.scorer.to("cuda:0")
+    comet.scorer = comet.scorer.to("cuda:0").eval()
     translations = mbr_standard_comet(
         comet,
         samples=[[row[i] for row in samples_hypotheses] for i in range(len(samples_hypotheses[0]))],
