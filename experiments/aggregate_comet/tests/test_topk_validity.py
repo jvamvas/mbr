@@ -16,6 +16,7 @@ class TopkValidityTestCase(TestCase):
         wmt = "wmt21"
         epsilon_cutoff = 0.02
         seed_no = 1
+        num_samples = 128
         samples_dir = Path(__file__).parent.parent / f"samples_{wmt}"
         samples_name = f"transformer.wmt19.{language_pair}.single_model.1024samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
         samples_path = samples_dir / samples_name
@@ -24,6 +25,11 @@ class TopkValidityTestCase(TestCase):
         with jsonlines.open(samples_path) as f:
             for line in f:
                 samples.append(line["samples"])
+        samples = [row[:num_samples] for row in samples]
+        for row in samples:
+            assert len(row) == num_samples
+        unique_sample_counts = [len(set(row)) for row in samples]
+        print(f"Average number of unique samples: {sum(unique_sample_counts) / len(unique_sample_counts):.2f}")
         self.comet = evaluate.load("comet", "eamt22-cometinho-da")
         self.comet.scorer = self.comet.scorer.to("cuda:0")
         src_path = sacrebleu.get_source_file(wmt, language_pair)
