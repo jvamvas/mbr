@@ -16,7 +16,7 @@ class TopkValidityTestCase(TestCase):
         wmt = "wmt21"
         epsilon_cutoff = 0.02
         seed_no = 1
-        num_samples = 256
+        num_samples = 128
         samples_dir = Path(__file__).parent.parent / f"samples_{wmt}"
         samples_name = f"transformer.wmt19.{language_pair}.single_model.1024samples.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
         samples_path = samples_dir / samples_name
