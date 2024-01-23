@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import jsonlines
+
 direct_path = Path("results_comet22_wmt21_de-en_1024samples_seed0.jsonl")
 assert direct_path.exists()
 
@@ -9,13 +11,13 @@ assert coarse_path.exists()
 fine_path = Path("results_comet22_fine_from_top20_comet22_wmt21_de-en_1024samples_seed0.jsonl")
 assert fine_path.exists()
 
-with open(direct_path) as f:
+with jsonlines.open(direct_path) as f:
     direct_data = list(f)
 
-with open(coarse_path) as f:
+with jsonlines.open(coarse_path) as f:
     coarse_data = list(f)
 
-with open(fine_path) as f:
+with jsonlines.open(fine_path) as f:
     fine_data = list(f)
 
 print("Top-1 of coarse should be identical to output of direct")
