@@ -3,19 +3,20 @@ import itertools
 import logging
 import math
 from pathlib import Path
+from typing import List
 
 import jsonlines
+from tqdm import tqdm
 
 from experiments.reference_aggregation.experiment_utils import Testset
 from experiments.reference_aggregation.mbr_utils import load_utility
 
 
-def main(testset: str, language_pair: str, seed_no: int, utility: str, topk: int = 20, num_samples: int = 1024, epsilon_cutoff: float = 0.02, limit_segments: int = None, out_dir: Path = None):
+def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk: int = 20, num_samples: int = 1024, epsilon_cutoff: float = 0.02, limit_segments: int = None, out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
 
-    output_dir = out_dir / "validation_output"
-    output_dir.mkdir(exist_ok=True)
+    assert topk <= num_samples
 
     dataset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
 
@@ -32,10 +33,12 @@ def main(testset: str, language_pair: str, seed_no: int, utility: str, topk: int
     assert len(samples) == len(dataset.source_sentences)
     assert all(len(sample) == num_samples for sample in samples)
 
-    utility = load_utility(utility)
+    references = samples
+
+    utility = load_utility(utility_name)
 
     if hasattr(utility, "compute_features"):
-        input_sequences = set(itertools.chain.from_iterable(samples)) | set(dataset.source_sentences) | set(dataset.references)
+        input_sequences = set(dataset.source_sentences) | set(itertools.chain.from_iterable(samples))
         logging.info(f"Computing features for {len(input_sequences)} unique input sequences ...")
         utility.compute_features(input_sequences)
 
@@ -44,12 +47,33 @@ def main(testset: str, language_pair: str, seed_no: int, utility: str, topk: int
     assert s_values[0] == num_samples
     assert s_values[-1] == 1
 
-    # TODO Run mbr and save jsonl output with topk samples
+    n_by_s_rankings: List[List[List[int]]] = []  # segments x s_values x topk
+    aggregate_rankings: List[List[List[int]]] = []  # segments x s_values x topk
+
+    for i in tqdm(range(len(dataset.source_sentences))):
+        n_by_s_rankings.append([])
+        for s in s_values:
+            n_by_s_ranking = utility.rank_samples_n_by_s(dataset.source_sentences[i], samples[i], references[i], s=s)
+            n_by_s_ranking = n_by_s_ranking[:topk]
+            n_by_s_rankings[-1].append(n_by_s_ranking.tolist())
+
+    output_dir = out_dir / "validation_output"
+    output_dir.mkdir(exist_ok=True)
+    output_path = output_dir / f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}.top{topk}.jsonl"
+    with jsonlines.open(output_path, mode="w") as f:
+        for i, s in enumerate(s_values):
+            f.write({
+                "method": "n_by_s",
+                "s": s,
+                "rankings": [ranking[i] for ranking in n_by_s_rankings]
+            })
 
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
 
     # TODO Extract translations from jsonl
+
+    return output_path
 
 
 if __name__ == '__main__':
@@ -66,4 +90,5 @@ if __name__ == '__main__':
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
 
-    main(args.testset, args.language_pair, args.seed, args.utility, args.topk, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+    jsonl_path = main(args.testset, args.language_pair, args.seed, args.utility, args.topk, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+    print(f"Saved results file to {jsonl_path}")
