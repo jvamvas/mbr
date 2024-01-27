@@ -9,16 +9,16 @@ def main(testset: str, language_pair: str, beam_size: int = 4, limit_segments: i
     if out_dir is None:
         out_dir = Path(__file__).parent
 
-    testset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
+    dataset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
     
     model = load_model(language_pair)
     
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
-    out_path = translations_dir / f"{testset}.{language_pair}.beam{beam_size}.{language_pair.split('-')[1]}"
+    out_path = translations_dir / f"{dataset}.beam{beam_size}.{language_pair.split('-')[1]}"
     
-    translations = model.translate(testset.source_sentences, beam_size=beam_size)
-    assert len(translations) == len(testset.source_sentences)
+    translations = model.translate(dataset.source_sentences, beam_size=beam_size)
+    assert len(translations) == len(dataset.source_sentences)
     
     with open(out_path, "w") as f:
         for translation in translations:

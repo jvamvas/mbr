@@ -11,7 +11,7 @@ def main(method: str, topk: int, testset: str, language_pair: str, seed: int, ut
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
 
-    testset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
+    dataset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
 
     out_path = ...  # TODO
     # TODO Run mbr and save translations to file

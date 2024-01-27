@@ -11,7 +11,7 @@ def main(testset: str, language_pair: str, seed_no: int, utility: str, topk: int
     output_dir = out_dir / "validation_output"
     output_dir.mkdir(exist_ok=True)
 
-    testset = Testset.from_wmt(args.testset, args.language_pair, limit_segments=args.segments)
+    dataset = Testset.from_wmt(args.testset, args.language_pair, limit_segments=args.segments)
 
     # TODO Run mbr and save jsonl output
 
