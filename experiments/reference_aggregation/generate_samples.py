@@ -4,14 +4,15 @@ from pathlib import Path
 import jsonlines
 from tqdm import tqdm
 
-from fairseq_utils import load_model
-from experiment_utils import SEEDS, Testset
+from experiments.reference_aggregation.experiment_utils import SEEDS, Testset
+from experiments.reference_aggregation.fairseq_utils import load_model
 
 
-def main(testset: str, language_pair: str, seed: int, num_samples: int, epsilon_cutoff: float, limit_segments: int = None, out_dir: Path = None) -> Path:
+def main(testset: str, language_pair: str, seed_no: int, num_samples: int, epsilon_cutoff: float, limit_segments: int = None, out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
 
+    seed = SEEDS[seed_no]
     testset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
 
     model = load_model(language_pair)
@@ -40,8 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('--limit-segments', type=int, default=None,
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
-    seed = SEEDS[args.seed]
 
-    out_path = main(args.testset, args.language_pair, seed, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+    out_path = main(args.testset, args.language_pair, args.seed, args.num_samples, args.epsilon_cutoff, args.limit_segments)
     assert out_path.exists()
     print(f"Saved samples to {out_path}")

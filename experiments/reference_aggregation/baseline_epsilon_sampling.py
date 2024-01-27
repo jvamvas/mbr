@@ -4,10 +4,14 @@ from pathlib import Path
 import jsonlines
 from tqdm import tqdm
 
+from experiments.reference_aggregation.experiment_utils import SEEDS
 
-def main(testset: str, language_pair: str, num_samples: int, epsilon_cutoff: float, seed: int, out_dir: Path = None) -> Path:
+
+def main(testset: str, language_pair: str, num_samples: int, epsilon_cutoff: float, seed_no: int, out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
+
+    seed = SEEDS[seed_no]
 
     samples_dir = out_dir / "samples"
     assert samples_dir.exists()
