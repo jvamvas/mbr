@@ -5,7 +5,7 @@ from experiment_utils import Testset
 from fairseq_utils import load_model
 
 
-def main(testset: str, language_pair: str, beam_size: int, limit_segments: int = None, out_dir: Path = None) -> Path:
+def main(testset: str, language_pair: str, beam_size: int = 4, limit_segments: int = None, out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
 
