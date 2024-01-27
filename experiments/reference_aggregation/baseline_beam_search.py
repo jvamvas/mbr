@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
 
-from experiment_utils import Testset
-from fairseq_utils import load_model
+from experiments.reference_aggregation.experiment_utils import Testset
+from experiments.reference_aggregation.fairseq_utils import load_model
 
 
 def main(testset: str, language_pair: str, beam_size: int = 4, limit_segments: int = None, out_dir: Path = None) -> Path:
