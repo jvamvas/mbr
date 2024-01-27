@@ -41,7 +41,7 @@ python plot_accuracy.py --testset wmt21 --language-pair en-de --seed 0 --utility
 - The following scripts create the translations and store them in the `translations/` directory.
 ```bash
 # Beam search
-python beam_search.py --language-pair en-de --testset wmt22
+python baseline_beam_search.py --language-pair en-de --testset wmt22
 # MBR with CHRF metric – standard MBR
 python run_mbr.py --method pairwise --testset wmt22 --language-pair en-de --seed 0 --utility chrf
 # MBR with CHRF metric – reference aggregation
@@ -55,7 +55,7 @@ python run_mbr.py --method aggregate_to_fine --topk 20 --testset wmt22 --languag
 ```
 - For epsilon sampling, we simply read the JSON lines file created by `generate_samples.py` and extract the first sample for each segment.
 ```bash
-python epsilon_sampling.py --testset wmt22 --language-pair en-de --seed 0
+python baseline_epsilon_sampling.py --testset wmt22 --language-pair en-de --seed 0
 ```
 
 #### Saving the source sequences and references in a text file
