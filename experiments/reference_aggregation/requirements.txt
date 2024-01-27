@@ -4,3 +4,5 @@ sacremoses==0.1.1
 fastBPE==0.1.0
 requests
 jsonlines
+unbabel-comet==2.1.1
+evaluate==0.4.1
