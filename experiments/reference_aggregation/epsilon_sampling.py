@@ -7,8 +7,8 @@ from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
 parser.add_argument('--testset', choices=['wmt21', 'wmt22'], required=True)
+parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
 parser.add_argument('--seed', type=int, choices=range(10), required=True, help='Index of the random seed in the list of random seeds')
 parser.add_argument('--num-samples', type=int, default=1024)
 parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
