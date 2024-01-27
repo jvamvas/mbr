@@ -13,16 +13,16 @@ def main(testset: str, language_pair: str, seed_no: int, num_samples: int, epsil
         out_dir = Path(__file__).parent
 
     seed = SEEDS[seed_no]
-    testset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
+    dataset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
 
     model = load_model(language_pair)
 
     samples_dir = out_dir / "samples"
     samples_dir.mkdir(exist_ok=True)
-    out_path = samples_dir / f"samples.{testset}.{language_pair}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
+    out_path = samples_dir / f"samples.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
 
     with jsonlines.open(out_path, "w") as f:
-        for source_sentence in tqdm(testset.source_sentences):
+        for source_sentence in tqdm(dataset.source_sentences):
             f.write({
                 "samples": model.sample(num_samples * [source_sentence], seed=seed, sampling_epsilon_cutoff=epsilon_cutoff),
             })
