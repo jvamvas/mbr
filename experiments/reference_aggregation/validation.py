@@ -50,7 +50,7 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
         # For COMET: compute embeddings
         if hasattr(utility, "compute_features"):
             utility.clear_features()
-            input_sequences = set(dataset.source_sentences[i]) | set(samples[i]) | set(references[i])
+            input_sequences = {dataset.source_sentences[i]} | set(samples[i]) | set(references[i])
             utility.compute_features(input_sequences)
 
         n_by_s_rankings.append([])
