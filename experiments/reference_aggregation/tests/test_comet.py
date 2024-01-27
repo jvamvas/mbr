@@ -12,6 +12,8 @@ class CometTestCase(TestCase):
         self.assertEqual(0, len(self.comet.embeddings))
         self.comet.compute_features({"This is a test.", "Dies ist ein Test."})
         self.assertEqual(2, len(self.comet.embeddings))
+        self.comet.clear_features()
+        self.assertEqual(0, len(self.comet.embeddings))
 
     def test_rank_samples_n_by_n(self):
         source_sequence = "This is a sample sentence"

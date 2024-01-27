@@ -35,22 +35,24 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
 
     references = samples
 
-    utility = load_utility(utility_name)
-
-    if hasattr(utility, "compute_features"):
-        input_sequences = set(dataset.source_sentences) | set(itertools.chain.from_iterable(samples))
-        logging.info(f"Computing features for {len(input_sequences)} unique input sequences ...")
-        utility.compute_features(input_sequences)
-
     # s = n/1, n/2, n/4, n/8, ..., n/n
     s_values = [int(num_samples / 2**i) for i in range(int(math.log2(num_samples)) + 1)]
     assert s_values[0] == num_samples
     assert s_values[-1] == 1
 
+    utility = load_utility(utility_name)
+
     # Compute rankings for n-by-s and aggregate, for each s
     n_by_s_rankings: List[List[List[int]]] = []  # segments x s_values x topk
     aggregate_rankings: List[List[List[int]]] = []  # segments x s_values x topk
     for i in tqdm(range(len(dataset.source_sentences))):
+
+        # For COMET: compute embeddings
+        if hasattr(utility, "compute_features"):
+            utility.clear_features()
+            input_sequences = set(dataset.source_sentences[i]) | set(samples[i]) | set(references[i])
+            utility.compute_features(input_sequences)
+
         n_by_s_rankings.append([])
         for s in s_values:
             n_by_s_ranking = utility.rank_samples_n_by_s(dataset.source_sentences[i], samples[i], references[i], s=s)

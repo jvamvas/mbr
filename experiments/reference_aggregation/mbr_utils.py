@@ -51,6 +51,9 @@ class CometUtility:
                 embedding = embeddings[j - start_idx]
                 self.embeddings[input_sequences[j]] = embedding
 
+    def clear_features(self):
+        self.embeddings = {}
+
     @torch.no_grad()
     def rank_samples_n_by_s(self, source_sequence: str, samples: List[str], references: List[str], s: int = None) -> np.ndarray:
         """
