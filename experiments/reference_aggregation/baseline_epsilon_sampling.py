@@ -4,23 +4,19 @@ from pathlib import Path
 import jsonlines
 from tqdm import tqdm
 
-from experiments.reference_aggregation.experiment_utils import SEEDS
-
 
 def main(testset: str, language_pair: str, num_samples: int, epsilon_cutoff: float, seed_no: int, out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
 
-    seed = SEEDS[seed_no]
-
     samples_dir = out_dir / "samples"
     assert samples_dir.exists()
-    samples_path = samples_dir / f"samples.{testset}.{language_pair}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed}.jsonl"
+    samples_path = samples_dir / f"samples.{testset}.{language_pair}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
     assert samples_path.exists()
 
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
-    out_path = translations_dir / f"{testset}.{language_pair}.epsilon{epsilon_cutoff}.seed{seed}.{language_pair.split('-')[1]}"
+    out_path = translations_dir / f"{testset}.{language_pair}.epsilon{epsilon_cutoff}.seed{seed_no}.{language_pair.split('-')[1]}"
 
     with jsonlines.open(samples_path) as f_in, open(out_path, "w") as f_out:
         for line in tqdm(f_in):

@@ -19,7 +19,7 @@ def main(testset: str, language_pair: str, seed_no: int, num_samples: int, epsil
 
     samples_dir = out_dir / "samples"
     samples_dir.mkdir(exist_ok=True)
-    out_path = samples_dir / f"samples.{testset}.{language_pair}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed}.jsonl"
+    out_path = samples_dir / f"samples.{testset}.{language_pair}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.jsonl"
 
     with jsonlines.open(out_path, "w") as f:
         for source_sentence in tqdm(testset.source_sentences):

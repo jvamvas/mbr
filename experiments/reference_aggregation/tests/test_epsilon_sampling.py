@@ -35,6 +35,7 @@ class EpsilonSamplingTestCase(TestCase):
         from experiments.reference_aggregation.baseline_epsilon_sampling import main
         out_path = main(self.testset, self.language_pair, num_samples=8, epsilon_cutoff=0.02, seed_no=0, out_dir=self.test_dir)
         self.assertTrue(out_path.exists())
+        self.assertIn(self.test_dir, out_path.parents)
         self.assertTrue(out_path.name.endswith(".de"))
         translations = out_path.read_text().splitlines()
         self.assertEqual(len(translations), 4)

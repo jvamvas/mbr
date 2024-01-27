@@ -16,6 +16,7 @@ class GenerateSamplesTestCase(TestCase):
         from experiments.reference_aggregation.generate_samples import main
         out_path = main(self.testset, self.language_pair, seed_no=0, num_samples=8, epsilon_cutoff=0.02, limit_segments=4, out_dir=self.test_dir)
         self.assertTrue(out_path.exists())
+        self.assertIn(self.test_dir, out_path.parents)
         self.assertTrue(out_path.name.endswith(".jsonl"))
         with jsonlines.open(out_path) as f:
             data = list(f)

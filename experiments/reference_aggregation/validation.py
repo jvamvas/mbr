@@ -4,7 +4,7 @@ from pathlib import Path
 from experiment_utils import Testset
 
 
-def main(testset: str, language_pair: str, seed: int, utility: str, topk: int = 20, limit_segments: int = None, out_dir: Path = None):
+def main(testset: str, language_pair: str, seed_no: int, utility: str, topk: int = 20, limit_segments: int = None, out_dir: Path = None):
     if out_dir is None:
         out_dir = Path(__file__).parent
 
