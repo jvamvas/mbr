@@ -14,12 +14,12 @@ class EpsilonSamplingTestCase(TestCase):
         source_sentence = "This is a test."
         num_samples = 4
         # ε=0.02
-        samples = model.sample(num_samples * [source_sentence], seed=42, sampling_epsilon_cutoff=0.02),
+        samples = model.sample(num_samples * [source_sentence], seed=42, sampling_epsilon_cutoff=0.02)
         self.assertEqual(len(samples), num_samples)
         self.assertIsInstance(samples[0], str)
         print(samples[0])
         # ε=0
-        samples = model.sample(num_samples * [source_sentence], seed=42, sampling_epsilon_cutoff=0),
+        samples = model.sample(num_samples * [source_sentence], seed=42, sampling_epsilon_cutoff=0)
         self.assertEqual(len(samples), num_samples)
         self.assertIsInstance(samples[0], str)
 
