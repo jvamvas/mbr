@@ -14,6 +14,7 @@ class BeamSearchTestCase(TestCase):
         from experiments.reference_aggregation.baseline_beam_search import main
         out_path = main(self.testset, self.language_pair, limit_segments=4, out_dir=self.test_dir)
         self.assertTrue(out_path.exists())
+        self.assertTrue(out_path.name.endswith(".de"))
         translations = out_path.read_text().splitlines()
         self.assertEqual(len(translations), 4)
         print(translations[0])
