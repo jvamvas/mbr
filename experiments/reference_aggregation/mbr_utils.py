@@ -153,8 +153,8 @@ def load_utility(utility_name: str):
     if utility_name == "chrf":
         return ChrfUtility()
     elif utility_name.startswith("comet22"):
-        return CometUtility("Unbabel/wmt22-comet-da")
+        return CometUtility("Unbabel/wmt22-comet-da", batch_size_embed=128, batch_size_estimate=128)
     elif utility_name.startswith("cometinho"):
-        return CometUtility("eamt22-cometinho-da")
+        return CometUtility("eamt22-cometinho-da", batch_size_embed=512, batch_size_estimate=512)
     else:
         raise ValueError(f"Unknown utility {utility_name}")
