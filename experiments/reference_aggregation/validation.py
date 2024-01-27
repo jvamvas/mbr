@@ -45,7 +45,7 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
     # Compute rankings for n-by-s and aggregate, for each s
     n_by_s_rankings: List[List[List[int]]] = []  # segments x s_values x topk
     aggregate_rankings: List[List[List[int]]] = []  # segments x s_values x topk
-    for i in tqdm(range(len(dataset.source_sentences))):
+    for i in tqdm(list(range(len(dataset.source_sentences))), desc="segments"):
 
         # For COMET: compute embeddings
         if hasattr(utility, "compute_features"):

@@ -42,7 +42,7 @@ class CometUtility:
         encodings = self.scorer.encoder.prepare_sample(input_sequences).to(self.device)
         batches = itertools.zip_longest(range(0, len(input_sequences), self.batch_size_embed),
                                         range(self.batch_size_embed, len(input_sequences), self.batch_size_embed))
-        for start_idx, end_idx in tqdm(list(batches)):
+        for start_idx, end_idx in tqdm(list(batches), desc="embed"):
             embeddings = self.scorer.get_sentence_embedding(
                 input_ids=encodings["input_ids"][start_idx:end_idx],
                 attention_mask=encodings["attention_mask"][start_idx:end_idx],
