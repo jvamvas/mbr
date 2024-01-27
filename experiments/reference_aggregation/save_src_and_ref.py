@@ -21,7 +21,7 @@ def main(testset: str, language_pair: str, limit_segments: int = None, out_dir: 
     
     ref_out_path = translations_dir / f"{dataset}.ref.{language_pair.split('-')[1]}"
     with open(ref_out_path, "w") as f:
-        for ref in dataset.reference_sentences:
+        for ref in dataset.references:
             f.write(ref + "\n")
             
     return src_out_path, ref_out_path
