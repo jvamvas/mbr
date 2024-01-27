@@ -52,5 +52,19 @@ class ValidationTestCase(TestCase):
             translations = translation_path.read_text().splitlines()
             self.assertEqual(len(translations), 4)
 
+    def test_run_validation_cometinho_topk_first_identical(self):
+        """
+        The top translation should be the same of any k
+        """
+        from experiments.reference_aggregation.validation import main
+        top1_jsonl_path = main(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=1, num_samples=8, limit_segments=1, out_dir=self.test_dir)
+        with jsonlines.open(top1_jsonl_path) as f:
+            top1_best_indices = [line["rankings"][0][0] for line in f]
+        for k in [1, 2, 4, 8]:
+            jsonl_path = main(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=k, num_samples=8, limit_segments=1, out_dir=self.test_dir)
+            with jsonlines.open(jsonl_path) as f:
+                best_indices = [line["rankings"][0][0] for line in f]
+            self.assertEqual(top1_best_indices, best_indices)
+
     def test_plot_accuracy(self):
         ...  # TODO
