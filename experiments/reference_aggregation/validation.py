@@ -47,21 +47,22 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
     assert s_values[0] == num_samples
     assert s_values[-1] == 1
 
+    # Compute rankings for n-by-s and aggregate, for each s
     n_by_s_rankings: List[List[List[int]]] = []  # segments x s_values x topk
     aggregate_rankings: List[List[List[int]]] = []  # segments x s_values x topk
-
     for i in tqdm(range(len(dataset.source_sentences))):
         n_by_s_rankings.append([])
         for s in s_values:
             n_by_s_ranking = utility.rank_samples_n_by_s(dataset.source_sentences[i], samples[i], references[i], s=s)
             n_by_s_ranking = n_by_s_ranking[:topk]
             n_by_s_rankings[-1].append(n_by_s_ranking.tolist())
-        # aggregate_rankings.append([])
-        # for s in s_values:
-        #     aggregate_ranking = utility.rank_samples_aggregate(dataset.source_sentences[i], samples[i], references[i], s=s)
-        #     aggregate_ranking = aggregate_ranking[:topk]
-        #     aggregate_rankings[-1].append(aggregate_ranking.tolist())
+        aggregate_rankings.append([])
+        for s in s_values:
+            aggregate_ranking = utility.rank_samples_aggregate(dataset.source_sentences[i], samples[i], references[i], s=s)
+            aggregate_ranking = aggregate_ranking[:topk]
+            aggregate_rankings[-1].append(aggregate_ranking.tolist())
 
+    # Save top-k rankings to jsonl file
     output_dir = out_dir / "validation_output"
     output_dir.mkdir(exist_ok=True)
     output_path = output_dir / f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}.top{topk}.jsonl"
@@ -72,15 +73,30 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
                 "s": s,
                 "rankings": [ranking[i] for ranking in n_by_s_rankings]
             })
+        for i, s in enumerate(s_values):
+            f.write({
+                "method": "aggregate",
+                "s": s,
+                "rankings": [ranking[i] for ranking in aggregate_rankings]
+            })
 
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
     translations_prefix = f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}"
 
+    # Save top-1 translations for n-by-s
     for j, s in enumerate(s_values):
         n_by_s_translations_path = translations_dir / f"{translations_prefix}.n_by_s.s{s}.{dataset.tgt_lang}"
         with open(n_by_s_translations_path, "w") as f:
             for i, rankings in enumerate(n_by_s_rankings):
+                ranking = rankings[j]
+                f.write(samples[i][ranking[0]] + "\n")
+
+    # Save top-1 translations for aggregate
+    for j, s in enumerate(s_values):
+        aggregate_translations_path = translations_dir / f"{translations_prefix}.aggregate.s{s}.{dataset.tgt_lang}"
+        with open(aggregate_translations_path, "w") as f:
+            for i, rankings in enumerate(aggregate_rankings):
                 ranking = rankings[j]
                 f.write(samples[i][ranking[0]] + "\n")
 

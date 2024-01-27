@@ -62,7 +62,7 @@ class CometUtility:
         references = references[:s]
         assert not self.scorer.training
 
-        # Collect all input triples in a set
+        # Collect all unique input triples
         input_triples: Set[Tuple[str, str, str]] = set()
         for sample in samples:
             for reference in references:
@@ -90,6 +90,58 @@ class CometUtility:
         for i, sample in enumerate(samples):
             for j, reference in enumerate(references):
                 metric_scores[i, j] = triple_scores[CometInputTriple(src=source_sequence, hyp=sample, ref=reference)]
+
+        # Sort the samples by their average score
+        sample_scores = metric_scores.mean(dim=1)
+        sample_indices = sample_scores.argsort(descending=True)
+        return sample_indices.cpu().numpy()
+
+    @torch.no_grad()
+    def rank_samples_aggregate(self, source_sequence: str, samples: List[str], references: List[str], s: int) -> np.ndarray:
+        """
+        Returns the indices of the samples sorted by their utility score, in descending order.
+        :param s: The number of aggregate referencesq
+        """
+        assert s <= len(references)
+        assert not self.scorer.training
+
+        num_partitions = s
+        partition_size = len(references) // num_partitions
+
+        # Add aggregate reference embeddings to the embeddings cache
+        reference_embeddings = torch.stack([self.embeddings[reference] for reference in references])
+        avg_reference_embeddings = reference_embeddings.view(num_partitions, partition_size, -1).mean(dim=1)
+        for partition_id in range(num_partitions):
+            self.embeddings[f"aggregate_{partition_id}"] = avg_reference_embeddings[partition_id]
+
+        # Collect all unique input triples
+        input_triples: Set[Tuple[str, str, str]] = set()
+        for sample in samples:
+            for partition_id in range(s):
+                input_triples.add(CometInputTriple(src=source_sequence, hyp=sample, ref=f"aggregate_{partition_id}"))
+        input_triples: List = list(input_triples)
+
+        # Compute scores for all input triples
+        triple_scores: Dict[CometInputTriple, torch.tensor] = {}
+        batches = itertools.zip_longest(range(0, len(input_triples), self.batch_size_estimate),
+                                        range(self.batch_size_estimate, len(input_triples), self.batch_size_estimate))
+        for start_idx, end_idx in batches:
+            batch = input_triples[start_idx:end_idx]
+            batch_scores = self.scorer.estimate(
+                src_sentemb=torch.stack([self.embeddings[input.src] for input in batch]),
+                mt_sentemb=torch.stack([self.embeddings[input.hyp] for input in batch]),
+                ref_sentemb=torch.stack([self.embeddings[input.ref] for input in batch]),
+            )
+            for i in range(start_idx, end_idx if end_idx is not None else len(input_triples)):
+                triple = batch[i - start_idx]
+                score = batch_scores.score[i - start_idx]
+                triple_scores[triple] = score
+
+        # Fill in the metric scores matrix
+        metric_scores = torch.zeros((len(samples), num_partitions))
+        for i, sample in enumerate(samples):
+            for partition_id in range(s):
+                metric_scores[i, partition_id] = triple_scores[CometInputTriple(src=source_sequence, hyp=sample, ref=f"aggregate_{partition_id}")]
 
         # Sort the samples by their average score
         sample_scores = metric_scores.mean(dim=1)

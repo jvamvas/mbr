@@ -26,6 +26,10 @@ class ValidationTestCase(TestCase):
         s_values = [line["s"] for line in n_by_s_lines]
         self.assertEqual([8, 4, 2, 1], s_values)
 
+        aggregate_lines = [line for line in data if line["method"] == "aggregate"]
+        s_values = [line["s"] for line in aggregate_lines]
+        self.assertEqual([8, 4, 2, 1], s_values)
+
         for line in data:
             self.assertEqual(4, len(line["rankings"]))
             self.assertEqual(4, len(line["rankings"][0]))
@@ -36,6 +40,10 @@ class ValidationTestCase(TestCase):
             self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.n_by_s.s4.{self.language_pair.split('-')[1]}",
             self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.n_by_s.s2.{self.language_pair.split('-')[1]}",
             self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.n_by_s.s1.{self.language_pair.split('-')[1]}",
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.aggregate.s8.{self.language_pair.split('-')[1]}",
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.aggregate.s4.{self.language_pair.split('-')[1]}",
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.aggregate.s2.{self.language_pair.split('-')[1]}",
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.aggregate.s1.{self.language_pair.split('-')[1]}",
         ]
         for translation_path in test_translation_paths:
             self.assertTrue(translation_path.exists())
