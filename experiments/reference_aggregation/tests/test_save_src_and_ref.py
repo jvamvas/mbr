@@ -19,4 +19,9 @@ class SaveSrcAndRefTestCase(TestCase):
         self.assertTrue(ref_path.exists())
         self.assertIn(self.test_dir, ref_path.parents)
         self.assertTrue(ref_path.name.endswith(".de"))
-
+        source_sentences = src_path.read_text().splitlines()
+        self.assertEqual(len(source_sentences), 4)
+        print(source_sentences[0])
+        reference_sentences = ref_path.read_text().splitlines()
+        self.assertEqual(len(reference_sentences), 4)
+        print(reference_sentences[0])
