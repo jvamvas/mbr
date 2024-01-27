@@ -31,5 +31,18 @@ class ValidationTestCase(TestCase):
             self.assertEqual(4, len(line["rankings"][0]))
             self.assertEqual(4, len(set(line["rankings"][0])))
 
+        test_translation_paths = [
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.n_by_s.s8.{self.language_pair.split('-')[1]}",
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.n_by_s.s4.{self.language_pair.split('-')[1]}",
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.n_by_s.s2.{self.language_pair.split('-')[1]}",
+            self.test_dir / "translations" / f"validation.{self.testset}.{self.language_pair}.n8.epsilon0.02.seed0.cometinho.n_by_s.s1.{self.language_pair.split('-')[1]}",
+        ]
+        for translation_path in test_translation_paths:
+            self.assertTrue(translation_path.exists())
+            self.assertIn(self.test_dir, translation_path.parents)
+            self.assertTrue(translation_path.name.endswith(".de"))
+            translations = translation_path.read_text().splitlines()
+            self.assertEqual(len(translations), 4)
+
     def test_plot_accuracy(self):
         ...  # TODO

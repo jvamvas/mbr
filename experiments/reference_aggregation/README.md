@@ -22,7 +22,7 @@ python generate_samples.py --testset wmt21 --language-pair en-de --seed 0
 - Performing this analysis is computationally heavy because we run it for many different values of _s_ (x-axis of Figure 1).
 - We run N-by-N MBR, N-by-S MBR and Reference Aggregation in a single script, and all values of _s_, so that the embedding part of COMET only needs to run once.
 - The results are stored in a JSON lines file in the directory `validation_output/`. Each line describes the output for one method and one value of _s_.
-- In addition, the translations will be stored in text files (one translation per line) in the `translations/` directory, to allow for easy evaluation.
+- In addition, the top translations will be stored in text files (one translation per line) in the `translations/` directory, to allow for easy evaluation.
 - The utility metric is either `"chrf"`, `"cometinho"` or `"comet22"`.
 ```bash
 python validation.py --testset wmt21 --language-pair en-de --seed 0 --utility comet22 --topk 20

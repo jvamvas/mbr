@@ -13,13 +13,13 @@ def main(testset: str, language_pair: str, limit_segments: int = None, out_dir: 
     
     dataset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
     
-    src_out_path = translations_dir / f"{dataset}.src.{language_pair.split('-')[0]}"
+    src_out_path = translations_dir / f"{dataset}.src.{dataset.src_lang}"
     
     with open(src_out_path, "w") as f:
         for src in dataset.source_sentences:
             f.write(src + "\n")
     
-    ref_out_path = translations_dir / f"{dataset}.ref.{language_pair.split('-')[1]}"
+    ref_out_path = translations_dir / f"{dataset}.ref.{dataset.tgt_lang}"
     with open(ref_out_path, "w") as f:
         for ref in dataset.references:
             f.write(ref + "\n")

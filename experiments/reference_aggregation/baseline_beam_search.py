@@ -15,7 +15,7 @@ def main(testset: str, language_pair: str, beam_size: int = 4, limit_segments: i
     
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
-    out_path = translations_dir / f"{dataset}.beam{beam_size}.{language_pair.split('-')[1]}"
+    out_path = translations_dir / f"{dataset}.beam{beam_size}.{dataset.tgt_lang}"
     
     translations = model.translate(dataset.source_sentences, beam_size=beam_size)
     assert len(translations) == len(dataset.source_sentences)

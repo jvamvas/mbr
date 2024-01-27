@@ -56,6 +56,11 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
             n_by_s_ranking = utility.rank_samples_n_by_s(dataset.source_sentences[i], samples[i], references[i], s=s)
             n_by_s_ranking = n_by_s_ranking[:topk]
             n_by_s_rankings[-1].append(n_by_s_ranking.tolist())
+        # aggregate_rankings.append([])
+        # for s in s_values:
+        #     aggregate_ranking = utility.rank_samples_aggregate(dataset.source_sentences[i], samples[i], references[i], s=s)
+        #     aggregate_ranking = aggregate_ranking[:topk]
+        #     aggregate_rankings[-1].append(aggregate_ranking.tolist())
 
     output_dir = out_dir / "validation_output"
     output_dir.mkdir(exist_ok=True)
@@ -70,8 +75,14 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
 
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
+    translations_prefix = f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}"
 
-    # TODO Extract translations from jsonl
+    for j, s in enumerate(s_values):
+        n_by_s_translations_path = translations_dir / f"{translations_prefix}.n_by_s.s{s}.{dataset.tgt_lang}"
+        with open(n_by_s_translations_path, "w") as f:
+            for i, rankings in enumerate(n_by_s_rankings):
+                ranking = rankings[j]
+                f.write(samples[i][ranking[0]] + "\n")
 
     return output_path
 
