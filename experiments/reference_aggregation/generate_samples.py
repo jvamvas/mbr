@@ -8,29 +8,40 @@ from fairseq_utils import load_model
 from experiment_utils import SEEDS, Testset
 
 
-parser = argparse.ArgumentParser()
+def main(testset: str, language_pair: str, seed: int, num_samples: int, epsilon_cutoff: float, limit_segments: int = None, out_dir: Path = None) -> Path:
+    if out_dir is None:
+        out_dir = Path(__file__).parent
 
-parser.add_argument('--testset', choices=['wmt21', 'wmt22'], required=True)
-parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
-parser.add_argument('--seed', type=int, choices=range(10), required=True, help='Index of the random seed in the list of random seeds')
-parser.add_argument('--num-samples', type=int, default=1024)
-parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
-parser.add_argument('--limit-segments', type=int, default=None, help='Limit number of segments that are processed (used for testing)')
+    testset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
 
-args = parser.parse_args()
+    model = load_model(language_pair)
 
-seed = SEEDS[args.seed]
+    samples_dir = out_dir / "samples"
+    samples_dir.mkdir(exist_ok=True)
+    out_path = samples_dir / f"samples.{testset}.{language_pair}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed}.jsonl"
 
-testset = Testset.from_wmt(args.testset, args.language_pair, limit_segments=args.segments)
+    with jsonlines.open(out_path, "w") as f:
+        for source_sentence in tqdm(testset.source_sentences):
+            f.write({
+                "samples": model.sample(num_samples * [source_sentence], seed=seed, sampling_epsilon_cutoff=epsilon_cutoff),
+            })
 
-model = load_model(args.language_pair)
+    return out_path
 
-out_dir = Path(__file__).parent / "samples"
-out_dir.mkdir(exist_ok=True)
-out_path = out_dir / f"samples.{args.testset}.{args.language_pair}.n{args.num_samples}.epsilon{args.epsilon_cutoff}.seed{args.seed}.jsonl"
 
-with jsonlines.open(out_path, "w") as f:
-    for source_sentence in tqdm(testset.source_sentences):
-        f.write({
-            "samples": model.sample(args.num_samples * [source_sentence], seed=seed, sampling_epsilon_cutoff=args.epsilon_cutoff),
-        })
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--testset', choices=['wmt21', 'wmt22'], required=True)
+    parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
+    parser.add_argument('--seed', type=int, choices=range(10), required=True,
+                        help='Index of the random seed in the list of random seeds')
+    parser.add_argument('--num-samples', type=int, default=1024)
+    parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
+    parser.add_argument('--limit-segments', type=int, default=None,
+                        help='Limit number of segments that are processed (used for testing)')
+    args = parser.parse_args()
+    seed = SEEDS[args.seed]
+
+    out_path = main(args.testset, args.language_pair, seed, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+    assert out_path.exists()
+    print(f"Saved samples to {out_path}")

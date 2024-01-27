@@ -5,27 +5,38 @@ import jsonlines
 from tqdm import tqdm
 
 
-parser = argparse.ArgumentParser()
+def main(testset: str, language_pair: str, num_samples: int, epsilon_cutoff: float, seed: int, out_dir: Path = None) -> Path:
+    if out_dir is None:
+        out_dir = Path(__file__).parent
 
-parser.add_argument('--testset', choices=['wmt21', 'wmt22'], required=True)
-parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
-parser.add_argument('--seed', type=int, choices=range(10), required=True, help='Index of the random seed in the list of random seeds')
-parser.add_argument('--num-samples', type=int, default=1024)
-parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
+    samples_dir = out_dir / "samples"
+    assert samples_dir.exists()
+    samples_path = samples_dir / f"samples.{testset}.{language_pair}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed}.jsonl"
+    assert samples_path.exists()
 
-args = parser.parse_args()
+    translations_dir = out_dir / "translations"
+    translations_dir.mkdir(exist_ok=True)
+    out_path = translations_dir / f"{testset}.{language_pair}.epsilon{epsilon_cutoff}.seed{seed}.{language_pair.split('-')[1]}"
 
-samples_dir = Path(__file__).parent / "samples"
-assert samples_dir.exists()
-samples_path = samples_dir / f"samples.{args.testset}.{args.language_pair}.n{args.num_samples}.epsilon{args.epsilon_cutoff}.seed{args.seed}.jsonl"
-assert samples_path.exists()
+    with jsonlines.open(samples_path) as f_in, open(out_path, "w") as f_out:
+        for line in tqdm(f_in):
+            samples = line["samples"]
+            assert len(samples) == num_samples
+            f_out.write(samples[0] + "\n")
 
-out_dir = Path(__file__).parent / "translations"
-out_dir.mkdir(exist_ok=True)
-out_path = out_dir / f"{args.testset}.{args.language_pair}.epsilon{args.epsilon_cutoff}.seed{args.seed}.{args.language_pair.split('-')[1]}"
+    return out_path
 
-with jsonlines.open(samples_path) as f_in, open(out_path, "w") as f_out:
-    for line in tqdm(f_in):
-        samples = line["samples"]
-        assert len(samples) == args.num_samples
-        f_out.write(samples[0] + "\n")
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--testset', choices=['wmt21', 'wmt22'], required=True)
+    parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
+    parser.add_argument('--seed', type=int, choices=range(10), required=True,
+                        help='Index of the random seed in the list of random seeds')
+    parser.add_argument('--num-samples', type=int, default=1024)
+    parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
+    args = parser.parse_args()
+
+    out_path = main(args.testset, args.language_pair, args.num_samples, args.epsilon_cutoff, args.seed)
+    assert out_path.exists()
+    print(f"Saved translations to {out_path}")
