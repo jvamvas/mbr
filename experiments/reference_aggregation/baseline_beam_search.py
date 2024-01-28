@@ -36,6 +36,11 @@ if __name__ == "__main__":
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
     
-    out_path = main(args.testset, args.language_pair, args.beam_size, args.limit_segments)
+    out_path = main(
+        testset=args.testset,
+        language_pair=args.language_pair,
+        beam_size=args.beam_size,
+        limit_segments=args.limit_segments,
+    )
     assert out_path.exists()
     print(f"Saved translations to {out_path}")

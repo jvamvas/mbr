@@ -81,7 +81,18 @@ if __name__ == '__main__':
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
 
-    series = main(args.testset, args.language_pair, args.seed, args.utility, args.topk, args.accuracy_topk, args.method, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+    series = main(
+        testset=args.testset,
+        language_pair=args.language_pair,
+        seed_no=args.seed,
+        utility_name=args.utility,
+        topk=args.data_topk,
+        method=args.method,
+        num_samples=args.num_samples,
+        epsilon_cutoff=args.epsilon_cutoff,
+        accuracy_topk=args.accuracy_topk,
+        limit_segments=args.limit_segments,
+    )
 
     # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
     series_str = "".join([f"({s},{accuracy})" for s, accuracy in series])

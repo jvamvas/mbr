@@ -37,6 +37,12 @@ if __name__ == '__main__':
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
     args = parser.parse_args()
 
-    out_path = main(args.testset, args.language_pair, args.num_samples, args.epsilon_cutoff, args.seed)
+    out_path = main(
+        testset=args.testset,
+        language_pair=args.language_pair,
+        num_samples=args.num_samples,
+        epsilon_cutoff=args.epsilon_cutoff,
+        seed_no=args.seed,
+    )
     assert out_path.exists()
     print(f"Saved translations to {out_path}")

@@ -117,5 +117,14 @@ if __name__ == '__main__':
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
 
-    jsonl_path = main(args.testset, args.language_pair, args.seed, args.utility, args.topk, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+    jsonl_path = main(
+        testset=args.testset,
+        language_pair=args.language_pair,
+        seed_no=args.seed,
+        utility_name=args.utility,
+        topk=args.topk,
+        num_samples=args.num_samples,
+        epsilon_cutoff=args.epsilon_cutoff,
+        limit_segments=args.limit_segments,
+    )
     print(f"Saved results file to {jsonl_path}")

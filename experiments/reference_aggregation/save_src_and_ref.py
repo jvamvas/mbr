@@ -35,6 +35,10 @@ if __name__ == '__main__':
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
 
-    src_path, ref_path = main(args.testset, args.language_pair, args.limit_segments)
+    src_path, ref_path = main(
+        testset=args.testset,
+        language_pair=args.language_pair,
+        limit_segments=args.limit_segments,
+    )
     print(f"Source sentences saved to {src_path}")
     print(f"References saved to {ref_path}")
