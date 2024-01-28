@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import jsonlines
+from tqdm import tqdm
 
 from experiments.reference_aggregation.experiment_utils import Testset
 from experiments.reference_aggregation.mbr_utils import load_utility
@@ -36,7 +37,14 @@ def main(method: str, topk: Optional[int], testset: str, language_pair: str, see
 
     translations: List[str] = []
 
-    for i in range(len(dataset.source_sentences)):
+    for i in tqdm(list(range(len(dataset.source_sentences))), desc="segments"):
+
+        # For COMET: compute embeddings
+        if hasattr(utility, "compute_features"):
+            utility.clear_features()
+            input_sequences = {dataset.source_sentences[i]} | set(samples[i]) | set(references[i])
+            utility.compute_features(input_sequences)
+
         if method == 'pairwise':
             n_by_n_ranking = utility.rank_samples_n_by_s(dataset.source_sentences[i], samples[i], references[i], s=num_samples)
             translation = samples[i][n_by_n_ranking[0]]
