@@ -29,7 +29,7 @@ python validation.py --testset wmt21 --language-pair en-de --seed 0 --utility co
 ```
 #### Calculating accuracy
 - After the script has run, the series for Figure 1 (top-20 accuracy) can be printed as follows.
-- The method can be either `"nbys"` or `"aggregate"`.
+- The method can be either `"n_by_s"` or `"aggregate"`.
 ```bash
 python plot_accuracy.py --testset wmt21 --language-pair en-de --seed 0 --utility comet22 --topk 20 --method aggregate
 ```

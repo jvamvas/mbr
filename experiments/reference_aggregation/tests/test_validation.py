@@ -67,4 +67,14 @@ class ValidationTestCase(TestCase):
             self.assertEqual(top1_best_indices, best_indices)
 
     def test_plot_accuracy(self):
-        ...  # TODO
+        # Run validation.py
+        from experiments.reference_aggregation.validation import main as validation
+        jsonl_path = validation(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, num_samples=8,
+                          limit_segments=4, out_dir=self.test_dir)
+        self.assertTrue(jsonl_path.exists())
+
+        from experiments.reference_aggregation.plot_accuracy import main as plot_accuracy
+        plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, method="n_by_s", num_samples=8,
+                      limit_segments=4, out_dir=self.test_dir)
+        plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, method="aggregate", num_samples=8,
+                        limit_segments=4, out_dir=self.test_dir)
