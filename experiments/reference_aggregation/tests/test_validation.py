@@ -73,8 +73,21 @@ class ValidationTestCase(TestCase):
                           limit_segments=4, out_dir=self.test_dir)
         self.assertTrue(jsonl_path.exists())
 
+        # Top-8
         from experiments.reference_aggregation.plot_accuracy import main as plot_accuracy
-        plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, method="n_by_s", num_samples=8,
+        series_n_by_s_top8 = plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, method="n_by_s", num_samples=8,
                       limit_segments=4, out_dir=self.test_dir)
-        plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, method="aggregate", num_samples=8,
+        series_aggregate_top8 = plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, method="aggregate", num_samples=8,
                         limit_segments=4, out_dir=self.test_dir)
+
+        # Top-1
+        series_n_by_s_top1 = plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, accuracy_topk=1, method="n_by_s", num_samples=8,
+                      limit_segments=4, out_dir=self.test_dir)
+        series_aggregate_top1 = plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, accuracy_topk=1, method="aggregate", num_samples=8,
+                        limit_segments=4, out_dir=self.test_dir)
+
+        # Assert that top-1 accuracy <= top-8 accuracy
+        for (s, accuracy_top8), (_, accuracy_top1) in zip(series_n_by_s_top8, series_n_by_s_top1):
+            self.assertLessEqual(accuracy_top1, accuracy_top8)
+        for (s, accuracy_top8), (_, accuracy_top1) in zip(series_aggregate_top8, series_aggregate_top1):
+            self.assertLessEqual(accuracy_top1, accuracy_top8)

@@ -1,16 +1,23 @@
 import argparse
 from pathlib import Path
+from typing import List, Tuple
 
 import jsonlines
 
 from experiments.reference_aggregation.experiment_utils import Testset
 
 
-def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk: int, method: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, limit_segments: int = None, out_dir: Path = None):
+def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk: int, method: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, accuracy_topk: int = None, limit_segments: int = None, out_dir: Path = None) -> List[Tuple[int, float]]:
+    """
+    Returns a series of (s, accuracy) tuples, starting with the highest s
+    """
     if out_dir is None:
         out_dir = Path(__file__).parent
+    if accuracy_topk is None:
+        accuracy_topk = topk
 
     assert topk <= num_samples
+    assert accuracy_topk <= topk
 
     dataset = Testset.from_wmt(testset, language_pair, limit_segments=limit_segments)
 
@@ -28,7 +35,6 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
     assert output_dir.exists()
     output_path = output_dir / f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}.top{topk}.jsonl"
 
-    # TODO Read output, calculate accuracy and print formatted series
     with jsonlines.open(output_path) as f:
         data = list(f)
 
@@ -49,16 +55,14 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
         s_lines = [line for line in method_lines if line["s"] == s]
         assert len(s_lines) == 1
         s_rankings = s_lines[0]["rankings"]
-        s_topk_samples = [{samples[i][ranking].strip() for ranking in s_rankings[i][:topk]} for i in range(len(samples))]
+        s_topk_samples = [{samples[i][ranking].strip() for ranking in s_rankings[i][:accuracy_topk]} for i in range(len(samples))]
         s_num_correct = sum([1 if n_by_n_top1_samples[i] in s_topk_samples[i] else 0 for i in range(len(samples))])
         s_accuracy = s_num_correct / len(samples)
         accuracies.append(s_accuracy)
 
     # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
     series = [(s, accuracy) for s, accuracy in zip(s_values, accuracies)]
-    series_str = "".join([f"({s},{accuracy})" for s, accuracy in series])
-    print(f"Testset: {testset}, language pair: {language_pair}, seed: {seed_no}, utility: {utility_name}, topk: {topk}, method: {method}:")
-    print(series_str)
+    return series
 
 
 if __name__ == '__main__':
@@ -68,12 +72,20 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, choices=range(10), required=True,
                         help='Index of the random seed in the list of random seeds')
     parser.add_argument('--utility', choices=['chrf', 'cometinho', 'comet22'], required=True)
-    parser.add_argument('--topk', type=int, default=20, help='Number of top translations to save in the jsonl files')
+    parser.add_argument('--data-topk', type=int, default=20, help='Number of top translations that have been saved in the jsonl file')
     parser.add_argument('--method', choices=['n_by_s', 'aggregate'], required=True)
     parser.add_argument('--num-samples', type=int, default=1024)
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
+    parser.add_argument('--accuracy-topk', type=int, default=None, help='Number of top translations that are used to compute the accuracy (default: same as data-topk)')
     parser.add_argument('--limit-segments', type=int, default=None,
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
 
-    main(args.testset, args.language_pair, args.seed, args.utility, args.topk, args.method, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+    series = main(args.testset, args.language_pair, args.seed, args.utility, args.topk, args.accuracy_topk, args.method, args.num_samples, args.epsilon_cutoff, args.limit_segments)
+
+    # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
+    series_str = "".join([f"({s},{accuracy})" for s, accuracy in series])
+    print(f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, utility: {args.utility}, topk: {args.topk}, method: {args.method}")
+    print(f"Top-{args.accuracy_topk} accuracy:")
+    print(series_str)
+    print()

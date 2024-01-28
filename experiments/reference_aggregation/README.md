@@ -1,6 +1,6 @@
 ## Code for the paper "Efficient Minimum Bayes Risk Decoding with Reference Aggregation"
 
-- The research code in this directory implements _reference aggregation_, an efficiency method for MBR that uses aggregate reference representations for faster utility estimation.
+- The research code in this directory implements reference aggregation, an efficiency method for MBR that uses aggregate reference representations for faster utility estimation.
 - We apply reference aggregation to two metrics: ChrF and COMET.
 - Unlike the **mbr** package, the code in this directory is purely research-oriented (= reproducing the tables and figures in our paper) and not optimized for usability.
 
@@ -11,7 +11,7 @@
 ## Reproducing the experiments
 
 ### Creating the samples
-- Warning: The following code downloads a large translation model from PyTorch Hub (if not already present) and create 1024 samples per segment, which will take some time.
+- Warning: The following code downloads a large translation model from PyTorch Hub (if not already present) and generates 1024 samples per segment, which will take some time.
 - Samples will be stored in a JSON lines file in the directory `samples/`.
 ```bash
 python generate_samples.py --testset wmt21 --language-pair en-de --seed 0
@@ -32,6 +32,10 @@ python validation.py --testset wmt21 --language-pair en-de --seed 0 --utility co
 - The method can be either `"n_by_s"` or `"aggregate"`.
 ```bash
 python plot_accuracy.py --testset wmt21 --language-pair en-de --seed 0 --utility comet22 --topk 20 --method aggregate
+```
+- To calculate top-1 accuracy instead:
+```bash
+python plot_accuracy.py --testset wmt21 --language-pair en-de --seed 0 --utility comet22 --topk 20 --method aggregate --accuracy-topk 1
 ```
 
 ### Table 1: Test results
@@ -65,4 +69,4 @@ python save_src_and_ref.py --testset wmt22 --language-pair en-de
 ```
 
 #### Evaluating the translations
-- Use code of your choice (e.g., https://github.com/mjpost/sacrebleu) to perform the evaluation.
+- Use a tool of your choice (e.g., https://github.com/mjpost/sacrebleu) to perform the evaluation.

@@ -112,7 +112,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, choices=range(10), required=True,
                         help='Index of the random seed in the list of random seeds')
     parser.add_argument('--utility', choices=['chrf', 'cometinho', 'comet22'], required=True)
-    parser.add_argument('--topk', type=int, default=20, help='Number of top translations to save in the jsonl files')
+    parser.add_argument('--topk', type=int, default=20, help='Number of top translations to save in the jsonl file')
     parser.add_argument('--num-samples', type=int, default=1024)
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
     parser.add_argument('--limit-segments', type=int, default=None,
