@@ -6,11 +6,47 @@ from typing import Set, Dict, List, Tuple
 import evaluate
 import numpy as np
 import torch
-from tqdm import tqdm
+from fastchrf import pairwise_chrf, aggregate_chrf
 
 
 class ChrfUtility:
-    ...  # TODO
+
+    def rank_samples_n_by_s(self, source_sequence: str, samples: List[str], references: List[str], s: int = None) -> np.ndarray:
+        """
+        Returns the indices of the samples sorted by their utility score, in descending order.
+        :param s: The number of references to subsample from the list of references (default: all references)
+        """
+        if s is None:
+            s = len(references)
+        assert s <= len(references)
+        references = references[:s]
+
+        metric_scores = pairwise_chrf([samples], [references])[0]
+        metric_scores = np.array(metric_scores)  # num_samples x s
+
+        # Sort the samples by their average score
+        sample_scores = metric_scores.mean(axis=1)
+        sample_indices = sample_scores.argsort()[::-1]
+        return sample_indices
+
+    def rank_samples_aggregate(self, source_sequence: str, samples: List[str], references: List[str], s: int) -> np.ndarray:
+        """
+        Returns the indices of the samples sorted by their utility score, in descending order.
+        :param s: The number of aggregate references
+        """
+        assert s <= len(references)
+
+        num_partitions = s
+        partition_size = len(references) // num_partitions
+        reference_partitions = [references[i * partition_size:(i + 1) * partition_size] for i in range(num_partitions)]
+
+        metric_scores = aggregate_chrf(num_partitions * [samples], reference_partitions)
+        metric_scores = np.array(metric_scores).transpose()  # num_samples x s
+
+        # Sort the samples by their average score
+        sample_scores = metric_scores.mean(axis=1)
+        sample_indices = sample_scores.argsort()[::-1]
+        return sample_indices
 
 
 CometInputTriple = namedtuple("CometInputTriple", ["src", "hyp", "ref"])
