@@ -91,3 +91,21 @@ class ValidationTestCase(TestCase):
             self.assertLessEqual(accuracy_top1, accuracy_top8)
         for (s, accuracy_top8), (_, accuracy_top1) in zip(series_aggregate_top8, series_aggregate_top1):
             self.assertLessEqual(accuracy_top1, accuracy_top8)
+
+        # Top-4
+        series_n_by_s_top4 = plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, accuracy_topk=4, method="n_by_s", num_samples=8,
+                      limit_segments=4, out_dir=self.test_dir)
+        series_aggregate_top4 = plot_accuracy(self.testset, self.language_pair, seed_no=0, utility_name="cometinho", topk=4, accuracy_topk=4, method="aggregate", num_samples=8,
+                        limit_segments=4, out_dir=self.test_dir)
+
+        # Assert that top-4 accuracy <= top-8 accuracy
+        for (s, accuracy_top8), (_, accuracy_top4) in zip(series_n_by_s_top8, series_n_by_s_top4):
+            self.assertLessEqual(accuracy_top4, accuracy_top8)
+        for (s, accuracy_top8), (_, accuracy_top4) in zip(series_aggregate_top8, series_aggregate_top4):
+            self.assertLessEqual(accuracy_top4, accuracy_top8)
+
+        # Assert that top-1 accuracy <= top-4 accuracy
+        for (s, accuracy_top4), (_, accuracy_top1) in zip(series_n_by_s_top4, series_n_by_s_top1):
+            self.assertLessEqual(accuracy_top1, accuracy_top4)
+        for (s, accuracy_top4), (_, accuracy_top1) in zip(series_aggregate_top4, series_aggregate_top1):
+            self.assertLessEqual(accuracy_top1, accuracy_top4)
