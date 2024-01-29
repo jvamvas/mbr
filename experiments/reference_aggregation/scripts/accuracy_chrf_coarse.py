@@ -13,7 +13,7 @@ parser.add_argument('--testset', choices=['wmt21', 'wmt22'], required=True)
 parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
 parser.add_argument('--seed', type=int, choices=range(10), required=True,
                     help='Index of the random seed in the list of random seeds')
-parser.add_argument('--fine_utility', choices=['chrf', 'cometinho', 'comet22'], required=True)
+parser.add_argument('--fine-utility', choices=['chrf', 'cometinho', 'comet22'], required=True)
 parser.add_argument('--topk', type=int, default=20,
                     help='Number of top translations that have been saved in the jsonl file')
 parser.add_argument('--num-samples', type=int, default=1024)
@@ -24,7 +24,7 @@ parser.add_argument('--limit-segments', type=int, default=None,
                     help='Limit number of segments that are processed (used for testing)')
 args = parser.parse_args()
 
-out_dir = Path(__file__).parent
+out_dir = Path(__file__).parent.parent
 
 testset = args.testset
 language_pair = args.language_pair
