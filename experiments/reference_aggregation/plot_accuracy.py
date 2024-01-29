@@ -72,7 +72,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, choices=range(10), required=True,
                         help='Index of the random seed in the list of random seeds')
     parser.add_argument('--utility', choices=['chrf', 'cometinho', 'comet22'], required=True)
-    parser.add_argument('--data-topk', type=int, default=20, help='Number of top translations that have been saved in the jsonl file')
+    parser.add_argument('--topk', type=int, default=20, help='Number of top translations that have been saved in the jsonl file')
     parser.add_argument('--method', choices=['n_by_s', 'aggregate'], required=True)
     parser.add_argument('--num-samples', type=int, default=1024)
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         language_pair=args.language_pair,
         seed_no=args.seed,
         utility_name=args.utility,
-        topk=args.data_topk,
+        topk=args.topk,
         method=args.method,
         num_samples=args.num_samples,
         epsilon_cutoff=args.epsilon_cutoff,

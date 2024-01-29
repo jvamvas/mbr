@@ -64,7 +64,7 @@ def main(method: str, topk: Optional[int], testset: str, language_pair: str, see
 
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
-    out_path = translations_dir / f"mbr.{dataset}.{method}.{'top' + str(topk) if method == 'aggregate_to_fine' else ''}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}.{dataset.tgt_lang}"
+    out_path = translations_dir / f"mbr.{dataset}.{method}{'.top' + str(topk) if method == 'aggregate_to_fine' else ''}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}.{dataset.tgt_lang}"
     with open(out_path, "w") as f:
         for translation in translations:
             f.write(translation + "\n")
