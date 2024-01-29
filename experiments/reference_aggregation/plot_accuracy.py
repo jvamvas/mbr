@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
     series_str = "".join([f"({s},{accuracy:.5f})" for s, accuracy in series])
-    print(f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.fine_utility}, coarse utility: {args.coarse_utility}, topk: {args.topk}, method: {args.method}")
+    print(f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.utility}, coarse utility: {args.coarse_utility}, topk: {args.topk}, method: {args.method}")
     print(f"Top-{args.accuracy_topk} accuracy:")
     print(series_str)
     print()

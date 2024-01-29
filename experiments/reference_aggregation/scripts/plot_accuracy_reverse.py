@@ -48,7 +48,7 @@ s_values = [s for s, _ in series]
 reversed_s_values = list(reversed(s_values))
 series_str = "".join([f"({s},{accuracy:.5f})" for s, accuracy in zip(reversed_s_values, [accuracy for _, accuracy in series])])
 print(
-    f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.fine_utility}, coarse utility: {args.coarse_utility}, topk: {args.topk}, method: {args.method}")
+    f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.utility}, coarse utility: {args.coarse_utility}, topk: {args.topk}, method: {args.method}")
 print(f"Top-{args.accuracy_topk} accuracy:")
 print(series_str)
 print()
