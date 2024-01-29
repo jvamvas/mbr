@@ -7,14 +7,12 @@ import jsonlines
 from experiments.reference_aggregation.experiment_utils import Testset
 
 
-def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk: int, method: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, accuracy_topk: int = None, limit_segments: int = None, out_dir: Path = None) -> List[Tuple[int, float]]:
+def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk: int, accuracy_topk: int, method: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, limit_segments: int = None, out_dir: Path = None) -> List[Tuple[int, float]]:
     """
     Returns a series of (s, accuracy) tuples, starting with the highest s
     """
     if out_dir is None:
         out_dir = Path(__file__).parent
-    if accuracy_topk is None:
-        accuracy_topk = topk
 
     assert topk <= num_samples
     assert accuracy_topk <= topk
@@ -80,6 +78,9 @@ if __name__ == '__main__':
     parser.add_argument('--limit-segments', type=int, default=None,
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
+
+    if args.accuracy_topk is None:
+        args.accuracy_topk = args.topk
 
     series = main(
         testset=args.testset,
