@@ -84,6 +84,6 @@ num_correct = sum([1 if fine_n_by_n_top1_samples[i] in chrf_n_by_n_topk_samples[
 accuracy = num_correct / len(samples)
 
 print(
-    f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.fine_utility}, topk: {args.topk}, method: {args.method}")
+    f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.fine_utility}, topk: {args.topk}")
 print(f"Top-{args.accuracy_topk} accuracy of chrf:")
 print(f"Accuracy: {accuracy:.5f}")
