@@ -1,7 +1,5 @@
 """
 Compared to plot_accuracy.py, makes plotting easier by reversing the labels (1024->1 etc.)
-
-Prints top-k accuracy of ChrF as a baseline when COMET is the utility metric.
 """
 import argparse
 
@@ -45,24 +43,7 @@ s_values = [s for s, _ in series]
 reversed_s_values = list(reversed(s_values))
 series_str = "".join([f"({s},{accuracy:.5f})" for s, accuracy in zip(reversed_s_values, [accuracy for _, accuracy in series])])
 print(
-    f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, utility: {args.utility}, topk: {args.topk}, method: {args.method}")
+    f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, utility: {args.utility}, method: {args.method}")
 print(f"Top-{args.accuracy_topk} accuracy:")
 print(series_str)
 print()
-
-# # Print top-k accuracy of ChrF as a baseline
-# if args.utility in {'cometinho', 'comet22'}:
-#     chrf_series = main(
-#         testset=args.testset,
-#         language_pair=args.language_pair,
-#         seed_no=args.seed,
-#         utility_name='chrf',
-#         topk=args.topk,
-#         method=args.method,
-#         num_samples=args.num_samples,
-#         epsilon_cutoff=args.epsilon_cutoff,
-#         accuracy_topk=args.accuracy_topk,
-#         limit_segments=args.limit_segments,
-#     )
-#     chrf_n_by_n_accuracy = chrf_series[0][1]
-#     print(f"Top-{args.accuracy_topk} accuracy of ChrF: {chrf_n_by_n_accuracy:.5f}")

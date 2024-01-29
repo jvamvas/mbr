@@ -65,7 +65,7 @@ python baseline_epsilon_sampling.py --testset wmt22 --language-pair en-de --seed
 #### Saving the source sequences and references in a text file
 - The sequences will be stored in text files in the `translations/` directory
 ```bash
-python save_src_and_ref.py --testset wmt22 --language-pair en-de
+python scripts/save_src_and_ref.py --testset wmt22 --language-pair en-de
 ```
 
 #### Evaluating the translations
