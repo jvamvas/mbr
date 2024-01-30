@@ -1,6 +1,6 @@
 num_segments_per_lp=32
 
-for lp in en-de de-en en-ru ru-en; do
+for lp in "en-de" "de-en" "en-ru" "ru-en"; do
   echo $lp
 
   # MBR with ChrF metric – standard MBR
