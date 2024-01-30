@@ -12,7 +12,7 @@ samples_dir = Path(__file__).parent.parent / "samples"
 body = ""
 body += "\\textit{newstest21} & & & \\\\\n"
 for lang_pair in ["en-de", "de-en", "en-ru", "ru-en"]:
-    path = samples_dir / f"samples.wmt21.{lang_pair}.n8.epsilon0.02.seed0.jsonl"
+    path = samples_dir / f"samples.wmt21.{lang_pair}.n1024.epsilon0.02.seed0.jsonl"
     assert path.exists(), f"Path {path} does not exist"
     with jsonlines.open(path) as reader:
         data = list(reader)
@@ -23,7 +23,7 @@ for lang_pair in ["en-de", "de-en", "en-ru", "ru-en"]:
 body += "\\addlinespace\n"
 body += "\\textit{newstest22} & & & \\\\\n"
 for lang_pair in ["en-de", "de-en", "en-ru", "ru-en"]:
-    path = samples_dir / f"samples.wmt22.{lang_pair}.n8.epsilon0.02.seed0.jsonl"
+    path = samples_dir / f"samples.wmt22.{lang_pair}.n1024.epsilon0.02.seed0.jsonl"
     assert path.exists(), f"Path {path} does not exist"
     with jsonlines.open(path) as reader:
         data = list(reader)
