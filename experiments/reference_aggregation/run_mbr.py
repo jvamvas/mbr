@@ -1,4 +1,5 @@
 import argparse
+import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -9,7 +10,7 @@ from experiments.reference_aggregation.experiment_utils import Testset
 from experiments.reference_aggregation.mbr_utils import load_utility
 
 
-def main(method: str, topk: Optional[int], testset: str, language_pair: str, seed_no: int, fine_utility_name: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, coarse_utility_name: str = None, limit_segments: int = None, out_dir: Path = None) -> Path:
+def main(method: str, topk: Optional[int], testset: str, language_pair: str, seed_no: int, fine_utility_name: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, coarse_utility_name: str = None, limit_segments: int = None, log_time: bool = False, out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
 
@@ -43,6 +44,9 @@ def main(method: str, topk: Optional[int], testset: str, language_pair: str, see
         coarse_utility = load_utility(coarse_utility_name)
 
     translations: List[str] = []
+
+    if log_time:
+        start_time = time.time()
 
     for i in tqdm(list(range(len(dataset.source_sentences))), desc="segments"):
 
@@ -84,6 +88,9 @@ def main(method: str, topk: Optional[int], testset: str, language_pair: str, see
             raise ValueError(f"Unknown method: {method}")
         translations.append(translation)
 
+    if log_time:
+        print(f"Average time per segment: {(time.time() - start_time) / len(dataset.source_sentences):.5f} seconds")
+
     assert len(translations) == len(dataset.source_sentences)
 
     translations_dir = out_dir / "translations"
@@ -112,6 +119,7 @@ if __name__ == '__main__':
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
     parser.add_argument('--limit-segments', type=int, default=None,
                         help='Limit number of segments that are processed (used for testing)')
+    parser.add_argument('--log-time', action='store_true', help='Print average wall-clock time per segment (used for benchmarking)')
     args = parser.parse_args()
 
     if args.coarse_utility is None:
@@ -128,6 +136,7 @@ if __name__ == '__main__':
         num_samples=args.num_samples,
         epsilon_cutoff=args.epsilon_cutoff,
         limit_segments=args.limit_segments,
+        log_time=args.log_time,
     )
     assert out_path.exists()
     print(f"Saved translations to {out_path}")
