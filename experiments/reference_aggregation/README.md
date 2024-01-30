@@ -46,16 +46,32 @@ python plot_accuracy.py --testset wmt21 --language-pair en-de --seed 0 --utility
 ```bash
 # Beam search
 python baseline_beam_search.py --language-pair en-de --testset wmt22
-# MBR with CHRF metric – standard MBR
+
+# MBR with ChrF metric – standard MBR
 python run_mbr.py --method pairwise --testset wmt22 --language-pair en-de --seed 0 --utility chrf
-# MBR with CHRF metric – reference aggregation
+# MBR with ChrF metric – reference aggregation
 python run_mbr.py --method aggregate --testset wmt22 --language-pair en-de --seed 0 --utility chrf
+# MBR with ChrF metric – aggregate-to-fine MBR
+python run_mbr.py --method aggregate_to_fine --topk 20 --testset wmt22 --language-pair en-de --seed 0 --utility chrf
+
+# MBR with Comethinho metric – standard MBR
+python run_mbr.py --method pairwise --testset wmt22 --language-pair en-de --seed 0 --utility cometinho
+# MBR with Cometinho metric – reference aggregation
+python run_mbr.py --method aggregate --testset wmt22 --language-pair en-de --seed 0 --utility cometinho
+# MBR with Cometinho metric – aggregate-to-fine MBR
+python run_mbr.py --method aggregate_to_fine --topk 20 --testset wmt22 --language-pair en-de --seed 0 --utility cometinho
+
 # MBR with COMET-22 metric – standard MBR
 python run_mbr.py --method pairwise --testset wmt22 --language-pair en-de --seed 0 --utility comet22
 # MBR with COMET-22 metric – reference aggregation
 python run_mbr.py --method aggregate --testset wmt22 --language-pair en-de --seed 0 --utility comet22
 # MBR with COMET-22 metric – aggregate-to-fine MBR
 python run_mbr.py --method aggregate_to_fine --topk 20 --testset wmt22 --language-pair en-de --seed 0 --utility comet22
+
+# Coarse-to-fine MBR: ChrF to COMET-22
+python run_mbr.py --method coarse_to_fine --topk 20 --testset wmt22 --language-pair en-de --seed 0 --coarse-utility chrf --utility comet22
+# Aggregate-to-fine MBR: Aggregate ChrF to COMET-22
+python run_mbr.py --method aggregate_to_fine --topk 20 --testset wmt22 --language-pair en-de --seed 0 --coarse-utility chrf --utility comet22
 ```
 - For epsilon sampling, we simply read the JSON lines file created by `generate_samples.py` and extract the first sample for each segment.
 ```bash
