@@ -1,7 +1,5 @@
 num_segments_per_lp=32
 
-out_path=experiments/reference_aggregation/results/time.sh
-
 for lp in en-de de-en en-ru ru-en; do
   echo $lp
 
