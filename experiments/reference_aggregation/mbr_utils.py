@@ -11,6 +11,12 @@ from fastchrf import pairwise_chrf, aggregate_chrf
 
 class ChrfUtility:
 
+    def __init__(self, char_order: int = 6, beta: float = 2.0, remove_whitespace: bool = True, eps_smoothing: bool = False):
+        self.char_order = char_order
+        self.beta = beta
+        self.remove_whitespace = remove_whitespace
+        self.eps_smoothing = eps_smoothing
+
     def rank_samples_n_by_s(self, source_sequence: str, samples: List[str], references: List[str], s: int = None) -> np.ndarray:
         """
         Returns the indices of the samples sorted by their utility score, in descending order.
@@ -21,7 +27,13 @@ class ChrfUtility:
         assert s <= len(references)
         references = references[:s]
 
-        metric_scores = pairwise_chrf([samples], [references])[0]
+        metric_scores = pairwise_chrf(
+            [samples], [references],
+            char_order=self.char_order,
+            beta=self.beta,
+            remove_whitespace=self.remove_whitespace,
+            eps_smoothing=self.eps_smoothing,
+        )[0]
         metric_scores = np.array(metric_scores)  # num_samples x s
 
         # Sort the samples by their average score
@@ -40,7 +52,13 @@ class ChrfUtility:
         partition_size = len(references) // num_partitions
         reference_partitions = [references[i * partition_size:(i + 1) * partition_size] for i in range(num_partitions)]
 
-        metric_scores = aggregate_chrf(num_partitions * [samples], reference_partitions)
+        metric_scores = aggregate_chrf(
+            num_partitions * [samples], reference_partitions,
+            char_order=self.char_order,
+            beta=self.beta,
+            remove_whitespace=self.remove_whitespace,
+            eps_smoothing=self.eps_smoothing,
+        )
         metric_scores = np.array(metric_scores).transpose()  # num_samples x s
 
         # Sort the samples by their average score

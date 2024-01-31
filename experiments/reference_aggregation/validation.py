@@ -10,7 +10,7 @@ from experiments.reference_aggregation.experiment_utils import Testset
 from experiments.reference_aggregation.mbr_utils import load_utility
 
 
-def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk: int = 20, num_samples: int = 1024, epsilon_cutoff: float = 0.02, limit_segments: int = None, out_dir: Path = None) -> Path:
+def main(testset: str, language_pair: str, seed_no: int, utility_name: str, chrf_eps_smoothing: bool = False, topk: int = 20, num_samples: int = 1024, epsilon_cutoff: float = 0.02, limit_segments: int = None, out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
 
@@ -40,6 +40,9 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
 
     utility = load_utility(utility_name)
 
+    if utility_name == "chrf" and chrf_eps_smoothing:
+        utility.eps_smoothing = True
+
     # Compute rankings for n-by-s and aggregate, for each s
     n_by_s_rankings: List[List[List[int]]] = []  # segments x s_values x topk
     aggregate_rankings: List[List[List[int]]] = []  # segments x s_values x topk
@@ -65,7 +68,7 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, topk
     # Save top-k rankings to jsonl file
     output_dir = out_dir / "validation_output"
     output_dir.mkdir(exist_ok=True)
-    output_path = output_dir / f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}.top{topk}.jsonl"
+    output_path = output_dir / f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}{'-eps' if chrf_eps_smoothing else ''}.top{topk}.jsonl"
     with jsonlines.open(output_path, mode="w") as f:
         for i, s in enumerate(s_values):
             f.write({
@@ -110,6 +113,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, choices=range(10), required=True,
                         help='Index of the random seed in the list of random seeds')
     parser.add_argument('--utility', choices=['chrf', 'cometinho', 'comet22'], required=True)
+    parser.add_argument('--chrf-eps-smoothing', action='store_true', help='Use epsilon smoothing for ChrF (default: False = effective order smoothing)')
     parser.add_argument('--topk', type=int, default=20, help='Number of top translations to save in the jsonl file')
     parser.add_argument('--num-samples', type=int, default=1024)
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
@@ -122,6 +126,7 @@ if __name__ == '__main__':
         language_pair=args.language_pair,
         seed_no=args.seed,
         utility_name=args.utility,
+        chrf_eps_smoothing=args.chrf_eps_smoothing,
         topk=args.topk,
         num_samples=args.num_samples,
         epsilon_cutoff=args.epsilon_cutoff,
