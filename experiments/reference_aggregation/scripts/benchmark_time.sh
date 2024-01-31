@@ -6,7 +6,7 @@ for lp in en-de de-en en-ru ru-en; do
   echo $lp
 
   # MBR with ChrF metric – standard MBR
-  taskset --cpu-list 0-63 python -m experiments.reference_aggregation.run_mbr --method pairwise --testset wmt22 --language-pair $lp --seed 0 --utility chrf --limit-segments $num_segm§ents_per_lp --log-time
+  taskset --cpu-list 0-63 python -m experiments.reference_aggregation.run_mbr --method pairwise --testset wmt22 --language-pair $lp --seed 0 --utility chrf --limit-segments $num_segments_per_lp --log-time
   # MBR with ChrF metric – reference aggregation
   taskset --cpu-list 0-63 python -m experiments.reference_aggregation.run_mbr --method aggregate --testset wmt22 --language-pair $lp --seed 0 --utility chrf --limit-segments $num_segments_per_lp --log-time
   # MBR with ChrF metric – aggregate-to-fine MBR
