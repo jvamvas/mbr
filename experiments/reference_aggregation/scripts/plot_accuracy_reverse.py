@@ -5,7 +5,6 @@ import argparse
 
 from experiments.reference_aggregation.plot_accuracy import main
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--testset', choices=['wmt21', 'wmt22'], required=True)
 parser.add_argument('--language-pair', choices=['de-en', 'en-de', 'en-ru', 'ru-en'], required=True)
@@ -30,23 +29,14 @@ if args.coarse_utility is None:
 if args.accuracy_topk is None:
     args.accuracy_topk = args.topk
 
-series = main(
-    testset=args.testset,
-    language_pair=args.language_pair,
-    seed_no=args.seed,
-    fine_utility_name=args.utility,
-    coarse_utility_name=args.coarse_utility,
-    topk=args.topk,
-    method=args.method,
-    num_samples=args.num_samples,
-    epsilon_cutoff=args.epsilon_cutoff,
-    accuracy_topk=args.accuracy_topk,
-    limit_segments=args.limit_segments,
-)
+series = main(testset=args.testset, language_pair=args.language_pair, seed_no=args.seed, fine_utility_name=args.utility,
+    coarse_utility_name=args.coarse_utility, topk=args.topk, method=args.method, num_samples=args.num_samples,
+    epsilon_cutoff=args.epsilon_cutoff, accuracy_topk=args.accuracy_topk, limit_segments=args.limit_segments, )
 
 s_values = [s for s, _ in series]
 reversed_s_values = list(reversed(s_values))
-series_str = "".join([f"({s},{accuracy:.5f})" for s, accuracy in zip(reversed_s_values, [accuracy for _, accuracy in series])])
+series_str = "".join(
+    [f"({s},{accuracy:.5f})" for s, accuracy in zip(reversed_s_values, [accuracy for _, accuracy in series])])
 print(
     f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.utility}, coarse utility: {args.coarse_utility}, topk: {args.topk}, method: {args.method}")
 print(f"Top-{args.accuracy_topk} accuracy:")

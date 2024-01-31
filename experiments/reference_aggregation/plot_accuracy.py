@@ -7,7 +7,9 @@ import jsonlines
 from experiments.reference_aggregation.experiment_utils import Testset
 
 
-def main(testset: str, language_pair: str, seed_no: int, fine_utility_name: str, topk: int, accuracy_topk: int, method: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, coarse_utility_name: str = None, limit_segments: int = None, out_dir: Path = None) -> List[Tuple[int, float]]:
+def main(testset: str, language_pair: str, seed_no: int, fine_utility_name: str, topk: int, accuracy_topk: int,
+         method: str, num_samples: int = 1024, epsilon_cutoff: float = 0.02, coarse_utility_name: str = None,
+         limit_segments: int = None, out_dir: Path = None) -> List[Tuple[int, float]]:
     """
     Returns a series of (s, accuracy) tuples, starting with the highest s
     """
@@ -58,7 +60,8 @@ def main(testset: str, language_pair: str, seed_no: int, fine_utility_name: str,
         s_lines = [line for line in method_lines if line["s"] == s]
         assert len(s_lines) == 1
         s_rankings = s_lines[0]["rankings"]
-        s_topk_samples = [{samples[i][ranking].strip() for ranking in s_rankings[i][:accuracy_topk]} for i in range(len(samples))]
+        s_topk_samples = [{samples[i][ranking].strip() for ranking in s_rankings[i][:accuracy_topk]} for i in
+                          range(len(samples))]
         s_num_correct = sum([1 if n_by_n_top1_samples[i] in s_topk_samples[i] else 0 for i in range(len(samples))])
         s_accuracy = s_num_correct / len(samples)
         accuracies.append(s_accuracy)
@@ -77,11 +80,13 @@ if __name__ == '__main__':
     parser.add_argument('--utility', choices=['chrf', 'cometinho', 'comet22'], required=True)
     parser.add_argument('--coarse-utility', choices=['chrf', 'cometinho', 'comet22'], default=None,
                         help='Utility used for coarse-grained method (default: same as fine-grained)')
-    parser.add_argument('--topk', type=int, default=20, help='Number of top translations that have been saved in the jsonl file')
+    parser.add_argument('--topk', type=int, default=20,
+                        help='Number of top translations that have been saved in the jsonl file')
     parser.add_argument('--method', choices=['n_by_s', 'aggregate'], required=True)
     parser.add_argument('--num-samples', type=int, default=1024)
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
-    parser.add_argument('--accuracy-topk', type=int, default=None, help='Number of top translations that are used to compute the accuracy (default: same as data-topk)')
+    parser.add_argument('--accuracy-topk', type=int, default=None,
+                        help='Number of top translations that are used to compute the accuracy (default: same as data-topk)')
     parser.add_argument('--limit-segments', type=int, default=None,
                         help='Limit number of segments that are processed (used for testing)')
     args = parser.parse_args()
@@ -91,23 +96,15 @@ if __name__ == '__main__':
     if args.accuracy_topk is None:
         args.accuracy_topk = args.topk
 
-    series = main(
-        testset=args.testset,
-        language_pair=args.language_pair,
-        seed_no=args.seed,
-        fine_utility_name=args.utility,
-        coarse_utility_name=args.coarse_utility,
-        topk=args.topk,
-        method=args.method,
-        num_samples=args.num_samples,
-        epsilon_cutoff=args.epsilon_cutoff,
-        accuracy_topk=args.accuracy_topk,
-        limit_segments=args.limit_segments,
-    )
+    series = main(testset=args.testset, language_pair=args.language_pair, seed_no=args.seed,
+        fine_utility_name=args.utility, coarse_utility_name=args.coarse_utility, topk=args.topk, method=args.method,
+        num_samples=args.num_samples, epsilon_cutoff=args.epsilon_cutoff, accuracy_topk=args.accuracy_topk,
+        limit_segments=args.limit_segments, )
 
     # Format: (1,-0.4)(2,-0.6)(4,-0.5)(8,0.1)(16,0.1)(32,0.2)(64,0.1)(128,-0.0)(256,-0.0)
     series_str = "".join([f"({s},{accuracy:.5f})" for s, accuracy in series])
-    print(f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.utility}, coarse utility: {args.coarse_utility}, topk: {args.topk}, method: {args.method}")
+    print(
+        f"Testset: {args.testset}, language pair: {args.language_pair}, seed: {args.seed}, fine utility: {args.utility}, coarse utility: {args.coarse_utility}, topk: {args.topk}, method: {args.method}")
     print(f"Top-{args.accuracy_topk} accuracy:")
     print(series_str)
     print()

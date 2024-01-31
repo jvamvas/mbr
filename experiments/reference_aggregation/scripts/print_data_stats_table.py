@@ -2,7 +2,6 @@ from pathlib import Path
 
 import jsonlines
 
-
 header = "\\begin{tabularx}{\\textwidth}{Xrrr}\n\\toprule\n"
 header += "& \\# Segments & \\# Samples per segment & \\# Unique samples per segment \\\\\n\\midrule\n"
 footer = "\\bottomrule\n\\end{tabularx}"
@@ -18,8 +17,10 @@ for lang_pair in ["en-de", "de-en", "en-ru", "ru-en"]:
         data = list(reader)
     num_segments = len(data)
     num_samples = len(data[0]["samples"])
-    avg_num_unique_samples = sum([len(set([sample for sample in segment["samples"]])) for segment in data]) / num_segments
-    body += "\\textsc{" + lang_pair.replace('-', '–') + "} & " + str(num_segments) + " & " + str(num_samples) + " & " + "{:.1f}".format(avg_num_unique_samples) + " \\\\\n"
+    avg_num_unique_samples = sum(
+        [len(set([sample for sample in segment["samples"]])) for segment in data]) / num_segments
+    body += "\\textsc{" + lang_pair.replace('-', '–') + "} & " + str(num_segments) + " & " + str(
+        num_samples) + " & " + "{:.1f}".format(avg_num_unique_samples) + " \\\\\n"
 body += "\\addlinespace\n"
 body += "\\textit{newstest22} & & & \\\\\n"
 for lang_pair in ["en-de", "de-en", "en-ru", "ru-en"]:
@@ -29,7 +30,9 @@ for lang_pair in ["en-de", "de-en", "en-ru", "ru-en"]:
         data = list(reader)
     num_segments = len(data)
     num_samples = len(data[0]["samples"])
-    avg_num_unique_samples = sum([len(set([sample for sample in segment["samples"]])) for segment in data]) / num_segments
-    body += "\\textsc{" + lang_pair.replace('-', '–') + "} & " + str(num_segments) + " & " + str(num_samples) + " & " + "{:.1f}".format(avg_num_unique_samples) + " \\\\\n"
+    avg_num_unique_samples = sum(
+        [len(set([sample for sample in segment["samples"]])) for segment in data]) / num_segments
+    body += "\\textsc{" + lang_pair.replace('-', '–') + "} & " + str(num_segments) + " & " + str(
+        num_samples) + " & " + "{:.1f}".format(avg_num_unique_samples) + " \\\\\n"
 
 print(header + body + footer)

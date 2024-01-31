@@ -5,7 +5,8 @@ import jsonlines
 from tqdm import tqdm
 
 
-def main(testset: str, language_pair: str, num_samples: int, epsilon_cutoff: float, seed_no: int, out_dir: Path = None) -> Path:
+def main(testset: str, language_pair: str, num_samples: int, epsilon_cutoff: float, seed_no: int,
+         out_dir: Path = None) -> Path:
     if out_dir is None:
         out_dir = Path(__file__).parent
 
@@ -37,12 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('--epsilon-cutoff', type=float, default=0.02)
     args = parser.parse_args()
 
-    out_path = main(
-        testset=args.testset,
-        language_pair=args.language_pair,
-        num_samples=args.num_samples,
-        epsilon_cutoff=args.epsilon_cutoff,
-        seed_no=args.seed,
-    )
+    out_path = main(testset=args.testset, language_pair=args.language_pair, num_samples=args.num_samples,
+        epsilon_cutoff=args.epsilon_cutoff, seed_no=args.seed, )
     assert out_path.exists()
     print(f"Saved translations to {out_path}")

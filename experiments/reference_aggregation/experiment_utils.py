@@ -45,12 +45,7 @@ class Testset:
         if limit_segments is not None:
             source_sequences = source_sequences[:limit_segments]
             references = references[:limit_segments]
-        return cls(
-            testset=wmt,
-            language_pair=language_pair,
-            source_sentences=source_sequences,
-            references=references,
-        )
+        return cls(testset=wmt, language_pair=language_pair, source_sentences=source_sequences, references=references, )
 
     def __str__(self):
         return f"{self.testset}.{self.language_pair}"
