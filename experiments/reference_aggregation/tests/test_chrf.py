@@ -10,7 +10,8 @@ class CometTestCase(TestCase):
 
     def test_rank_samples_n_by_n(self):
         source_sequence = "This is a sample sentence"
-        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.", "Dies ist ein Test."]
+        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.",
+                   "Dies ist ein Test."]
         references = samples
 
         indices = self.chrf.rank_samples_n_by_s(source_sequence, samples, references, s=4)
@@ -27,7 +28,8 @@ class CometTestCase(TestCase):
 
     def test_rank_samples_n_by_1(self):
         source_sequence = "This is a sample sentence"
-        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.", "Dies ist ein Test."]
+        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.",
+                   "Dies ist ein Test."]
         references = samples
 
         indices = self.chrf.rank_samples_n_by_s(source_sequence, samples, references, s=1)
@@ -40,7 +42,8 @@ class CometTestCase(TestCase):
 
     def test_rank_samples_aggregate(self):
         source_sequence = "This is a sample sentence"
-        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.", "Dies ist ein Test."]
+        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.",
+                   "Dies ist ein Test."]
         references = samples
 
         indices = self.chrf.rank_samples_aggregate(source_sequence, samples, references, s=1)
@@ -57,7 +60,8 @@ class CometTestCase(TestCase):
 
     def test_rank_samples_aggregate_partial(self):
         source_sequence = "This is a sample sentence"
-        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.", "Dies ist ein Test."]
+        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.",
+                   "Dies ist ein Test."]
         references = samples
 
         indices = self.chrf.rank_samples_aggregate(source_sequence, samples, references, s=2)
@@ -69,12 +73,14 @@ class CometTestCase(TestCase):
         self.assertListEqual([2, 3, 0, 1], indices.tolist())
 
         # Test (partial) reference order invariance: change order of references within partitions
-        indices = self.chrf.rank_samples_aggregate(source_sequence, samples, references[:2][::-1] + references[2:][::-1], s=2)
+        indices = self.chrf.rank_samples_aggregate(source_sequence, samples,
+                                                   references[:2][::-1] + references[2:][::-1], s=2)
         self.assertListEqual([1, 0, 3, 2], indices.tolist())
 
     def test_rank_samples_disaggregated_is_equivalent_to_n_by_n(self):
         source_sequence = "This is a sample sentence"
-        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.", "Dies ist ein Test."]
+        samples = ["Dies ist ein Beispiel.", "Dies ist ein Beispielsatz", "Dieser Satz macht keinen Sinn.",
+                   "Dies ist ein Test."]
         references = samples
 
         n_by_n_indices = self.chrf.rank_samples_n_by_s(source_sequence, samples, references, s=4)

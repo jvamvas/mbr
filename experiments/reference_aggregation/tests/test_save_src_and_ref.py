@@ -11,7 +11,7 @@ class SaveSrcAndRefTestCase(TestCase):
         self.test_dir.mkdir(exist_ok=True)
 
     def test_save_src_and_ref(self):
-        from experiments.reference_aggregation.save_src_and_ref import main
+        from experiments.reference_aggregation.scripts.save_src_and_ref import main
         src_path, ref_path = main(self.testset, self.language_pair, limit_segments=4, out_dir=self.test_dir)
         self.assertTrue(src_path.exists())
         self.assertIn(self.test_dir, src_path.parents)
