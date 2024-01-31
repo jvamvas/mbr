@@ -31,6 +31,6 @@ for lp in en-de de-en en-ru ru-en; do
   # Aggregate-to-fine MBR: Aggregate ChrF to COMET-22
   taskset --cpu-list 0-63 python -m experiments.reference_aggregation.run_mbr --method aggregate_to_fine --topk 20 --testset wmt22 --language-pair $lp --seed 0 --coarse-utility chrf --utility comet22 --limit-segments $num_segments_per_lp --log-time
 
-  echo >> $out_path
+  echo
 
 done
