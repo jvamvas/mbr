@@ -41,7 +41,7 @@ python plot_accuracy.py --testset wmt21 --language-pair en-de --seed 0 --utility
 ### Table 1: Test results
 
 #### Generating the translations
-- In the test results table, we compare the translation quality of beam search, epsilon sampling, standard (pairwise) MBR, and reference aggregation. For COMET, we also experiment with aggregate-to-fine MBR.
+- In the test results table, we compare the translation quality of beam search, epsilon sampling, standard (pairwise) MBR, and reference aggregation. We also experiment with aggregate-to-fine MBR.
 - The following scripts create the translations and store them in the `translations/` directory.
 ```bash
 # Beam search
