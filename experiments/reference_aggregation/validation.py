@@ -80,7 +80,7 @@ def main(testset: str, language_pair: str, seed_no: int, utility_name: str, chrf
 
     translations_dir = out_dir / "translations"
     translations_dir.mkdir(exist_ok=True)
-    translations_prefix = f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}"
+    translations_prefix = f"validation.{dataset}.n{num_samples}.epsilon{epsilon_cutoff}.seed{seed_no}.{utility_name}{'-eps' if chrf_eps_smoothing else ''}"
 
     # Save top-1 translations for n-by-s
     for j, s in enumerate(s_values):
@@ -118,6 +118,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     jsonl_path = main(testset=args.testset, language_pair=args.language_pair, seed_no=args.seed,
-        utility_name=args.utility, chrf_eps_smoothing=args.chrf_eps_smoothing, topk=args.topk,
-        num_samples=args.num_samples, epsilon_cutoff=args.epsilon_cutoff, limit_segments=args.limit_segments, )
+                      utility_name=args.utility, chrf_eps_smoothing=args.chrf_eps_smoothing, topk=args.topk,
+                      num_samples=args.num_samples, epsilon_cutoff=args.epsilon_cutoff,
+                      limit_segments=args.limit_segments, )
     print(f"Saved results file to {jsonl_path}")
