@@ -43,7 +43,6 @@ class MetricUtilsTestCase(TestCase):
         chrf = evaluate.load("chrf")
         self.assertFalse(metric_is_source_based(chrf))
 
-    @unittest.skipIf(os.getenv("SKIP_SLOW_TESTS", False), "Requires extra dependencies")
     def test_is_source_based__comet(self):
         comet = evaluate.load("comet", "eamt22-cometinho-da")
         self.assertTrue(metric_is_source_based(comet))
@@ -63,7 +62,6 @@ class MetricUtilsTestCase(TestCase):
         self.assertIsInstance(metric, evaluate.Metric)
         self.assertEqual(metric.name, "chr_f")
 
-    @unittest.skipIf(os.getenv("SKIP_SLOW_TESTS", False), "Requires extra dependencies")
     def test_metric_config_name(self):
         self.mbr_config.metric = "comet"
         self.mbr_config.metric_config_name = "eamt22-cometinho-da"
@@ -89,9 +87,9 @@ class MetricUtilsTestCase(TestCase):
         self.assertLess(metric_output.scores[1, 0], metric_output.scores[1, 1])
         self.assertLess(metric_output.scores[1, 0], metric_output.scores[1, 2])
 
-    @unittest.skipIf(os.getenv("SKIP_SLOW_TESTS", False), "Requires extra dependencies")
     def test_compute_metric__comet(self):
         self.mbr_config.metric = evaluate.load("comet", "eamt22-cometinho-da")
+        self.mbr_config.metric.scorer.eval()
         self.mbr_config.metric_output_field = "mean_score"
         self.metric_runner = MetricRunner(self.mbr_config, self.tokenizer)
         self.assertEqual(self.metric_runner.metric.name, "comet")
@@ -129,20 +127,21 @@ class MetricUtilsTestCase(TestCase):
         self.assertLess(metric_output.scores[1, 0], metric_output.scores[1, 1])
         self.assertLess(metric_output.scores[1, 0], metric_output.scores[1, 2])
 
-    @unittest.skipIf(os.getenv("SKIP_SLOW_TESTS", False), "Requires extra dependencies")
     def test_comet_metric_runner(self):
         from mbr.metrics.comet import CometMetricRunner
         self.mbr_config.metric = evaluate.load("comet", "eamt22-cometinho-da")
+        self.mbr_config.metric.scorer.eval()
         self.mbr_config.metric_output_field = "mean_score"
         base_metric_runner = MetricRunner(self.mbr_config, self.tokenizer)
         self.assertEqual(base_metric_runner.metric.name, "comet")
+        self.assertFalse(base_metric_runner.metric.scorer.training)
         comet_metric_runner = CometMetricRunner(self.mbr_config, self.tokenizer)
+        self.assertFalse(comet_metric_runner.metric.scorer.training)
         # Output should be the same as the base MetricRunner
         base_metric_scores = base_metric_runner(self.input_ids, self.sample_ids, self.reference_ids)
         metric_scores = comet_metric_runner(self.input_ids, self.sample_ids, self.reference_ids)
         torch.testing.assert_close(base_metric_scores, metric_scores)
 
-    @unittest.skipIf(os.getenv("SKIP_SLOW_TESTS", False), "Requires extra dependencies")
     def test_comet_metric_runner__cache(self):
         """Output should be identical irrespective of cache size"""
         from mbr.metrics.comet import CometMetricRunner
@@ -156,6 +155,27 @@ class MetricUtilsTestCase(TestCase):
             comet_metric_runner = CometMetricRunner(self.mbr_config, self.tokenizer)
             metric_scores = comet_metric_runner(self.input_ids, self.sample_ids, self.reference_ids)
             torch.testing.assert_close(base_metric_scores, metric_scores)
+
+    def test_comet_metric_runner__aggregate(self):
+        from mbr.metrics.comet import AggregateCometMetricRunner
+        self.mbr_config.metric = evaluate.load("comet", "eamt22-cometinho-da")
+        self.mbr_config.metric.scorer.eval()
+        self.mbr_config.metric_output_field = "mean_score"
+        base_metric_runner = MetricRunner(self.mbr_config, self.tokenizer)
+        self.assertEqual(base_metric_runner.metric.name, "comet")
+        self.assertFalse(base_metric_runner.metric.scorer.training)
+        comet_metric_runner = AggregateCometMetricRunner(self.mbr_config, self.tokenizer)
+        self.assertFalse(comet_metric_runner.metric.scorer.training)
+        metric_output = comet_metric_runner(self.input_ids, self.sample_ids, self.reference_ids)
+        self.assertTrue(torch.is_floating_point(metric_output.scores))
+        self.assertIsNone(metric_output.scores_per_reference)
+        self.assertEqual(metric_output.scores.shape, (2, 3))  # batch_size x num_samples
+        # Duplicate samples should have the same scores
+        torch.testing.assert_close(metric_output.scores[0, 0], metric_output.scores[0, 1])
+        # The metric scores should rank as expected, given the test strings in self.samples and self.references
+        self.assertGreater(metric_output.scores[0, 0], metric_output.scores[0, 2])
+        self.assertLess(metric_output.scores[1, 0], metric_output.scores[1, 1])
+        self.assertLess(metric_output.scores[1, 0], metric_output.scores[1, 2])
 
     def test_fastchrf_metric_runner__aggregate(self):
         from mbr.metrics.fastchrf import FastChrfMetricRunner

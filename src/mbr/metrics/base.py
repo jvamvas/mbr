@@ -56,6 +56,8 @@ class MetricRunner:
             metric = evaluate.load(metric, self.mbr_config.metric_config_name)
         else:
             raise ValueError(f"Invalid metric type: {type(metric)}")
+        if metric.name == "comet":
+            metric.scorer.eval()
         return metric
 
     def __call__(self,
