@@ -31,8 +31,8 @@ mt_pipeline = pipeline(
 evaluation_metric_chrf = evaluate.load("chrf")
 evaluation_metric_comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
-src_path = sacrebleu.get_source_file("wmt18", language_pair)
-ref_path = sacrebleu.get_reference_files("wmt18", language_pair)[0]
+src_path = sacrebleu.get_source_file("wmt21", language_pair)
+ref_path = sacrebleu.get_reference_files("wmt21", language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
 references = Path(ref_path).read_text().splitlines()
 assert len(dataset["test"]) == len(references)
