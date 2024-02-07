@@ -51,12 +51,12 @@ base_mbr_config = MBRConfig(
 base_mbr_config.metric_cache_size = batch_size * base_mbr_config.num_samples * base_mbr_config.num_references
 mbr_configs = {}
 
-# MBR without pruning (metric: ChrF++)
+# MBR without pruning (metric: ChrF)
 mbr_config = deepcopy(base_mbr_config)
-mbr_config.metric = "chrf"
+mbr_config.metric = "fastchrf.pairwise_chrf"
 mbr_config.metric_output_field = "score"
 mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
-mbr_configs["MBR without pruning (metric: ChrF++)"] = mbr_config
+mbr_configs["MBR without pruning (metric: ChrF)"] = mbr_config
 
 # MBR without pruning (metric: COMET)
 mbr_config = deepcopy(base_mbr_config)
@@ -65,15 +65,15 @@ mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
 mbr_config.metric_output_field = "mean_score"
 mbr_configs["MBR without pruning (metric: COMET)"] = mbr_config
 
-# Pruning 𝛼=0.99 (metric: ChrF++)
+# Pruning 𝛼=0.99 (metric: ChrF)
 mbr_config = deepcopy(base_mbr_config)
 mbr_config.pruning = "confidence"
 mbr_config.pruning_alpha = 0.99
 mbr_config.initial_num_references = 16
-mbr_config.metric = "chrf"
+mbr_config.metric = "fastchrf.pairwise_chrf"
 mbr_config.metric_output_field = "score"
 mbr_config.metric_kwargs = {"word_order": 2, "eps_smoothing": True}
-mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"] = mbr_config
+mbr_configs["Pruning 𝛼=0.99 (metric: ChrF)"] = mbr_config
 
 # # Pruning 𝛼=0.99 (metric: COMET)
 mbr_config = deepcopy(base_mbr_config)
@@ -85,10 +85,10 @@ mbr_config.metric_config_name = "Unbabel/wmt22-comet-da"
 mbr_config.metric_output_field = "mean_score"
 mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"] = mbr_config
 
-# Pruning 𝛼=0.9 (metric: ChrF++)
-mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: ChrF++)"])
+# Pruning 𝛼=0.9 (metric: ChrF)
+mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: ChrF)"])
 mbr_config.pruning_alpha = 0.9
-mbr_configs["Pruning 𝛼=0.9 (metric: ChrF++)"] = mbr_config
+mbr_configs["Pruning 𝛼=0.9 (metric: ChrF)"] = mbr_config
 
 # # Pruning 𝛼=0.9 (metric: COMET)
 mbr_config = deepcopy(mbr_configs["Pruning 𝛼=0.99 (metric: COMET)"])

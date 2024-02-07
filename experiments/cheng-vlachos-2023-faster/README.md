@@ -3,7 +3,7 @@ This directory uses the [**mbr**](https://github.com/ZurichNLP/mbr) package to r
 ## Setup
 * Task: Machine translation
 * Translation direction: de-en
-* MBR metric: COMET-22 ([Rei et al., 2022](https://aclanthology.org/2022.wmt-1.52/))
+* MBR metrics: ChrF, COMET-22 ([Rei et al., 2022](https://aclanthology.org/2022.wmt-1.52/))
 * Number of samples: 256
 * Sampling approach: epsilon sampling with ε=0.02
 * Samples and references are the same
@@ -13,6 +13,7 @@ This directory uses the [**mbr**](https://github.com/ZurichNLP/mbr) package to r
 * Baselines: MBR without pruning; beam search with beam size 10
 
 ## Differences to the paper
+* The paper used ChrF++ as a utility metric, we used ChrF as implemented by [fastChrF](https://github.com/jvamvas/fastChrF) (to speed up the experiment).
 * The paper used custom models trained without label smoothing, this reproduction uses an open-source model ([Ng et al., WMT 2019](https://aclanthology.org/W19-5333/)).
 * The paper evaluated on newstest18, this reproduction evaluates on newstest21.
 * The paper used different sets as samples and references. Samples were generated using beam search. This reproduction uses the same set as samples and references, generated with epsilon sampling.
