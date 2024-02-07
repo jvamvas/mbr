@@ -181,7 +181,6 @@ comet_score = evaluation_metric_comet.compute(
     predictions=translations,
     references=references,
     sources=dataset["test"]["text"],
-    gpus=0,
 )
 results_file.write({
     "language_pair": language_pair,
