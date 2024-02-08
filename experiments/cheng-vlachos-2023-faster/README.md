@@ -3,7 +3,7 @@ This directory uses the [**mbr**](https://github.com/ZurichNLP/mbr) package to r
 ## Setup
 * Task: Machine translation
 * Translation direction: de-en
-* MBR metrics: ChrF, COMET-22 ([Rei et al., 2022](https://aclanthology.org/2022.wmt-1.52/))
+* MBR metrics: ChrF ([Popović, 2015](https://aclanthology.org/W15-3049/)), COMET-22 ([Rei et al., 2022](https://aclanthology.org/2022.wmt-1.52/))
 * Number of samples: 256
 * Sampling approach: epsilon sampling with ε=0.02
 * Samples and references are the same
@@ -13,12 +13,43 @@ This directory uses the [**mbr**](https://github.com/ZurichNLP/mbr) package to r
 * Baselines: MBR without pruning; beam search with beam size 10
 
 ## Differences to the paper
-* The paper used ChrF++ as a utility metric, we used ChrF as implemented by [fastChrF](https://github.com/jvamvas/fastChrF) (to speed up the experiment).
+* The paper used ChrF++ as a utility metric, we used ChrF via [fastChrF](https://github.com/jvamvas/fastChrF) (to speed up the experiment).
 * The paper used custom models trained without label smoothing, this reproduction uses an open-source model ([Ng et al., WMT 2019](https://aclanthology.org/W19-5333/)).
 * The paper evaluated on newstest18, this reproduction evaluates on newstest21.
 * The paper used different sets as samples and references. Samples were generated using beam search. This reproduction uses the same set as samples and references, generated with epsilon sampling.
-* In the paper, the segments of the test set were translated one by one – batching was used for sampling, but not for the overall MBR decoding process. Our implementation supports batched translation, and we use a batch size of 16 in this experiment.
+* In the paper, the segments of the test set were translated one by one – batching was used for sampling, but not for the overall MBR decoding process. Our implementation supports batched translation, and we report results for batch size 1 and for batch size 16.
 * The paper proposed terminating early if there is only one sample left. This implementation supports early termination only if the condition is met for all items in the batch.
 * The paper reports average results over 10 runs. Here, we report results for a single run.
 
 ## Results
+
+### Batch size 1
+| Method                             | ChrF++ | Seconds |
+|------------------------------------|-------:|--------:|
+| Beam search (size 10)              |  57.0  |     198 |
+| MBR without pruning (metric: ChrF) |  57.8  |   34301 |
+| Pruning 𝛼=0.99 (metric: ChrF)     |  57.8  |   37235 |
+| Pruning 𝛼=0.9 (metric: ChrF)      |  57.8  |   34397 |
+
+| Method                              | COMET | Seconds |
+|-------------------------------------|------:|--------:|
+| Beam search (size 10)               | 85.3  |     198 |
+| MBR without pruning (metric: COMET) | 86.7  |   37238 |
+| Pruning 𝛼=0.99 (metric: COMET)     | 86.7  |   36680 |
+| Pruning 𝛼=0.9 (metric: COMET)      | 86.7  |   38501 |
+
+### Batch size 16
+
+| Method                             | ChrF++ | Seconds |
+|------------------------------------|-------:|--------:|
+| Beam search (size 10)              |  57.0  |      51 |
+| MBR without pruning (metric: ChrF) |  57.8  |    5348 |
+| Pruning 𝛼=0.99 (metric: ChrF)     |  57.8  |    5992 |
+| Pruning 𝛼=0.9 (metric: ChrF)      |  57.8  |    5983 |
+
+| Method                              | COMET | Seconds |
+|-------------------------------------|------:|--------:|
+| Beam search (size 10)               | 85.3  |      51 |
+| MBR without pruning (metric: COMET) | 86.7  |    7490 |
+| Pruning 𝛼=0.99 (metric: COMET)     |  86.7 |    9049 |
+| Pruning 𝛼=0.9 (metric: COMET)      | 86.7  |    8562 |
