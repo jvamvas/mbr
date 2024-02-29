@@ -115,6 +115,7 @@ for method, mbr_config in piecewise_mbr_configs.items():
     outputs = mt_pipeline(
         dataset["test"]["text"],
         mbr_config=mbr_config,
+        piece_length=mbr_config.piece_length,
         generation_config=generation_config,
         tokenizer=tokenizer,
         batch_size=batch_size,
