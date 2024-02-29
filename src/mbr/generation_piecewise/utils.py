@@ -8,7 +8,7 @@ from transformers.generation.logits_process import LogitsProcessorList
 from transformers.generation.stopping_criteria import StoppingCriteriaList
 from transformers.utils import logging, ModelOutput
 
-from mbr import MBRGenerationMixin, MBRConfig
+from mbr import MBRGenerationMixin, MBRConfig, MBROutput
 from mbr.metrics.base import MetricRunner
 
 if TYPE_CHECKING:
@@ -53,19 +53,22 @@ class PiecewiseMBRGenerationMixin(MBRGenerationMixin):
             negative_prompt_ids: Optional[torch.Tensor] = None,
             negative_prompt_attention_mask: Optional[torch.Tensor] = None,
             progress_bar: bool = False,
+            verbose: bool = False,
             **kwargs,
     ) -> Union[PiecewiseMBROutput, torch.LongTensor]:
         final_output = PiecewiseMBROutput()
 
         piece_config = deepcopy(mbr_config)
         piece_config.return_dict_in_generate = True
+        piece_config.output_all_samples = verbose
 
         piece_inputs = deepcopy(inputs)
         piece_kwargs = deepcopy(kwargs)
         del piece_kwargs["attention_mask"]
 
+        i = 0
         while True:
-            piece_output = super().generate(
+            piece_output: MBROutput = super().generate(
                 inputs=piece_inputs,
                 generation_config=generation_config,
                 references_config=references_config,
@@ -85,6 +88,13 @@ class PiecewiseMBRGenerationMixin(MBRGenerationMixin):
                 **piece_kwargs,
             )
 
+            if verbose:
+                print(f"Iteration {i}:")
+                for batch_idx in range(piece_output.all_samples[0].sequences.shape[0]):
+                    for sample_idx in range(len(piece_output.all_samples)):
+                        print(tokenizer.decode(piece_output.all_samples[sample_idx].sequences[batch_idx].tolist()))
+                    print()
+
             final_output.sequences = piece_output.sequences
 
             # Update inputs for next iteration
@@ -94,14 +104,23 @@ class PiecewiseMBRGenerationMixin(MBRGenerationMixin):
                 if piece_kwargs.get("input_ids", None) is not None:
                     piece_kwargs["input_ids"] = piece_output.sequences
             else:
-                if piece_kwargs.get("decoder_input_ids", None) is not None:
-                    piece_kwargs["decoder_input_ids"] = piece_output.sequences
+                piece_kwargs["decoder_input_ids"] = piece_output.sequences
 
-            # If EOS has been predicted for all sequences in the batch, or if the maximum length has been reached, stop
+            # If maximum length is reached, stop
             if generation_config is not None and generation_config.max_length is not None and generation_config.max_length <= final_output.sequences.shape[1]:
                 break
-            if all(tokenizer.eos_token_id in sequence for sequence in final_output.sequences):
+
+            # If all sequences have the eos token, stop
+            if all(tokenizer.eos_token_id in sequence for sequence in final_output.sequences[:, -piece_length:]):
+                # Replace everything after the last eos token with padding
+                for batch_idx in range(final_output.sequences.shape[0]):
+                    for seq_idx in range(1, final_output.sequences.shape[1]):
+                        if final_output.sequences[batch_idx, seq_idx] == tokenizer.eos_token_id:
+                            final_output.sequences[batch_idx, seq_idx + 1:] = tokenizer.pad_token_id
+                            break
                 break
+
+            i += 1
 
         if mbr_config.return_dict_in_generate:
             return final_output
