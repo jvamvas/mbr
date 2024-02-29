@@ -120,6 +120,7 @@ for method, mbr_config in piecewise_mbr_configs.items():
         tokenizer=tokenizer,
         batch_size=batch_size,
         progress_bar=True
+        verbose=True,
     )
     translations = []
     for batch in tqdm(outputs):
