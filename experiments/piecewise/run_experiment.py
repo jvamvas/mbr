@@ -19,7 +19,7 @@ batch_size = 16
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w", flush=True)
 
-model_name = f"facebook/m2m100_418M"
+model_name = f"facebook/m2m100_1.2B"
 mbr_model = MBR(M2M100ForConditionalGeneration).from_pretrained(model_name).to(0)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 mt_pipeline = pipeline(
@@ -38,8 +38,8 @@ references = Path(ref_path).read_text().splitlines()
 assert len(dataset["test"]) == len(references)
 
 # Testing: Restrict to 64 examples
-dataset["test"] = dataset["test"].select(range(2))
-references = references[:2]
+dataset["test"] = dataset["test"].select(range(1))
+references = references[:1]
 
 # MBR Baseline
 print("MBR Baseline", flush=True)
