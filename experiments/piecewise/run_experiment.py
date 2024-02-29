@@ -92,6 +92,7 @@ for method, mbr_config in mbr_configs.items():
         "duration": time_end - time_start,
         "translations": translations,
     })
+    results_file.flush()
 
 
 # Piecewise MBR
@@ -145,6 +146,7 @@ for method, mbr_config in piecewise_mbr_configs.items():
         "duration": time_end - time_start,
         "translations": translations,
     })
+    results_file.flush()
 
 del piecewise_mbr_model
 
