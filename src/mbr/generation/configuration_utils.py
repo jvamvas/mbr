@@ -77,6 +77,8 @@ class MBRConfig:
         self.metric_kwargs = kwargs.pop("metric_kwargs", {})
         self.metric_cache_size = kwargs.pop("metric_cache_size", self.num_samples * self.num_references)
         self.lower_is_better = kwargs.pop("lower_is_better", False)
+        self.piece_length = kwargs.pop("piece_length", 5)
+        self.piecewise = kwargs.pop("piecewise", False)
 
         # Parameters that define the output variables of `generate`
         self.output_attentions = kwargs.pop("output_attentions", False)
