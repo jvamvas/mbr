@@ -111,7 +111,7 @@ class PiecewiseMBRGenerationMixin(MBRGenerationMixin):
                 break
 
             # If all sequences have the eos token, stop
-            if all(tokenizer.eos_token_id in sequence for sequence in final_output.sequences[:, -piece_length:]):
+            if tokenizer.eos_token_id and all(tokenizer.eos_token_id in sequence for sequence in final_output.sequences[:, -piece_length:]):
                 # Replace everything after the last eos token with padding
                 for batch_idx in range(final_output.sequences.shape[0]):
                     for seq_idx in range(1, final_output.sequences.shape[1]):
