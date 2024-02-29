@@ -16,18 +16,18 @@ from mbr.modeling import PiecewiseMBR, MBR
 
 language_pair = sys.argv[1]
 
-batch_size = 32
+batch_size = 8
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w")
 
 model_name = f"facebook/wmt19-{language_pair}"
-mbr_model = MBR(FSMTForConditionalGeneration).from_pretrained(model_name)
+mbr_model = MBR(FSMTForConditionalGeneration).from_pretrained(model_name).to(0)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 mt_pipeline = pipeline(
     "translation_" + language_pair.split("-")[0] + "_to_" + language_pair.split("-")[1],
     model=mbr_model,
     tokenizer=tokenizer,
-    device=(0 if torch.cuda.is_available() else -1),
+    device=0,
 )
 evaluation_metric_chrf = evaluate.load("chrf")
 evaluation_metric_comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
