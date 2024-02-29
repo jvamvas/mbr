@@ -102,7 +102,8 @@ piecewise_mbr_model = PiecewiseMBR(M2M100ForConditionalGeneration).from_pretrain
 mt_pipeline.model = piecewise_mbr_model.to(mt_pipeline.device)
 
 piecewise_mbr_configs = {}
-for piece_length in [1, 2, 4, 8, 16]:
+# for piece_length in [1, 2, 4, 8, 16]:
+for piece_length in [8]:
     mbr_config = deepcopy(base_mbr_config)
     mbr_config.piecewise = True
     mbr_config.piece_length = piece_length
