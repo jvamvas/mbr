@@ -8,19 +8,19 @@ import jsonlines
 import sacrebleu
 from datasets import load_dataset
 from tqdm import tqdm
-from transformers import FSMTForConditionalGeneration, AutoTokenizer, pipeline, set_seed, GenerationConfig
+from transformers import M2M100ForConditionalGeneration, AutoTokenizer, pipeline, set_seed, GenerationConfig
 
 from mbr import MBRConfig
 from mbr.modeling import PiecewiseMBR, MBR
 
 language_pair = sys.argv[1]
 
-batch_size = 8
+batch_size = 16
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w")
 
-model_name = f"facebook/wmt19-{language_pair}"
-mbr_model = MBR(FSMTForConditionalGeneration).from_pretrained(model_name).to(0)
+model_name = f"facebook/m2m100_418M"
+mbr_model = MBR(M2M100ForConditionalGeneration).from_pretrained(model_name).to(0)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 mt_pipeline = pipeline(
     "translation_" + language_pair.split("-")[0] + "_to_" + language_pair.split("-")[1],
@@ -54,7 +54,7 @@ base_mbr_config = MBRConfig(
     num_references=256,
     metric="fastchrf",
 )
-mbr_configs = {}
+mbr_configs = {"mbr_baseline": base_mbr_config}
 
 for method, mbr_config in mbr_configs.items():
     set_seed(42)
@@ -98,7 +98,7 @@ for method, mbr_config in mbr_configs.items():
 
 print("Piecewise MBR", flush=True)
 del mbr_model
-piecewise_mbr_model = PiecewiseMBR(FSMTForConditionalGeneration).from_pretrained(model_name)
+piecewise_mbr_model = PiecewiseMBR(M2M100ForConditionalGeneration).from_pretrained(model_name)
 mt_pipeline.model = piecewise_mbr_model.to(mt_pipeline.device)
 
 piecewise_mbr_configs = {}
@@ -109,6 +109,7 @@ for piece_length in [1, 2, 4, 8, 16]:
     piecewise_mbr_configs[f"mbr_piecewise_{piece_length}"] = mbr_config
 
 for method, mbr_config in piecewise_mbr_configs.items():
+    print(method, flush=True)
     set_seed(42)
     time_start = time.time()
     outputs = mt_pipeline(
@@ -149,7 +150,7 @@ del piecewise_mbr_model
 
 # Beam search
 print("Beam search", flush=True)
-model = FSMTForConditionalGeneration.from_pretrained(model_name).to(mt_pipeline.device)
+model = M2M100ForConditionalGeneration.from_pretrained(model_name).to(mt_pipeline.device)
 mt_pipeline.model = model
 generation_config = GenerationConfig.from_pretrained(model_name)
 generation_config.num_beams = 4
