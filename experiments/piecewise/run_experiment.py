@@ -119,7 +119,7 @@ for method, mbr_config in piecewise_mbr_configs.items():
         generation_config=generation_config,
         tokenizer=tokenizer,
         batch_size=batch_size,
-        progress_bar=True
+        progress_bar=True,
         verbose=True,
     )
     translations = []
