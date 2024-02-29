@@ -37,9 +37,9 @@ dataset = load_dataset("text", data_files={"test": src_path})
 references = Path(ref_path).read_text().splitlines()
 assert len(dataset["test"]) == len(references)
 
-# Testing: Restrict to 64 examples
-dataset["test"] = dataset["test"].select(range(1))
-references = references[:1]
+# # Testing: Restrict to 64 examples
+# dataset["test"] = dataset["test"].select(range(1))
+# references = references[:1]
 
 # MBR Baseline
 print("MBR Baseline", flush=True)
