@@ -6,7 +6,6 @@ from pathlib import Path
 import evaluate
 import jsonlines
 import sacrebleu
-import torch
 from datasets import load_dataset
 from tqdm import tqdm
 from transformers import FSMTForConditionalGeneration, AutoTokenizer, pipeline, set_seed, GenerationConfig
@@ -39,10 +38,11 @@ references = Path(ref_path).read_text().splitlines()
 assert len(dataset["test"]) == len(references)
 
 # Testing: Restrict to 64 examples
-dataset["test"] = dataset["test"].select(range(64))
-references = references[:64]
+dataset["test"] = dataset["test"].select(range(2))
+references = references[:2]
 
 # MBR Baseline
+print("MBR Baseline", flush=True)
 generation_config = GenerationConfig.from_pretrained(model_name)
 generation_config.do_sample = True
 generation_config.num_beams = 1
@@ -96,6 +96,7 @@ for method, mbr_config in mbr_configs.items():
 
 # Piecewise MBR
 
+print("Piecewise MBR", flush=True)
 del mbr_model
 piecewise_mbr_model = PiecewiseMBR(FSMTForConditionalGeneration).from_pretrained(model_name)
 mt_pipeline.model = piecewise_mbr_model.to(mt_pipeline.device)
@@ -147,6 +148,7 @@ for method, mbr_config in piecewise_mbr_configs.items():
 del piecewise_mbr_model
 
 # Beam search
+print("Beam search", flush=True)
 model = FSMTForConditionalGeneration.from_pretrained(model_name).to(mt_pipeline.device)
 mt_pipeline.model = model
 generation_config = GenerationConfig.from_pretrained(model_name)
@@ -174,7 +176,6 @@ comet_score = evaluation_metric_comet.compute(
     predictions=translations,
     references=references,
     sources=dataset["test"]["text"],
-    gpus=0,
 )
 results_file.write({
     "language_pair": language_pair,
