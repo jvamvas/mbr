@@ -100,14 +100,12 @@ class PiecewiseMBRGenerationMixin(MBRGenerationMixin):
             # Update inputs for next iteration
             if not self.config.is_encoder_decoder:
                 if piece_inputs is not None:
-                    piece_inputs = piece_output.sequences.to(piece_inputs.device)
+                    piece_inputs = piece_output.sequences.to(self.device)
                 if piece_kwargs.get("input_ids", None) is not None:
-                    piece_kwargs["input_ids"] = piece_output.sequences.to(piece_kwargs["input_ids"].device)
+                    piece_kwargs["input_ids"] = piece_output.sequences.to(self.device)
             else:
-                if "decoder_input_ids" in piece_kwargs:
-                    piece_kwargs["decoder_input_ids"] = piece_output.sequences.to(piece_kwargs["decoder_input_ids"].device)
-                else:
-                    piece_kwargs["decoder_input_ids"] = piece_output.sequences
+                piece_kwargs["decoder_input_ids"] = piece_output.sequences.to(self.device)
+
             # If maximum length is reached, stop
             if generation_config is not None and generation_config.max_length is not None and generation_config.max_length <= final_output.sequences.shape[1]:
                 break
