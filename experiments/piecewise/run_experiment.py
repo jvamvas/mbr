@@ -17,7 +17,7 @@ language_pair = sys.argv[1]
 
 batch_size = 16
 
-results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w")
+results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w", flush=True)
 
 model_name = f"facebook/m2m100_418M"
 mbr_model = MBR(M2M100ForConditionalGeneration).from_pretrained(model_name).to(0)
@@ -92,7 +92,6 @@ for method, mbr_config in mbr_configs.items():
         "duration": time_end - time_start,
         "translations": translations,
     })
-    results_file.flush()
 
 
 # Piecewise MBR
@@ -146,7 +145,6 @@ for method, mbr_config in piecewise_mbr_configs.items():
         "duration": time_end - time_start,
         "translations": translations,
     })
-    results_file.flush()
 
 del piecewise_mbr_model
 
