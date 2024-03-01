@@ -38,7 +38,7 @@ dataset = load_dataset("text", data_files={"test": src_path})
 # assert len(dataset["test"]) == len(references)
 
 # Testing: Restrict number of examples
-dataset["test"] = dataset["test"].select(range(1))
+dataset["test"] = dataset["test"].select(range(2))
 # references = references[:1]
 
 # MBR Baseline
