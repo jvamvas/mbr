@@ -28,17 +28,17 @@ mt_pipeline = pipeline(
     tokenizer=tokenizer,
     device=0,
 )
-evaluation_metric_chrf = evaluate.load("chrf")
-evaluation_metric_comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
+# evaluation_metric_chrf = evaluate.load("chrf")
+# evaluation_metric_comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
-src_path = sacrebleu.get_source_file("wmt23", language_pair)
-# ref_path = sacrebleu.get_reference_files("wmt23", language_pair)[0]
+src_path = sacrebleu.get_source_file("wmt21", language_pair)
+# ref_path = sacrebleu.get_reference_files("wmt21", language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
 # references = Path(ref_path).read_text().splitlines()
 # assert len(dataset["test"]) == len(references)
 
 # Testing: Restrict number of examples
-dataset["test"] = dataset["test"].select(range(2))
+dataset["test"] = dataset["test"].select(range(5))
 # references = references[:1]
 
 # MBR Baseline
@@ -102,7 +102,8 @@ piecewise_mbr_model = PiecewiseMBR(M2M100ForConditionalGeneration).from_pretrain
 mt_pipeline.model = piecewise_mbr_model.to(mt_pipeline.device)
 
 piecewise_mbr_configs = {}
-for piece_length in [1, 2, 4, 8, 16]:
+# for piece_length in [1, 2, 4, 8, 16]:
+for piece_length in [8]:
     mbr_config = deepcopy(base_mbr_config)
     mbr_config.piecewise = True
     mbr_config.piece_length = piece_length
