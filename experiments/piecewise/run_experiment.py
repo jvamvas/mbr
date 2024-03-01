@@ -32,14 +32,14 @@ evaluation_metric_chrf = evaluate.load("chrf")
 evaluation_metric_comet = evaluate.load("comet", "Unbabel/wmt22-comet-da")
 
 src_path = sacrebleu.get_source_file("wmt23", language_pair)
-ref_path = sacrebleu.get_reference_files("wmt23", language_pair)[0]
+# ref_path = sacrebleu.get_reference_files("wmt23", language_pair)[0]
 dataset = load_dataset("text", data_files={"test": src_path})
-references = Path(ref_path).read_text().splitlines()
-assert len(dataset["test"]) == len(references)
+# references = Path(ref_path).read_text().splitlines()
+# assert len(dataset["test"]) == len(references)
 
 # Testing: Restrict number of examples
 dataset["test"] = dataset["test"].select(range(1))
-references = references[:1]
+# references = references[:1]
 
 # MBR Baseline
 print("MBR Baseline", flush=True)
@@ -74,21 +74,21 @@ for method, mbr_config in mbr_configs.items():
         translations += [translation["translation_text"] for translation in batch]
     time_end = time.time()
 
-    chrf_score = evaluation_metric_chrf.compute(
-        predictions=translations,
-        references=references,
-    )
-    comet_score = evaluation_metric_comet.compute(
-        predictions=translations,
-        references=references,
-        sources=dataset["test"]["text"],
-        # gpus=0,
-    )
+    # chrf_score = evaluation_metric_chrf.compute(
+    #     predictions=translations,
+    #     references=references,
+    # )
+    # comet_score = evaluation_metric_comet.compute(
+    #     predictions=translations,
+    #     references=references,
+    #     sources=dataset["test"]["text"],
+    #     # gpus=0,
+    # )
     results_file.write({
         "language_pair": language_pair,
         "method": method,
-        "chrf": chrf_score["score"],
-        "comet22": comet_score["mean_score"],
+        # "chrf": chrf_score["score"],
+        # "comet22": comet_score["mean_score"],
         "duration": time_end - time_start,
         "translations": translations,
     })
@@ -129,21 +129,21 @@ for method, mbr_config in piecewise_mbr_configs.items():
         translations += [translation["translation_text"] for translation in batch]
     time_end = time.time()
 
-    chrf_score = evaluation_metric_chrf.compute(
-        predictions=translations,
-        references=references,
-    )
-    comet_score = evaluation_metric_comet.compute(
-        predictions=translations,
-        references=references,
-        sources=dataset["test"]["text"],
-        # gpus=0,
-    )
+    # chrf_score = evaluation_metric_chrf.compute(
+    #     predictions=translations,
+    #     references=references,
+    # )
+    # comet_score = evaluation_metric_comet.compute(
+    #     predictions=translations,
+    #     references=references,
+    #     sources=dataset["test"]["text"],
+    #     # gpus=0,
+    # )
     results_file.write({
         "language_pair": language_pair,
         "method": method,
-        "chrf": chrf_score["score"],
-        "comet22": comet_score["mean_score"],
+        # "chrf": chrf_score["score"],
+        # "comet22": comet_score["mean_score"],
         "duration": time_end - time_start,
         "translations": translations,
     })
@@ -171,20 +171,20 @@ for batch in tqdm(outputs):
     translations += [translation["translation_text"] for translation in batch]
 time_end = time.time()
 
-chrf_score = evaluation_metric_chrf.compute(
-    predictions=translations,
-    references=references,
-)
-comet_score = evaluation_metric_comet.compute(
-    predictions=translations,
-    references=references,
-    sources=dataset["test"]["text"],
-)
+# chrf_score = evaluation_metric_chrf.compute(
+#     predictions=translations,
+#     references=references,
+# )
+# comet_score = evaluation_metric_comet.compute(
+#     predictions=translations,
+#     references=references,
+#     sources=dataset["test"]["text"],
+# )
 results_file.write({
     "language_pair": language_pair,
     "method": f"beam search (beam size {generation_config.num_beams})",
-    "chrf": chrf_score["score"],
-    "comet22": comet_score["mean_score"],
+    # "chrf": chrf_score["score"],
+    # "comet22": comet_score["mean_score"],
     "duration": time_end - time_start,
     "translations": translations,
 })
