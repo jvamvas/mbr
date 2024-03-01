@@ -15,7 +15,7 @@ from mbr.modeling import PiecewiseMBR, MBR
 
 language_pair = sys.argv[1]
 
-batch_size = 16
+batch_size = 1
 
 results_file = jsonlines.open(Path(__file__).parent / f"results_{language_pair}.jsonl", "w", flush=True)
 
